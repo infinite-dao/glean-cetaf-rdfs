@@ -6,6 +6,10 @@
 # dependencies: RDF must be valid and clean, no unicode errors (use ./validateRDFs.sh)
 # dependencies: RDF must be converted to *.trig.gz (use ./convertRDF4import_normal-files.sh)
 # dependencies: docker image fuseki-app
+# dependencies: ruby
+# dependencies: zcat
+# dependencies: sort
+
 sparql_end_point="CETAF-IDs"
 datetime_now=$(date '+%Y%m%d-%H%M%Ss')
 DOMAINNAME='id.snsb.info'
