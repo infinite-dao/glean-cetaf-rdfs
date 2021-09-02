@@ -7,11 +7,11 @@ Collect and glean RDF data in parallel of stable identifiers of the Consortium o
 BASH
 - cat, dateutils, date, find, gawk, grep, gunzip, gzip, parallel, sed, sort, uniq, wget
 - scripts
-  - `./get_RDF4domain_from_urilist.sh`
-  - `./fixRDF_before_validateRDFs.sh`
-  - `./validateRDFs.sh`
-  - `./convertRDF4import_normal-files.sh`
-  - `./import_rdf2trig.gz4docker-fuseki-app.sh`
+  - [`./get_RDF4domain_from_urilist.sh`](./bin/get_RDF4domain_from_urilist.sh)
+  - [`./fixRDF_before_validateRDFs.sh`](./bin/fixRDF_before_validateRDFs.sh)
+  - [`./validateRDFs.sh`](./bin/validateRDFs.sh)
+  - [`./convertRDF4import_normal-files.sh`](./bin/convertRDF4import_normal-files.sh)
+  - [`./import_rdf2trig.gz4docker-fuseki-app.sh`](./bin/import_rdf2trig.gz4docker-fuseki-app.sh)
 
 RDF checks
 - Apache Jena Fuseki
