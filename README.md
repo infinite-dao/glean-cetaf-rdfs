@@ -5,7 +5,7 @@ Collect and glean RDF data in parallel of stable identifiers of the Consortium o
 ## Dependencies
 
 BASH
-- cat, dateutils, date, find, gawk, grep, gunzip, parallel, sed, sort, uniq, wget
+- cat, dateutils, date, find, gawk, grep, gunzip, gzip, parallel, sed, sort, uniq, wget
 - scripts
   - `./get_RDF4domain_from_urilist.sh`
   - `./fixRDF_before_validateRDFs.sh`
