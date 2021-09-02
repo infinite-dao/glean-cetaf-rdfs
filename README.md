@@ -1,6 +1,6 @@
 # glean-cetaf-rdfs
 
-Collect and glean RDF data in parallel of stable identifiers of the Consortium of European Taxonomic Facilities (CETAF) and prepare them for import into a SPARQL endpoint.
+Collect and glean RDF data in parallel of stable identifiers of the Consortium of European Taxonomic Facilities (CETAF) and prepare them for import into a SPARQL endpoint. For the documentation of CETAF identifiers read https://cetafidentifiers.biowikifarm.net
 
 ## Dependencies
 
@@ -11,6 +11,7 @@ BASH
   - [`./fixRDF_before_validateRDFs.sh`](./bin/fixRDF_before_validateRDFs.sh)
   - [`./validateRDFs.sh`](./bin/validateRDFs.sh)
   - [`./convertRDF4import_normal-files.sh`](./bin/convertRDF4import_normal-files.sh)
+  - gawk program [`./patternsplit.awk`](./bin/patternsplit.awk) to split a large file into handy pieces
   - [`./import_rdf2trig.gz4docker-fuseki-app.sh`](./bin/import_rdf2trig.gz4docker-fuseki-app.sh)
 
 RDF checks
