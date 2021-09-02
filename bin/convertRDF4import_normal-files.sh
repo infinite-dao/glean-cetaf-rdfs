@@ -5,8 +5,8 @@
 # => n-tuples (rdfparse), normalise, remove empty, fix standard URIs (wikidata etc)
 # => trig format (turtle)
 # => compression 
-# dependencies $apache_jena_bin, e.g. /home/aplank/apache-jena-3.14.0/bin programs: turtle rdfparse
-# dependencies /home/aplank/apache-jena-3.14.0/bin/rdfparse
+# dependencies $apache_jena_bin, e.g. ~/apache-jena-4.1.0/bin programs: turtle rdfparse
+# dependencies ~/apache-jena-4.1.0/bin/rdfparse
 # dependencies gzip, sed, cat
 
 # this will find all Thread-1_... Thread-2_... etc. files
@@ -19,7 +19,7 @@
 # file_search_pattern="test-space-in-URIs.rdf"
 debug_mode=0
 
-apache_jena_bin=$([ -d "~/Programme/apache-jena-3.15.0/bin" ] && echo "~/Programme/apache-jena-3.15.0/bin" || echo "~/apache-jena-3.14.0/bin" )
+apache_jena_bin=$([ -d "~/Programme/apache-jena-4.1.0/bin" ] && echo "~/Programme/apache-jena-4.1.0/bin" || echo "~/apache-jena-4.1.0/bin" )
 if ! [ -d "${apache_jena_bin}" ];then
   echo -e "# \e[33m${apache_jena_bin}\e[0m does not exists to run rdfxml with!"
   echo    "# Download it from jena.apache.org and set path in \$apache_jena_bin accordingly."
