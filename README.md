@@ -1,8 +1,8 @@
 # glean-cetaf-rdfs (BASH)
 
-Collect and glean RDF data in parallel of stable identifiers of the Consortium of European Taxonomic Facilities (CETAF, 🖙&nbsp;[cetaf.org](https://cetaf.org)) and prepare them for import into a SPARQL endpoint. For the documentation of CETAF identifiers read in&#8239;…
-- the wiki 🖙&nbsp;[cetafidentifiers.biowikifarm.net](https://cetafidentifiers.biowikifarm.net)
-- the **C**ETAF **S**pecimen **P**review **P**rofile (CSPP) on 🖙&nbsp;[cetafidentifiers.biowikifarm.net/wiki/CSPP](https://cetafidentifiers.biowikifarm.net/wiki/CSPP)
+Collect and glean RDF data in parallel of stable identifiers of the Consortium of European Taxonomic Facilities (CETAF, ☞&nbsp;[cetaf.org](https://cetaf.org)) and prepare them for import into a SPARQL endpoint. For the documentation of CETAF identifiers read in&#8239;…
+- the wiki ☞&nbsp;[cetafidentifiers.biowikifarm.net](https://cetafidentifiers.biowikifarm.net)
+- the **C**ETAF **S**pecimen **P**review **P**rofile (CSPP) on ☞&nbsp;[cetafidentifiers.biowikifarm.net/wiki/CSPP](https://cetafidentifiers.biowikifarm.net/wiki/CSPP)
 
 ## Dependencies
 
@@ -17,10 +17,10 @@ BASH
   - [`./import_rdf2trig.gz4docker-fuseki-app.sh`](./bin/import_rdf2trig.gz4docker-fuseki-app.sh)
 
 RDF checks
-- Apache Jena Fuseki<br/>🖙&nbsp;[jena.apache.org/download/](https://jena.apache.org/download/index.cgi)
+- Apache Jena Fuseki<br/>☞&nbsp;[jena.apache.org/download/](https://jena.apache.org/download/index.cgi)
 
 SPARQL endpoint
-- Apache Jena Fuseki Server<br/>e.g. 🖙&nbsp;[hub.docker.com/r/stain/jena-fuseki/](https://hub.docker.com/r/stain/jena-fuseki/)
+- Apache Jena Fuseki Server<br/>e.g. ☞&nbsp;[hub.docker.com/r/stain/jena-fuseki/](https://hub.docker.com/r/stain/jena-fuseki/)
 
 ## (1) Harvesting RDFs
 
