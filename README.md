@@ -1,4 +1,4 @@
-# glean-cetaf-rdfs
+# glean-cetaf-rdfs (BASH)
 
 Collect and glean RDF data in parallel of stable identifiers of the Consortium of European Taxonomic Facilities (CETAF) and prepare them for import into a SPARQL endpoint. For the documentation of CETAF identifiers read https://cetafidentifiers.biowikifarm.net
 
