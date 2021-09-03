@@ -1,6 +1,8 @@
 # glean-cetaf-rdfs (BASH)
 
-Collect and glean RDF data in parallel of stable identifiers of the Consortium of European Taxonomic Facilities (CETAF) and prepare them for import into a SPARQL endpoint. For the documentation of CETAF identifiers read https://cetafidentifiers.biowikifarm.net
+Collect and glean RDF data in parallel of stable identifiers of the Consortium of European Taxonomic Facilities (CETAF, 🖙&nbsp;[cetaf.org](https://cetaf.org)) and prepare them for import into a SPARQL endpoint. For the documentation of CETAF identifiers read in&#8239;…
+- the wiki 🖙&nbsp;[cetafidentifiers.biowikifarm.net](https://cetafidentifiers.biowikifarm.net)
+- the **C**ETAF **S**pecimen **P**review **P**rofile (CSPP) on 🖙&nbsp;[cetafidentifiers.biowikifarm.net/wiki/CSPP](https://cetafidentifiers.biowikifarm.net/wiki/CSPP)
 
 ## Dependencies
 
@@ -15,12 +17,10 @@ BASH
   - [`./import_rdf2trig.gz4docker-fuseki-app.sh`](./bin/import_rdf2trig.gz4docker-fuseki-app.sh)
 
 RDF checks
-- Apache Jena Fuseki
-  - https://jena.apache.org/download/index.cgi
+- Apache Jena Fuseki<br/>🖙&nbsp;[jena.apache.org/download/](https://jena.apache.org/download/index.cgi)
 
 SPARQL endpoint
-- Apache Jena Fuseki Server 
-  - e.g. https://hub.docker.com/r/stain/jena-fuseki/
+- Apache Jena Fuseki Server<br/>e.g. 🖙&nbsp;[hub.docker.com/r/stain/jena-fuseki/](https://hub.docker.com/r/stain/jena-fuseki/)
 
 ## (1) Harvesting RDFs
 
@@ -115,7 +115,7 @@ Better split data into smaller pieces (~50MB) using `patternsplit.awk`; 50MB may
 gunzip --verbose Threads_import_*20201111-1335.rdf*.trig.gz
 for i in {1..5};do
   # set max_strlen=50000000 ?50MB?
-  awk -v fileprefix="NHM_import_${i}_" -v fileext=".rdf.normalized.ttl.trig" -f /home/aplank/sandbox/import/bin/patternsplit.awk Threads_import_${i}_20201111-1335.rdf._normalized.ttl.trig
+  awk -v fileprefix="NHM_import_${i}_" -v fileext=".rdf.normalized.ttl.trig" -f ~/sandbox/import/bin/patternsplit.awk Threads_import_${i}_20201111-1335.rdf._normalized.ttl.trig
 done
 ```
 
