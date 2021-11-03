@@ -64,7 +64,7 @@ function usage() {
   echo    "# ################################################################" 1>&2; 
   echo -e "# Usage: \e[34m${0##*/}\e[0m [-u urilist_special.txt] [-j 10] [-d 'data.nhm.ac.uk']" 1>&2; 
   echo -e "#   What does \e[34m${0##*/}\e[0m do?" 1>&2; 
-  echo    "#   Download RDF files in parallel from a list of URLs reading a text file." 1>&2; 
+  echo    "#   Download RDF files in parallel from a list of URLs reading a text file into the current working directory." 1>&2; 
   echo    "#   The script will prompt before running except when you use the log file mode with option: -l" 1>&2; 
   echo    "# Options:" 1>&2; 
   echo    "#   -h  .......................... show this help usage" 1>&2; 
@@ -88,9 +88,9 @@ function usage() {
   echo    "#     run in test mode (~200 jobs; do not add -l or -t at the end: it will not be processed correctly)" 1>&2; 
   echo -e "#     \e[34m${0##*/}\e[0m -u snsb_20201102_occurrenceID.csv -l -t -d id.snsb.info & " 1>&2; 
   echo    "# " 1>&2; 
-  echo    "# Stop the downloads:" 1>&2; 
-  echo    "# (1) kill process ID (PID) of get_RDF4domain_from_urilist.sh" 1>&2; 
-  echo    "# (2) kill process ID (PID) of perl parallel" 1>&2; 
+  echo    "# To interrupt all the downloads in progress you have to:" 1>&2; 
+  echo -e "# (1) kill process ID (PID) of \e[34m${0##*/}\e[0m, find it by: « ps aux | sed --silent '1p; /${0##*/}/{p}' »" 1>&2; 
+  echo -e "# (2) kill process ID (PID) of \e[34m/usr/bin/perl parallel\e[0m, find it by: « ps aux | sed --silent '1p; /perl parallel/{p}' »" 1>&2; 
   echo    "# ################################################################" 1>&2; 
   exit 1; 
 }
@@ -291,9 +291,9 @@ else   # PROGRESS_LOGFILE and log into file
     head -n200 "$URI_LIST_FILE" | sed --regexp-extended '/^https?:/!d;s@\r@@g;s@.*(https?://[^ ]+).*@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW}" "${PROGRESS_LOGFILE}"
   fi
   echo -e "# ------------------------------" 1>&2; 
-  echo -e "# To interrupt all the downloads:" 1>&2; 
-  echo -e "# (1) kill process ID (PID) of \e[32mget_RDF4domain_from_urilist.sh\e[0m" 1>&2; 
-  echo -e "# (2) kill process ID (PID) of \e[32m/usr/bin/perl parallel\e[0m" 1>&2; 
+  echo -e "# To interrupt all the downloads in progress you have to:" 1>&2; 
+  echo -e "# (1) kill process ID (PID) of \e[34m${0##*/}\e[0m, find it by: « ps aux | sed --silent '1p; /${0##*/}/{p}' »" 1>&2; 
+  echo -e "# (2) kill process ID (PID) of \e[34m/usr/bin/perl parallel\e[0m, find it by: « ps aux | sed --silent '1p; /perl parallel/{p}' »" 1>&2; 
 
   datetime_end=`date --rfc-3339 'seconds'`; 
   # take end time
