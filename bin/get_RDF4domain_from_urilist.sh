@@ -10,7 +10,8 @@
 
 
 URI_LIST_FILE='urilist.txt'
-DOMAINNAME='data.nhm.ac.uk'
+# DOMAINNAME='data.nhm.ac.uk'
+DOMAINNAME='w.jacq.org'
 N_JOBS=5
 DATETIME_NOW=$(date '+%Y%m%d-%H%M')
 
@@ -86,6 +87,10 @@ function usage() {
   echo -e "#     \e[34m${0##*/}\e[0m -u snsb_20201102_occurrenceID.csv -l -d id.snsb.info & " 1>&2; 
   echo    "#     run in test mode (~200 jobs; do not add -l or -t at the end: it will not be processed correctly)" 1>&2; 
   echo -e "#     \e[34m${0##*/}\e[0m -u snsb_20201102_occurrenceID.csv -l -t -d id.snsb.info & " 1>&2; 
+  echo    "# " 1>&2; 
+  echo    "# Stop the downloads:" 1>&2; 
+  echo    "# (1) kill process ID (PID) of get_RDF4domain_from_urilist.sh" 1>&2; 
+  echo    "# (2) kill process ID (PID) of perl parallel" 1>&2; 
   echo    "# ################################################################" 1>&2; 
   exit 1; 
 }
@@ -208,7 +213,7 @@ getrdf_with_urlstatus_check() {
   # echo "$wget_log" | sed --silent "1 { s@\$@ Codes: ${this_return_codes}@;p}"
   # --2020-11-11 12:34:26--  http://data.nhm.ac.uk/object/4c19e397-de11-47ea-a775-5ae2869edb5d Codes: OK: 302 Redirect;OK: 303 SEE OTHER;OK: 200 OK;
   # -----------------
-  wget_log=$( { wget --header='Accept: application/rdf+xml' --max-redirect 4 -O - "$this_uri" >> "Thread-${this_job_number}_${this_domainname}_${this_datetime_now}.rdf"; } 2>&1  )
+  wget_log=$( { wget --header='Accept: application/rdf+xml' --no-check-certificate --max-redirect 4 -O - "$this_uri" >> "Thread-${this_job_number}_${this_domainname}_${this_datetime_now}.rdf"; } 2>&1  )
 
   echo "$wget_log" >> "Thread-${this_job_number}_${this_domainname}_${this_datetime_now}.log"
 
@@ -269,7 +274,9 @@ if   [[ -z ${PROGRESS_LOGFILE// /} ]] ; then
   echo "# Started: $datetime_start" 
   echo "# Ended:   $datetime_end"   
   $exec_datediff "$datetime_start" "$datetime_end" -f "# Done. $TOTAL_JOBS jobs took %dd %Hh:%Mm:%Ss" 
-else
+
+else   # PROGRESS_LOGFILE and log into file
+
   datetime_start=`date --rfc-3339 'seconds'`; unix_seconds_start=$(date +"%s")
   # take start time
   if   [[ -z ${test_mode// /} ]] ; then
@@ -283,6 +290,11 @@ else
     echo " yes"             &>> "${PROGRESS_LOGFILE}"
     head -n200 "$URI_LIST_FILE" | sed --regexp-extended '/^https?:/!d;s@\r@@g;s@.*(https?://[^ ]+).*@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW}" "${PROGRESS_LOGFILE}"
   fi
+  echo -e "# ------------------------------" 1>&2; 
+  echo -e "# To interrupt all the downloads:" 1>&2; 
+  echo -e "# (1) kill process ID (PID) of \e[32mget_RDF4domain_from_urilist.sh\e[0m" 1>&2; 
+  echo -e "# (2) kill process ID (PID) of \e[32m/usr/bin/perl parallel\e[0m" 1>&2; 
+
   datetime_end=`date --rfc-3339 'seconds'`; 
   # take end time
   echo "# Started: $datetime_start" >> "${PROGRESS_LOGFILE}"
