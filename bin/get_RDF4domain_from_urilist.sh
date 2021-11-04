@@ -89,8 +89,8 @@ function usage() {
   echo -e "#     \e[34m${0##*/}\e[0m -u snsb_20201102_occurrenceID.csv -l -t -d id.snsb.info & " 1>&2; 
   echo    "# " 1>&2; 
   echo    "# To interrupt all the downloads in progress you have to:" 1>&2; 
-  echo -e "# (1) kill process ID (PID) of \e[34m${0##*/}\e[0m, find it by: « ps aux | sed --silent '1p; /${0##*/}/{p}' »" 1>&2; 
-  echo -e "# (2) kill process ID (PID) of \e[34m/usr/bin/perl parallel\e[0m, find it by: « ps aux | sed --silent '1p; /perl parallel/{p}' »" 1>&2; 
+  echo -e "#   (1) kill process ID (PID) of \e[34m${0##*/}\e[0m, find it by: « ps -fp \$(pgrep -d, --full ${0##*/}) »" 1>&2; 
+  echo -e "#   (2) kill process ID (PID) of \e[34m/usr/bin/perl parallel\e[0m, find it by: « ps -fp \$(pgrep -d, --full parallel)' »" 1>&2; 
   echo    "# ################################################################" 1>&2; 
   exit 1; 
 }
@@ -173,8 +173,22 @@ get_info_http_return_codes() {
   # wget output example:
   # HTTP request sent, awaiting response... 308 PERMANENT REDIRECT
   # HTTP request sent, awaiting response... 200 OK
+  
+  # wget output example on complete error
+  # --2021-11-04 11:33:31--  https://w.jacq.org/WW9078905
+  # Resolving w.jacq.org (w.jacq.org)... 160.45.63.46
+  # Connecting to w.jacq.org (w.jacq.org)|160.45.63.46|:443... connected.
+  # ERROR: The certificate of ‘w.jacq.org’ is not trusted.
+  # ERROR: The certificate of ‘w.jacq.org’ has expired.
+
   this_return_codes=$(echo "$this_wget_log" | grep "HTTP request sent, awaiting response..." | awk 'BEGIN{ FS="\\.\\.\\. ";ORS=";"; }{ if ($2 >= 200 && $2 < 400) {print "OK:",$2} else {print "ERROR:",$2}}')
-  echo "$this_wget_log" | sed --silent "1 { s@\$@ Codes: ${this_return_codes}@;p}"
+  
+  if [[ -z ${this_return_codes// /} ]]; then
+    this_error_messages=$(echo "$this_wget_log" | sed --silent '/^ERROR/{N;s@\n@ @;p}')
+    echo "$this_wget_log" | sed --silent "1 { s@\$@ Codes: unknown. ${this_error_messages}@;p}"
+  else
+    echo "$this_wget_log" | sed --silent "1 { s@\$@ Codes: ${this_return_codes}@;p}"
+  fi
 }
 export -f get_info_http_return_codes # to use it in the script
 
@@ -213,7 +227,8 @@ getrdf_with_urlstatus_check() {
   # echo "$wget_log" | sed --silent "1 { s@\$@ Codes: ${this_return_codes}@;p}"
   # --2020-11-11 12:34:26--  http://data.nhm.ac.uk/object/4c19e397-de11-47ea-a775-5ae2869edb5d Codes: OK: 302 Redirect;OK: 303 SEE OTHER;OK: 200 OK;
   # -----------------
-  wget_log=$( { wget --header='Accept: application/rdf+xml' --no-check-certificate --max-redirect 4 -O - "$this_uri" >> "Thread-${this_job_number}_${this_domainname}_${this_datetime_now}.rdf"; } 2>&1  )
+#   wget_log=$( { wget --header='Accept: application/rdf+xml' --no-check-certificate --max-redirect 4 -O - "$this_uri" >> "Thread-${this_job_number}_${this_domainname}_${this_datetime_now}.rdf"; } 2>&1  )
+  wget_log=$( { wget --header='Accept: application/rdf+xml' --max-redirect 4 -O - "$this_uri" >> "Thread-${this_job_number}_${this_domainname}_${this_datetime_now}.rdf"; } 2>&1  )
 
   echo "$wget_log" >> "Thread-${this_job_number}_${this_domainname}_${this_datetime_now}.log"
 
@@ -281,19 +296,23 @@ else   # PROGRESS_LOGFILE and log into file
   # take start time
   if   [[ -z ${test_mode// /} ]] ; then
     echo -e "# Running $TOTAL_JOBS jobs. See progress log files:\n  tail ${PROGRESS_LOGFILE} # logging all progress or\n  tail ${PROGRESS_LOGFILE%.*}_error.log # loggin errors only: 404 500 etc." 
+    echo -e "# ------------------------------" 1>&2; 
+    echo -e "# To interrupt all the downloads in progress you have to:" 1>&2; 
+    echo -e "#   (1) kill process ID (PID) of \e[34m${0##*/}\e[0m, find it by: « ps -fp \$(pgrep -d, --full ${0##*/}) »" 1>&2; 
+    echo -e "#   (2) kill process ID (PID) of \e[34m/usr/bin/perl parallel\e[0m, find it by: « ps -fp \$(pgrep -d, --full parallel)' »" 1>&2; 
     processinfo             &>> "${PROGRESS_LOGFILE}"
     echo " yes"             &>> "${PROGRESS_LOGFILE}"
     cat "$URI_LIST_FILE" | sed --regexp-extended '/^https?:/!d;s@\r@@g;s@.*(https?://[^ ]+).*@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW}" "${PROGRESS_LOGFILE}"
   else
     echo -e "# Running in TEST MODE ($TOTAL_JOBS jobs). See progress log files:\n  tail ${PROGRESS_LOGFILE} # logging all progress or\n  tail ${PROGRESS_LOGFILE%.*}_error.log # loggin errors only: 404 500 etc." 
+    echo -e "# ------------------------------" 1>&2; 
+    echo -e "# To interrupt all the downloads in progress you have to:" 1>&2; 
+    echo -e "#   (1) kill process ID (PID) of \e[34m${0##*/}\e[0m, find it by: « ps -fp \$(pgrep -d, --full ${0##*/}) »" 1>&2; 
+    echo -e "#   (2) kill process ID (PID) of \e[34m/usr/bin/perl parallel\e[0m, find it by: « ps -fp \$(pgrep -d, --full parallel)' »" 1>&2; 
     processinfo             &>> "${PROGRESS_LOGFILE}"
     echo " yes"             &>> "${PROGRESS_LOGFILE}"
     head -n200 "$URI_LIST_FILE" | sed --regexp-extended '/^https?:/!d;s@\r@@g;s@.*(https?://[^ ]+).*@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW}" "${PROGRESS_LOGFILE}"
   fi
-  echo -e "# ------------------------------" 1>&2; 
-  echo -e "# To interrupt all the downloads in progress you have to:" 1>&2; 
-  echo -e "# (1) kill process ID (PID) of \e[34m${0##*/}\e[0m, find it by: « ps aux | sed --silent '1p; /${0##*/}/{p}' »" 1>&2; 
-  echo -e "# (2) kill process ID (PID) of \e[34m/usr/bin/perl parallel\e[0m, find it by: « ps aux | sed --silent '1p; /perl parallel/{p}' »" 1>&2; 
 
   datetime_end=`date --rfc-3339 'seconds'`; 
   # take end time
