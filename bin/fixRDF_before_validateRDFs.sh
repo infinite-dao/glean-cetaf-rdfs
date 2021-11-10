@@ -7,8 +7,10 @@
 file_search_pattern="Thread-*data.biodiversitydata.nl*.rdf"
 file_search_pattern="Test_sed*.rdf"
 file_search_pattern="Threads_import_*_20201116.rdf"
+file_search_pattern="Thread-*_jacq.org_20211108-1309.rdf"
 
-bak="bak_"$(date '+%Y-%m-%d_%H-%M')
+bak="bak_"$(date '+%Y%m%d_%H%M')
+n=0
 
 function file_search_pattern_default () {
   file_search_pattern_default=`printf "Threads_import_*_%s.rdf" $(date '+%Y%m%d')`
@@ -27,9 +29,15 @@ function usage() {
 function processinfo () {
 echo     "############ Fix RDF before validateRDF.sh #################"
 echo -e  "# Process for search pattern: \e[32m$file_search_pattern\e[0m ..."
-echo -e  "# Originals are kept in:      \e[32m${file_search_pattern}.$bak\e[0m ..." # final line break
+echo -e  "# Originals are kept as:      \e[32m${file_search_pattern}.$bak\e[0m ..." # final line break
 echo -e  "# Read directory:  \e[32m${this_wd}\e[0m ..."
+if [ ${n} -gt 0 ];then
 echo -ne "# Do you want to process \e[32m${n}\e[0m files with search pattern: «\e[32m${file_search_pattern}\e[0m» ?\n# [\e[32myes\e[0m or \e[31mno\e[0m (default: no)]: \e[0m"
+else 
+echo -ne "# \e[0mBy using search pattern: «\e[32m${file_search_pattern}\e[0m» the number of processed files is \e[31m${n}\e[0m.\n# \e[31m(Stop) We stop here; please check the search pattern, directory and/or data.\e[0m\n";
+exit 1;
+fi
+
 }
 
 
@@ -100,7 +108,9 @@ printf "# Process %03d of %03d in %s " $i $n "${this_file##*/}";
 # $a\ >'
 
 echo "#   extract all <rdf:RDF …> to ${this_file%.*}_rdfRDF_head.rdf ... " 
-  sed -n '/<rdf:RDF/,/>/{ s@\bxmlns:@\nxmlns:@g; /\nxmlns:/!d; /^[\s\t\n]*$/d; p; }' "$this_file" | sort --unique | sed '1i\<rdf:RDF 
+  sed --regexp-extended --quiet '/<rdf:RDF/,/>/{ s@<rdf:RDF +@@; s@\bxmlns:@\nxmlns:@g; /\nxmlns:/!d; /^[\s\t\n]*$/d; p; }' "$this_file" | sort --unique \
+  | sed --regexp-extended --quiet  '/^[\t ]+$/d;/^$/d;p;' \
+  | sed '1i\<rdf:RDF 
 $a\ >' > "${this_file%.*}_rdfRDF_head.rdf"
   
   echo "#   fix xml head, rdf:RDF, illegal characters in URIs, '--' in comments etc.) ... " 
