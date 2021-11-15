@@ -1,11 +1,14 @@
 #!/bin/bash
 # Usage: validate RDF files technically
 #   validateRDFs.sh -h # get help; see also function usage()
-# dependency: apache-jena-x.xx.x/bin
+# dependency: ~/apache-jena-x.xx.x/bin (in the home directory)
 
 
 ########################### Settings
-apache_jena_bin=$([ -d "~/Programme/apache-jena-4.1.0/bin" ] && echo "~/Programme/apache-jena-4.1.0/bin" || echo "~/apache-jena-4.1.0/bin" )
+apache_jena_bin=$([ -d ~/"Programme/apache-jena-4.2.0/bin" ] && echo ~/"Programme/apache-jena-4.2.0/bin" || echo ~/"apache-jena-4.2.0/bin" )
+# apache_jena_bin=$([ -d ~/"Programme/apache-jena-4.1.0/bin" ] && echo ~/"Programme/apache-jena-4.1.0/bin" || echo ~/"apache-jena-4.1.0/bin" )
+
+
 if ! [ -d "${apache_jena_bin}" ];then
   echo -e "# \e[33m${apache_jena_bin}\e[0m does not exists to run rdfxml with!"
   echo    "# Download it from jena.apache.org and set path in \$apache_jena_bin accordingly."
@@ -18,7 +21,7 @@ logfile="validate_RDF_coldb.mnhn.fr_pvascular_"` date '+%Y-%m-%d_%Hh%Mm%Ss' `".l
 logfile="validate_RDF_kew_0400000-0410002_"` date '+%Y-%m-%d_%Hh%Mm%Ss' `".log"
 logfile="validate_RDF_coldb.mnhn.fr_1000001-1200003_2020-09-08_"` date '+%Y-%m-%d_%Hh%Mm%Ss' `".log"
 logfile="validate_RDF_id.snsb.info_"` date '+%Y-%m-%d_%Hh%Mm%Ss' `".log"
-logfile="validate_RDF_"` date '+%Y-%m-%d_%Hh%Mm%Ss' `".log"
+logfile="validate_RDF_jacq.org_"` date '+%Y-%m-%d_%Hh%Mm%Ss' `".log"
 
 # file_search_pattern="Thread-*coldb.mnhn.fr*.rdf"
 file_search_pattern="Thread*.rdf"
@@ -29,6 +32,7 @@ file_search_pattern="Thread*kew.org*.rdf"
 file_search_pattern="Thread*kew.org*_0400000-0410002*.rdf"
 file_search_pattern="Thread*coldb.mnhn.fr*_1000001-1200003_2020-09-08*.rdf"
 file_search_pattern="Threads_import_*_20201116.rdf"
+file_search_pattern="Thread-*_jacq.org_20211108-1309.rdf"
 ###########################
 
 function file_search_pattern_default () {
@@ -38,12 +42,14 @@ file_search_pattern_default
 
 function usage() { 
   echo -e "############ Validate RDF (using apache jena binary) #################" 1>&2; 
+  echo -e "# This script uses \e[32m${apache_jena_bin}/rdfxml\e[0m --validate RDF_file.rdf" 1>&2; 
+  echo -e "# " 1>&2; 
   echo -e "# Usage: \e[32m${0##*/}\e[0m [-s 'Thread*file-search-pattern*.rdf']" 1>&2; 
   echo    "#   -h  ...................................... show this help usage" 1>&2; 
   echo -e "#   -s  \e[32m'Thread*file-search-pattern*.rdf'\e[0m .... optional specific search pattern" 1>&2; 
+  echo -e "#       Note: the pattern set by the script now, is \e[32m${file_search_pattern}\e[0m (i.e. ${n} files)" 1>&2; 
   echo -e "#       Note: better use quotes for pattern with asterisk '*pattern*' (default: ${file_search_pattern_default})" 1>&2; 
-  echo -e "# It uses \e[32m${apache_jena_bin}/rdfxml\e[0m --validate RDF_file.rdf" 1>&2; 
-  echo -e "# Log file would be ${logfile}" 1>&2; 
+  echo -e "# Log file would go into \e[32m${logfile}\e[0m in this directory" 1>&2; 
   exit 1; 
 }
 
