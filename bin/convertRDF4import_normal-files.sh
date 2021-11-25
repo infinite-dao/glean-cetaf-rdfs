@@ -208,13 +208,14 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
   # URL:mjg.jacq.org=ROR:https://ror.org/023b0x485
   # URL:piagr.jacq.org=ROR:https://ror.org/03ad39j10
   # URL:pi.jacq.org=ROR:https://ror.org/03ad39j10
+  # URL:prc.jacq.org=ROR:https://ror.org/024d6js02
   # URL:tbi.jacq.org/object=ROR:https://ror.org/051qn8h41
   # URL:tgu.jacq.org=ROR:https://ror.org/02drrjp49
   # URL:tub.jacq.org=ROR:https://ror.org/03a1kwz48
   # URL:w.jacq.org=ROR:https://ror.org/01tv5y993
   # URL:wu.jacq.org=ROR:https://ror.org/03prydq77
   
-/^<https?:\/\/(bak|brnu|ere|gat|gjo|gzu|hal|je|lz|mjg|piagr|pi|tgu|tub|w|wu).jacq.org\/[^<>/]+>/ {
+/^<https?:\/\/(bak|brnu|ere|gat|gjo|gzu|hal|je|lz|mjg|piagr|pi|prc|tgu|tub|w|wu).jacq.org\/[^<>/]+>/ {
   :label_uri-entry_xxx.jacq.orgSLASHno_object
   N    # append lines via \n into patternspace
   /\.$/!b label_uri-entry_xxx.jacq.orgSLASHno_object # loop back to label… if last char is anything but a dot
@@ -336,6 +337,16 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
     # add isPartOf
     s@(\s+[.])@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://jacq.org>\1@;
     s@(\s+[.])@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://pi.jacq.org>\1@;
+    s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
+  }
+  # prc.jacq.org --- ROR-ID https://ror.org/024d6js02
+  /^<https?:\/\/prc.jacq.org\/[^<>/]+/,/ .$/ {
+    # add ROR ID eventually to the final dot, and remove possible duplicates
+    s@(\s+[.])@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/024d6js02>\1@;
+    s@<http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/024d6js02>\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/024d6js02> .)@\1\2@;
+    # add isPartOf
+    s@(\s+[.])@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://www.jacq.org>\1@;
+    s@(\s+[.])@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://www.prc.jacq.org>\1@;
     s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
   }
   # tgu.jacq.org --- ROR-ID https://ror.org/02drrjp49
