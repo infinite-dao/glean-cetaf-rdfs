@@ -194,7 +194,7 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
   s@<https:(//isni.org/isni/)@<http:\1@g;
   s@<https?://www.w3.org/2002/07/owl/@<http://www.w3.org/2002/07/owl#@g;
   s@<https?:(//viaf.org/viaf/[0-9]+)[/#<>]*[^"<>]*>@<http:\1>@g;
-  # add datatype to <dcterms:decimalLatitude> or <dcterms:decimalLatitude>
+  # add datatype to <dwc:decimalLatitude> or <dwc:decimalLatitude>
   # <http://lagu.jacq.org/object/AA-00001> <http://rs.tdwg.org/dwc/terms/decimalLongitude> "-88.98333" .
   # <http://lagu.jacq.org/object/AA-00001> <http://rs.tdwg.org/dwc/terms/decimalLatitude> "13.5"^^<http://www.w3.org/2001/XMLSchema#decimal> .
   s@(<http://rs.tdwg.org/dwc/terms/(decimalLongitude|decimalLatitude)>)( "[^"]*")( \.)@\1\3^^<http://www.w3.org/2001/XMLSchema#decimal>\4@;
@@ -226,15 +226,127 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
   # URL:tub.jacq.org=ROR:https://ror.org/03a1kwz48
   # URL:w.jacq.org=ROR:https://ror.org/01tv5y993
   # URL:wu.jacq.org=ROR:https://ror.org/03prydq77
-  
-# ROR of lagu.jacq.org/object --- https://ror.org/01j60ss54
+
+# ## ROR of bak.jacq.org --- https://ror.org/006m4q736
+ /^<https?:\/\/bak.jacq.org\/[^<>/]+>/ {
+ :label_uri-entry_bak.jacq.org
+   N                                     # append lines via \n into patternspace
+   / \.$/!b label_uri-entry_bak.jacq.org # go back if last char is not a dot
+   # add ROR ID eventually to the final dot, and remove possible duplicates
+     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/006m4q736>\1@;
+     s@<http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/006m4q736>\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/006m4q736 .)@\1\2@; 
+   # add dcterms:isPartOf, dcterms:hasPart
+   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://jacq.org>\1@;
+   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://bak.jacq.org>\1@;
+   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
+   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\1\2@;
+} ## end ROR bak.jacq.org
+# ## ROR of brnu.jacq.org --- https://ror.org/02j46qs45
+ /^<https?:\/\/brnu.jacq.org\/[^<>/]+>/ {
+ :label_uri-entry_brnu.jacq.org
+   N                                     # append lines via \n into patternspace
+   / \.$/!b label_uri-entry_brnu.jacq.org # go back if last char is not a dot
+   # add ROR ID eventually to the final dot, and remove possible duplicates
+     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/02j46qs45>\1@;
+     s@<http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/02j46qs45>\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/02j46qs45 .)@\1\2@; 
+   # add dcterms:isPartOf, dcterms:hasPart
+   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://jacq.org>\1@;
+   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://brnu.jacq.org>\1@;
+   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
+   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\1\2@;
+} ## end ROR brnu.jacq.org
+# ## ROR of ere.jacq.org --- https://ror.org/05mpgew40
+ /^<https?:\/\/ere.jacq.org\/[^<>/]+>/ {
+ :label_uri-entry_ere.jacq.org
+   N                                     # append lines via \n into patternspace
+   / \.$/!b label_uri-entry_ere.jacq.org # go back if last char is not a dot
+   # add ROR ID eventually to the final dot, and remove possible duplicates
+     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/05mpgew40>\1@;
+     s@<http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/05mpgew40>\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/05mpgew40 .)@\1\2@; 
+   # add dcterms:isPartOf, dcterms:hasPart
+   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://jacq.org>\1@;
+   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://ere.jacq.org>\1@;
+   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
+   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\1\2@;
+} ## end ROR ere.jacq.org
+# ## ROR of gat.jacq.org --- https://ror.org/02skbsp27
+ /^<https?:\/\/gat.jacq.org\/[^<>/]+>/ {
+ :label_uri-entry_gat.jacq.org
+   N                                     # append lines via \n into patternspace
+   / \.$/!b label_uri-entry_gat.jacq.org # go back if last char is not a dot
+   # add ROR ID eventually to the final dot, and remove possible duplicates
+     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/02skbsp27>\1@;
+     s@<http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/02skbsp27>\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/02skbsp27 .)@\1\2@; 
+   # add dcterms:isPartOf, dcterms:hasPart
+   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://jacq.org>\1@;
+   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://gat.jacq.org>\1@;
+   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
+   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\1\2@;
+} ## end ROR gat.jacq.org
+# ## ROR of gjo.jacq.org --- https://ror.org/00nxtmb68
+ /^<https?:\/\/gjo.jacq.org\/[^<>/]+>/ {
+ :label_uri-entry_gjo.jacq.org
+   N                                     # append lines via \n into patternspace
+   / \.$/!b label_uri-entry_gjo.jacq.org # go back if last char is not a dot
+   # add ROR ID eventually to the final dot, and remove possible duplicates
+     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/00nxtmb68>\1@;
+     s@<http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/00nxtmb68>\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/00nxtmb68 .)@\1\2@; 
+   # add dcterms:isPartOf, dcterms:hasPart
+   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://jacq.org>\1@;
+   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://gjo.jacq.org>\1@;
+   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
+   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\1\2@;
+} ## end ROR gjo.jacq.org
+# ## ROR of gzu.jacq.org --- https://ror.org/01faaaf77
+ /^<https?:\/\/gzu.jacq.org\/[^<>/]+>/ {
+ :label_uri-entry_gzu.jacq.org
+   N                                     # append lines via \n into patternspace
+   / \.$/!b label_uri-entry_gzu.jacq.org # go back if last char is not a dot
+   # add ROR ID eventually to the final dot, and remove possible duplicates
+     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/01faaaf77>\1@;
+     s@<http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/01faaaf77>\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/01faaaf77 .)@\1\2@; 
+   # add dcterms:isPartOf, dcterms:hasPart
+   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://jacq.org>\1@;
+   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://gzu.jacq.org>\1@;
+   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
+   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\1\2@;
+} ## end ROR gzu.jacq.org
+# ## ROR of hal.jacq.org --- https://ror.org/05gqaka33
+ /^<https?:\/\/hal.jacq.org\/[^<>/]+>/ {
+ :label_uri-entry_hal.jacq.org
+   N                                     # append lines via \n into patternspace
+   / \.$/!b label_uri-entry_hal.jacq.org # go back if last char is not a dot
+   # add ROR ID eventually to the final dot, and remove possible duplicates
+     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/05gqaka33>\1@;
+     s@<http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/05gqaka33>\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/05gqaka33 .)@\1\2@; 
+   # add dcterms:isPartOf, dcterms:hasPart
+   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://jacq.org>\1@;
+   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://hal.jacq.org>\1@;
+   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
+   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\1\2@;
+} ## end ROR hal.jacq.org
+# ## ROR of je.jacq.org --- https://ror.org/05qpz1x62
+ /^<https?:\/\/je.jacq.org\/[^<>/]+>/ {
+ :label_uri-entry_je.jacq.org
+   N                                     # append lines via \n into patternspace
+   / \.$/!b label_uri-entry_je.jacq.org # go back if last char is not a dot
+   # add ROR ID eventually to the final dot, and remove possible duplicates
+     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/05qpz1x62>\1@;
+     s@<http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/05qpz1x62>\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/05qpz1x62 .)@\1\2@; 
+   # add dcterms:isPartOf, dcterms:hasPart
+   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://jacq.org>\1@;
+   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://je.jacq.org>\1@;
+   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
+   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\1\2@;
+} ## end ROR je.jacq.org
+# ## ROR of lagu.jacq.org/object --- https://ror.org/01j60ss54
  /^<https?:\/\/lagu.jacq.org\/object\/[^<>/]+>/ {
  :label_uri-entry_lagu.jacq.orgSLASHobject
    N                                     # append lines via \n into patternspace
    / \.$/!b label_uri-entry_lagu.jacq.orgSLASHobject # go back if last char is not a dot
    # add ROR ID eventually to the final dot, and remove possible duplicates
-     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/01j60ss54\1@;
-     s@<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/01j60ss54\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/01j60ss54 .)@\1\2@; 
+     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/01j60ss54>\1@;
+     s@<http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/01j60ss54>\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/01j60ss54 .)@\1\2@; 
    # add dcterms:isPartOf, dcterms:hasPart
    s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://jacq.org>\1@;
    s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://lagu.jacq.org>\1@;
@@ -242,163 +354,151 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
    s@(<http://purl.org/dc/terms/publisher>  <https://www.jardinbotanico.org.sv>\s+[;]\n +)(<.+)(<http://purl.org/dc/terms/publisher>  <https://www.jardinbotanico.org.sv> .)@\2\3@;
    s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
    s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\1\2@;
- }
-# ROR of tbi.jacq.org/object --- https://ror.org/051qn8h41
- /^<https?:\/\/tbi.jacq.org\/object\/[^<>/]+>/ {
- :label_uri-entry_tbi.jacq.orgSLASHobject
+} ## end ROR lagu.jacq.org/object
+# ## ROR of lz.jacq.org --- https://ror.org/03s7gtk40
+ /^<https?:\/\/lz.jacq.org\/[^<>/]+>/ {
+ :label_uri-entry_lz.jacq.org
    N                                     # append lines via \n into patternspace
-   / \.$/!b label_uri-entry_tbi.jacq.orgSLASHobject # go back if last char is not a dot
+   / \.$/!b label_uri-entry_lz.jacq.org # go back if last char is not a dot
    # add ROR ID eventually to the final dot, and remove possible duplicates
-     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/051qn8h41\1@;
-     s@<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/051qn8h41\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/051qn8h41 .)@\1\2@; 
+     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/03s7gtk40>\1@;
+     s@<http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/03s7gtk40>\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/03s7gtk40 .)@\1\2@; 
    # add dcterms:isPartOf, dcterms:hasPart
    s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://jacq.org>\1@;
-   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://tbi.jacq.org>\1@;
+   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://lz.jacq.org>\1@;
    s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
    s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\1\2@;
- }
-# ROR of tub.jacq.org --- https://ror.org/03a1kwz48
- /^<https?:\/\/tub.jacq.org\/[^<>/]+>/ {
- :label_uri-entry_tub.jacq.org
-   N                                     # append lines via \n into patternspace
-   / \.$/!b label_uri-entry_tub.jacq.org # go back if last char is not a dot
-   # add ROR ID eventually to the final dot, and remove possible duplicates
-     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/03a1kwz48\1@;
-     s@<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/03a1kwz48\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/03a1kwz48 .)@\1\2@; 
-   # add dcterms:isPartOf, dcterms:hasPart
-   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://jacq.org>\1@;
-   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://tub.jacq.org>\1@;
-   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
-   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\1\2@;
- }
-# ROR of wu.jacq.org --- https://ror.org/03prydq77
- /^<https?:\/\/wu.jacq.org\/[^<>/]+>/ {
- :label_uri-entry_wu.jacq.org
-   N                                     # append lines via \n into patternspace
-   / \.$/!b label_uri-entry_wu.jacq.org # go back if last char is not a dot
-   # add ROR ID eventually to the final dot, and remove possible duplicates
-     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/03prydq77\1@;
-     s@<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/03prydq77\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/03prydq77 .)@\1\2@; 
-   # add dcterms:isPartOf, dcterms:hasPart
-   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://jacq.org>\1@;
-   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://wu.jacq.org>\1@;
-   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
-   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\1\2@;
- }
-# ROR of prc.jacq.org --- https://ror.org/024d6js02
- /^<https?:\/\/prc.jacq.org\/[^<>/]+>/ {
- :label_uri-entry_prc.jacq.org
-   N                                     # append lines via \n into patternspace
-   / \.$/!b label_uri-entry_prc.jacq.org # go back if last char is not a dot
-   # add ROR ID eventually to the final dot, and remove possible duplicates
-     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/024d6js02\1@;
-     s@<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/024d6js02\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/024d6js02 .)@\1\2@; 
-   # add dcterms:isPartOf, dcterms:hasPart
-   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://jacq.org>\1@;
-   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://prc.jacq.org>\1@;
-   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
-   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\1\2@;
- }
-# ROR of mjg.jacq.org --- https://ror.org/023b0x485
+} ## end ROR lz.jacq.org
+# ## ROR of mjg.jacq.org --- https://ror.org/023b0x485
  /^<https?:\/\/mjg.jacq.org\/[^<>/]+>/ {
  :label_uri-entry_mjg.jacq.org
    N                                     # append lines via \n into patternspace
    / \.$/!b label_uri-entry_mjg.jacq.org # go back if last char is not a dot
    # add ROR ID eventually to the final dot, and remove possible duplicates
-     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/023b0x485\1@;
-     s@<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/023b0x485\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/023b0x485 .)@\1\2@; 
+     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/023b0x485>\1@;
+     s@<http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/023b0x485>\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/023b0x485 .)@\1\2@; 
    # add dcterms:isPartOf, dcterms:hasPart
    s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://jacq.org>\1@;
    s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://mjg.jacq.org>\1@;
    s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
    s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\1\2@;
- }
-# ROR of ere.jacq.org --- https://ror.org/05mpgew40
- /^<https?:\/\/ere.jacq.org\/[^<>/]+>/ {
- :label_uri-entry_ere.jacq.org
-   N                                     # append lines via \n into patternspace
-   / \.$/!b label_uri-entry_ere.jacq.org # go back if last char is not a dot
-   # add ROR ID eventually to the final dot, and remove possible duplicates
-     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/05mpgew40\1@;
-     s@<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/05mpgew40\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/05mpgew40 .)@\1\2@; 
-   # add dcterms:isPartOf, dcterms:hasPart
-   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://jacq.org>\1@;
-   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://ere.jacq.org>\1@;
-   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
-   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\1\2@;
- }
-# ROR of piagr.jacq.org --- https://ror.org/03ad39j10
+} ## end ROR mjg.jacq.org
+# ## ROR of piagr.jacq.org --- https://ror.org/03ad39j10
  /^<https?:\/\/piagr.jacq.org\/[^<>/]+>/ {
  :label_uri-entry_piagr.jacq.org
    N                                     # append lines via \n into patternspace
    / \.$/!b label_uri-entry_piagr.jacq.org # go back if last char is not a dot
    # add ROR ID eventually to the final dot, and remove possible duplicates
-     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/03ad39j10\1@;
-     s@<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/03ad39j10\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/03ad39j10 .)@\1\2@; 
+     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/03ad39j10>\1@;
+     s@<http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/03ad39j10>\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/03ad39j10 .)@\1\2@; 
    # add dcterms:isPartOf, dcterms:hasPart
    s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://jacq.org>\1@;
    s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://piagr.jacq.org>\1@;
    s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
    s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\1\2@;
- }
-# ROR of tgu.jacq.org --- https://ror.org/02drrjp49
+} ## end ROR piagr.jacq.org
+# ## ROR of pi.jacq.org --- https://ror.org/03ad39j10
+ /^<https?:\/\/pi.jacq.org\/[^<>/]+>/ {
+ :label_uri-entry_pi.jacq.org
+   N                                     # append lines via \n into patternspace
+   / \.$/!b label_uri-entry_pi.jacq.org # go back if last char is not a dot
+   # add ROR ID eventually to the final dot, and remove possible duplicates
+     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/03ad39j10>\1@;
+     s@<http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/03ad39j10>\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/03ad39j10 .)@\1\2@; 
+   # add dcterms:isPartOf, dcterms:hasPart
+   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://jacq.org>\1@;
+   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://pi.jacq.org>\1@;
+   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
+   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\1\2@;
+} ## end ROR pi.jacq.org
+# ## ROR of prc.jacq.org --- https://ror.org/024d6js02
+ /^<https?:\/\/prc.jacq.org\/[^<>/]+>/ {
+ :label_uri-entry_prc.jacq.org
+   N                                     # append lines via \n into patternspace
+   / \.$/!b label_uri-entry_prc.jacq.org # go back if last char is not a dot
+   # add ROR ID eventually to the final dot, and remove possible duplicates
+     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/024d6js02>\1@;
+     s@<http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/024d6js02>\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/024d6js02 .)@\1\2@; 
+   # add dcterms:isPartOf, dcterms:hasPart
+   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://jacq.org>\1@;
+   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://prc.jacq.org>\1@;
+   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
+   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\1\2@;
+} ## end ROR prc.jacq.org
+# ## ROR of tbi.jacq.org/object --- https://ror.org/051qn8h41
+ /^<https?:\/\/tbi.jacq.org\/object\/[^<>/]+>/ {
+ :label_uri-entry_tbi.jacq.orgSLASHobject
+   N                                     # append lines via \n into patternspace
+   / \.$/!b label_uri-entry_tbi.jacq.orgSLASHobject # go back if last char is not a dot
+   # add ROR ID eventually to the final dot, and remove possible duplicates
+     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/051qn8h41>\1@;
+     s@<http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/051qn8h41>\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/051qn8h41 .)@\1\2@; 
+   # add dcterms:isPartOf, dcterms:hasPart
+   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://jacq.org>\1@;
+   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://tbi.jacq.org>\1@;
+   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
+   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\1\2@;
+} ## end ROR tbi.jacq.org/object
+# ## ROR of tgu.jacq.org --- https://ror.org/02drrjp49
  /^<https?:\/\/tgu.jacq.org\/[^<>/]+>/ {
  :label_uri-entry_tgu.jacq.org
    N                                     # append lines via \n into patternspace
    / \.$/!b label_uri-entry_tgu.jacq.org # go back if last char is not a dot
    # add ROR ID eventually to the final dot, and remove possible duplicates
-     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/02drrjp49\1@;
-     s@<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/02drrjp49\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/02drrjp49 .)@\1\2@; 
+     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/02drrjp49>\1@;
+     s@<http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/02drrjp49>\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/02drrjp49 .)@\1\2@; 
    # add dcterms:isPartOf, dcterms:hasPart
    s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://jacq.org>\1@;
    s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://tgu.jacq.org>\1@;
    s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
    s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\1\2@;
- }
-# ROR of gzu.jacq.org --- https://ror.org/01faaaf77
- /^<https?:\/\/gzu.jacq.org\/[^<>/]+>/ {
- :label_uri-entry_gzu.jacq.org
+} ## end ROR tgu.jacq.org
+# ## ROR of tub.jacq.org --- https://ror.org/03a1kwz48
+ /^<https?:\/\/tub.jacq.org\/[^<>/]+>/ {
+ :label_uri-entry_tub.jacq.org
    N                                     # append lines via \n into patternspace
-   / \.$/!b label_uri-entry_gzu.jacq.org # go back if last char is not a dot
+   / \.$/!b label_uri-entry_tub.jacq.org # go back if last char is not a dot
    # add ROR ID eventually to the final dot, and remove possible duplicates
-     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/01faaaf77\1@;
-     s@<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/01faaaf77\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/01faaaf77 .)@\1\2@; 
+     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/03a1kwz48>\1@;
+     s@<http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/03a1kwz48>\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/03a1kwz48 .)@\1\2@; 
    # add dcterms:isPartOf, dcterms:hasPart
    s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://jacq.org>\1@;
-   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://gzu.jacq.org>\1@;
+   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://tub.jacq.org>\1@;
    s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
    s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\1\2@;
- }
-# ROR of w.jacq.org --- https://ror.org/01tv5y993
+} ## end ROR tub.jacq.org
+# ## ROR of w.jacq.org --- https://ror.org/01tv5y993
  /^<https?:\/\/w.jacq.org\/[^<>/]+>/ {
  :label_uri-entry_w.jacq.org
    N                                     # append lines via \n into patternspace
    / \.$/!b label_uri-entry_w.jacq.org # go back if last char is not a dot
    # add ROR ID eventually to the final dot, and remove possible duplicates
-     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/01tv5y993\1@;
-     s@<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/01tv5y993\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/01tv5y993 .)@\1\2@; 
+     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/01tv5y993>\1@;
+     s@<http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/01tv5y993>\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/01tv5y993 .)@\1\2@; 
    # add dcterms:isPartOf, dcterms:hasPart
    s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://jacq.org>\1@;
    s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://w.jacq.org>\1@;
    s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
    s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\1\2@;
- }
-# ROR of gjo.jacq.org --- https://ror.org/00nxtmb68
- /^<https?:\/\/gjo.jacq.org\/[^<>/]+>/ {
- :label_uri-entry_gjo.jacq.org
+} ## end ROR w.jacq.org
+# ## ROR of wu.jacq.org --- https://ror.org/03prydq77
+#   https://wu.jacq.org/WU-MYC 
+#   https://wu.jacq.org/WU 
+ /^<https?:\/\/wu.jacq.org\/[^<>/]+>/ {
+ :label_uri-entry_wu.jacq.org
    N                                     # append lines via \n into patternspace
-   / \.$/!b label_uri-entry_gjo.jacq.org # go back if last char is not a dot
+   / \.$/!b label_uri-entry_wu.jacq.org # go back if last char is not a dot
    # add ROR ID eventually to the final dot, and remove possible duplicates
-     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/00nxtmb68\1@;
-     s@<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/00nxtmb68\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/00nxtmb68 .)@\1\2@; 
+     s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/03prydq77>\1@;
+     s@<http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/03prydq77>\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/03prydq77 .)@\1\2@; 
    # add dcterms:isPartOf, dcterms:hasPart
    s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://jacq.org>\1@;
-   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://gjo.jacq.org>\1@;
+   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://wu.jacq.org>\1@;
    s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
    s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\1\2@;
- }
+} ## end ROR wu.jacq.org
 
-  
+## add dcterms:isPartOf for /data/rdf/  
 /^<https?:\/\/[a-z]+.jacq.org\/data\/rdf\/[^<>/]+>/ {
   :label_uri-entry_xxx.jacq.orgSLASHdataSLASHrdfSLASH
   N;    # append lines via \n into patternspace
