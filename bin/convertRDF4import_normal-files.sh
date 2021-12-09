@@ -197,7 +197,10 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
   # add datatype to <dwc:decimalLatitude> or <dwc:decimalLatitude>
   # <http://lagu.jacq.org/object/AA-00001> <http://rs.tdwg.org/dwc/terms/decimalLongitude> "-88.98333" .
   # <http://lagu.jacq.org/object/AA-00001> <http://rs.tdwg.org/dwc/terms/decimalLatitude> "13.5"^^<http://www.w3.org/2001/XMLSchema#decimal> .
-  s@(<http://rs.tdwg.org/dwc/terms/(decimalLongitude|decimalLatitude)>)( "[^"]*")( \.)@\1\3^^<http://www.w3.org/2001/XMLSchema#decimal>\4@;
+    s@(<http://rs.tdwg.org/dwc/terms/(decimalLongitude|decimalLatitude)>)( "[^"]*")( \.)@\1\3^^<http://www.w3.org/2001/XMLSchema#decimal>\4@;
+  # <http://www.w3.org/2003/01/geo/wgs84_pos#lat> "The WGS84 latitude of a SpatialThing (decimal degrees)." 
+  # <http://www.w3.org/2003/01/geo/wgs84_pos#long> "The WGS84 longitude of a SpatialThing (decimal degrees)."  
+    s@(<http://www.w3.org/2003/01/geo/wgs84_pos#(lat|long)>)( "[^"]*")( \.)@\1\3^^<http://www.w3.org/2001/XMLSchema#decimal>\4@;
 ' > "${import_ttl_normalized}"
 # plus trig format
   echo -e  "\e[32m# (3)   create trig format            ${import_ttl_normalized}.trig ...\e[0m" ;
@@ -216,9 +219,9 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
   # URL:hal.jacq.org=ROR:https://ror.org/05gqaka33
   # URL:je.jacq.org=ROR:https://ror.org/05qpz1x62
   # URL:lagu.jacq.org/object=ROR:https://ror.org/01j60ss54
-  # URL:lz.jacq.org=ROR:https://ror.org/03s7gtk40
-  # URL:mjg.jacq.org=ROR:https://ror.org/023b0x485
-  # URL:piagr.jacq.org=ROR:https://ror.org/03ad39j10
+  #   URL:lz.jacq.org=ROR:https://ror.org/03s7gtk40
+  #   URL:mjg.jacq.org=ROR:https://ror.org/023b0x485
+  #   URL:piagr.jacq.org=ROR:https://ror.org/03ad39j10
   # URL:pi.jacq.org=ROR:https://ror.org/03ad39j10
   # URL:prc.jacq.org=ROR:https://ror.org/024d6js02
   # URL:tbi.jacq.org/object=ROR:https://ror.org/051qn8h41
