@@ -1,18 +1,18 @@
 #!/bin/bash
-# Usage: import inside the docker fuseki-app
-#  import_rdf2trig.gz4docker-fuseki-app.sh -h # get help; see also function usage()
+# Import inside the docker fuseki-app
 #   (use only absolute paths)
 # dependencies: /jena-fuseki/bin/s-post
 # dependencies: RDF must be valid and clean, no unicode errors (use ./validateRDFs.sh)
 # dependencies: RDF must be converted to *.trig.gz (use ./convertRDF4import_normal-files.sh)
 # dependencies: docker image fuseki-app
-# dependencies: ruby
-# dependencies: zcat
-# dependencies: sort
-
+# dependencies: sed
+# dependencies: awk
+# Usage example: /import-data/bin/import_rdf2trig.gz4docker-fuseki-app.sh -d 'xxx.jacq.org' -s 'Thread-*20211117-1006.rdf._normalized.ttl.trig.gz'
 sparql_end_point="CETAF-IDs"
 datetime_now=$(date '+%Y%m%d-%H%M%Ss')
 DOMAINNAME='id.snsb.info'
+DOMAINNAME='jacq.org'
+DOMAINNAME='finnland.fi'
 
 # LOGFILE="Thread-import-trig_data.biodiversitydata.nl_0000001-7963204${datetime_now}.log"
 # FILE_SEARCH_PATTERN="Thread-*_coldb.mnhn.fr_*2020-06-*.rdf._normalized.ttl.trig.gz"
@@ -34,11 +34,20 @@ LOGFILE="Import_Thread-kew.org_${datetime_now}.log"
 FILE_SEARCH_PATTERN="Thread*.kew*_2020-0[89]-[12]*.rdf._normalized.ttl.trig.gz"
 THIS_WD="/import-data/rdf/tmpimport-kew"
 
-LOGFILE="Import_Thread-snsb.info_${datetime_now}.log"
+# LOGFILE="Import_Thread-snsb.info_${datetime_now}.log"
 # FILE_SEARCH_PATTERN="Threads*import*_normalized.ttl.one_lines_filtered.trig"
-FILE_SEARCH_PATTERN="SNSB_import_*_*.rdf.normalized.ttl.filtered.trig"
-FILE_SEARCH_PATTERN="SNSB_import_[3-5]_*.rdf.normalized.ttl.filtered.trig"
-THIS_WD="/import-data/rdf/tmpimport-snsb.info"
+# FILE_SEARCH_PATTERN="SNSB_import_*_*.rdf.normalized.ttl.filtered.trig"
+# FILE_SEARCH_PATTERN="SNSB_import_[3-5]_*.rdf.normalized.ttl.filtered.trig"
+# THIS_WD="/import-data/rdf/tmpimport-snsb.info"
+
+
+FILE_SEARCH_PATTERN="Thread-*_jacq.org_20211117-1006.rdf._normalized.ttl.trig.gz"
+FILE_SEARCH_PATTERN="JACQ-*_*.rdf._normalized.ttl.trig.gz"
+THIS_WD="/import-data/rdf/tmpimport-jacq_20211206"
+
+FILE_SEARCH_PATTERN="Thread-*finnland.fi_20211206-1647.rdf._normalized.ttl.trig.gz"
+LOGFILE="Import_Thread-finland.fi_${datetime_now}.log"
+THIS_WD="/import-data/rdf/Finnland"
 
 
 i=1; 
@@ -55,6 +64,92 @@ function file_search_pattern_default () {
 }
 file_search_pattern_default
 
+function testdependencies () {
+  local doexit=0
+  if ! command -v ruby &> /dev/null
+  then
+      echo -e "\e[31m# Error: Command ruby could not be found. This is needed for s-post. Please install it, e.g.: apt-get install -y --no-install-recommends ruby-full\e[0m";
+      doexit=1;
+  fi
+  if ! command -v sed &> /dev/null
+  then
+      echo -e "\e[31m# Error: Command sed could not be found. This is needed for regular expressions. Please install it, e.g.: apt-get install -y --no-install-recommends sed\e[0m";
+      doexit=1;
+  fi
+  if ! command -v zcat &> /dev/null
+  then
+      echo -e "\e[31m# Error: Command zcat could not be found. This is needed for s-post. Please install it (perhaps gzip tools or so)\e[0m";
+      doexit=1;
+  fi
+  if [[ $doexit -gt 0 ]]; then exit; fi
+}
+
+function test_files_size () {
+  # dependency FILE_SEARCH_PATTERN
+  # dependency FILE_SEARCH_PATTERN_NOT
+  # dependency THIS_WD
+  local this_max_file_size_and_file=""
+  local this_max_size_value=0
+  local this_max_size_filename=""
+  local this_max_file_size_may_be_too_large=0
+  local this_msg_large_files=""
+  local this_yesOrNo=""
+
+  if [[ -z "${FILE_SEARCH_PATTERN_NOT// /}" ]]; then
+    this_max_file_size_and_file=`find "${THIS_WD}" -maxdepth 1 -type f -iname "${FILE_SEARCH_PATTERN##*/}" -exec stat --format='%s:%N' '{}' ';' \
+      | sed --regexp-extended 's@/.+/([^/]+)@\1@' \
+      | sort --version-sort --reverse \
+      | sed --silent '1p' `
+    # 19611976:'Thread-3_finnland.fi_20211206-1647.rdf._normalized.ttl.trig.gz'
+    # 19583180:'Thread-2_finnland.fi_20211206-1647.rdf._normalized.ttl.trig.gz'
+    # 19563767:'Thread-8_finnland.fi_20211206-1647.rdf._normalized.ttl.trig.gz'
+    # 19552737:'Thread-1_finnland.fi_20211206-1647.rdf._normalized.ttl.trig.gz'
+  else
+    this_max_file_size_and_file=`find "${THIS_WD}" -maxdepth 1 -type f -iname "${FILE_SEARCH_PATTERN##*/}" \
+      -and -not -iname "${FILE_SEARCH_PATTERN_NOT##*/}" -exec stat --format='%s:%N' '{}' ';' \
+      | sed --regexp-extended 's@/.+/([^/]+)@\1@' \
+      | sort --version-sort --reverse \
+      | sed --silent '1p' `
+  fi
+
+  this_max_size_value=`echo $this_max_file_size_and_file | awk -v FPAT="([^:]+)|('[^']+')" '{ print $1 }'`
+  this_max_size_filename=`echo $this_max_file_size_and_file | awk -v FPAT="([^:]+)|('[^']+')" '{ print $2 }'`
+
+  if [[ `echo "$this_max_size_filename" | grep -i "trig.gz'"`  ]];then
+    if [[ $( expr $this_max_size_value + 0 ) -ge 20000000 ]]; then
+      this_msg_large_files="# \e[31mWarning:\e[0m the compressed file size is greater 20’000’000 bytes: $this_max_size_value, see $this_max_size_filename"; 
+      this_msg_large_files="${this_msg_large_files}\n# consider splitting the files for smoother import"; 
+      this_max_file_size_may_be_too_large=1;
+    fi
+  else 
+    if [[ $( expr $this_max_size_value + 0 ) -ge 400000000 ]]; then
+      this_msg_large_files="# \e[31mWarning:\e[0m the uncompressd file size is greater 400’000’000 bytes: $this_max_size_value, see $this_max_size_filename"; 
+      this_msg_large_files="${this_msg_large_files}\n# consider splitting the files for smoother import"; 
+      this_max_file_size_may_be_too_large=1;
+    fi
+  fi
+
+  if [[ $this_max_file_size_may_be_too_large -gt 0 ]]; then
+    echo -e "$this_msg_large_files"
+    echo -ne "# \e[1mDo you want to continue?\e[0m “yes” or “no” (default: no)]: \e[0m"
+    read this_yesOrNo
+    case $this_yesOrNo in
+      [yY]|[yY][Ee][Ss])
+        echo  "# Continue ..."
+      ;;
+      [nN]|[nN][oO])
+        echo "# Stop";
+        exit 1
+      ;;
+      *) 
+        echo "# Invalid or no input (stop)"
+        exit 1
+      ;;
+    esac
+  fi
+}
+test_files_size
+
 function usage() { 
  logfile_alternative;
   echo -e "# ######################################################" 1>&2; 
@@ -69,6 +164,7 @@ function usage() {
   echo -e "#       (default: $LOGFILE)" 1>&2; 
   echo -e "#   -w \e[32m'/import-data/rdf/tmpimport-kew'\e[0m ................ working directory" 1>&2; 
   echo -e "#       (default: $THIS_WD)" 1>&2; 
+  testdependencies;
   exit 1; 
 }
 
@@ -84,6 +180,7 @@ echo     "# * we can use compressed *.trig.gz or uncompressed files for import v
 echo  -e "# * we import to SPARQL end point http://localhost:3030/\e[32m${sparql_end_point}\e[0m"
 echo  -e "# Read directory:  \e[32m${THIS_WD}\e[0m ..."
 echo  -e "# Log file:        \e[32m/import-data/${LOGFILE}\e[0m"
+testdependencies;
 if [[ -z "${FILE_SEARCH_PATTERN_NOT// /}" ]]; then
 echo -ne "# Do you want to import \e[32m${n}\e[0m files with search pattern: «\e[32m${FILE_SEARCH_PATTERN}\e[0m» ?\n# [yes or no (default: no)]: "
 else
