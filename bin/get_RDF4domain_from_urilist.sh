@@ -7,16 +7,16 @@
 # dependency: sed
 # dependency: grep
 # dependency: wget
+# dependency: shuf
 
 
 URI_LIST_FILE='urilist.txt'
 # DOMAINNAME='data.nhm.ac.uk'
-DOMAINNAME='w.jacq.org'
+DOMAINNAME='jacq.org'
 N_JOBS=5
 DATETIME_NOW=$(date '+%Y%m%d-%H%M')
 
-LOGFILE=""
-PROGRESS_LOGFILE=""
+unset LOGFILE PROGRESS_LOGFILE test_mode randomize_urilist
 
 function logfile_alternative () {
   x_placeholder="XXXXXXXX";
@@ -24,7 +24,6 @@ function logfile_alternative () {
   logfile_alternative=`printf "Thread-%s_${DOMAINNAME}_${DATETIME_NOW}.log" $x_placeholder`
 }
 
-test_mode=''
 
 this_wd="$PWD"
 cd "${this_wd}"
@@ -78,6 +77,7 @@ function usage() {
   echo    "#      Note that urilist.txt can be a csv export including a column:" 1>&2; 
   echo    "#      only an intact very first http(s)://URL in a line is used, also" 1>&2; 
   echo    "#      comments or strings behind the URL are filtered out." 1>&2; 
+  echo    "#   -r ........................... randomize order from URI list" 1>&2; 
   echo    "# " 1>&2; 
   echo    "# Examples:" 1>&2; 
   echo    "#   Running normally with prompt before starting (progress to STDOUT)" 1>&2; 
@@ -98,7 +98,11 @@ function usage() {
 function processinfo () {
 logfile_alternative
 echo     "############ Download RDF from List of URIs #################"
+if [[ -z ${randomize_urilist// /} ]] ; then
 echo     "# It will download simply URIs by appending RDFs in parallel to something:"
+else
+echo  -e "# It will download \e[32m*randomized*\e[0m URIs by appending RDFs in parallel to something:"
+fi
 echo -e  "#   \e[32mThread-2_${DOMAINNAME}_${DATETIME_NOW}.rdf\e[0m"
 echo -e  "# After finishing you can proceed with \e[32mfixRDF_before_validate.sh\e[0m"
 if [[ -z ${PROGRESS_LOGFILE// /} ]];then
@@ -106,11 +110,15 @@ echo     "# Use -l to run in logfile mode (without this promt!!) This would log 
 echo -e  "#   \e[32m${logfile_alternative}\e[0m"
 fi
 echo     "# --------------------------------------------------------------"
+
 if [[ -f "$URI_LIST_FILE" ]];then
-echo -e  "# Process \e[32m$TOTAL_JOBS\e[0m URIs using \e[32m${URI_LIST_FILE}\e[0m ..."
+  echo -e  "# Process \e[32m$TOTAL_JOBS\e[0m URIs using \e[32m${URI_LIST_FILE}\e[0m ..."
+elif [[ -d "$URI_LIST_FILE" ]];then
+  echo -e  "\e[31m# Error: default uri list was given as directory: ${URI_LIST_FILE} please provide a file ...\e[0m"; usage;exit 1;
 else
-echo -e  "\e[31m# Error: default ${URI_LIST_FILE} was not found ...\e[0m"; usage;exit 1;
+  echo -e  "\e[31m# Error: default uri list file ${URI_LIST_FILE} was not found ...\e[0m"; usage;exit 1;
 fi
+
 echo -e  "# Number of parallel threads: .. \e[32m${N_JOBS}\e[0m"
 if [[ -z ${PROGRESS_LOGFILE// /} ]];then
 echo -e  "# Progress of this script is given to \e[32mSTDOUT\e[0m."
@@ -123,8 +131,8 @@ echo -ne "# Do you want to proceed with downloading?\n# [\e[32myes\e[0m or \e[31
 }
 
 # read command line options (those with a colon require a mandatory option argument)
-while getopts "d:h:j:u:lt" options; do
-    case "${options}" in
+while getopts "d:h:j:u:lrt" o; do
+    case $o in
         d)
             DOMAINNAME=${OPTARG}
             if   [[ -z ${DOMAINNAME// /} ]] ; then echo "error: $DOMAINNAME cannot be empty" >&2; usage; exit 1; fi
@@ -148,6 +156,9 @@ while getopts "d:h:j:u:lt" options; do
         t)
             test_mode='yes'
             ;;
+        r)
+            randomize_urilist='yes'
+            ;;
         *)
             usage
             ;;
@@ -157,10 +168,18 @@ shift $((OPTIND-1))
 
 # process all variables first
 
-if   [[ -z ${test_mode// /} ]] ; then
-  TOTAL_JOBS=`cat "$URI_LIST_FILE" | sed --regexp-extended '/^[\s\t]*https?:/!d' | wc -l`
+if [[ -z ${randomize_urilist// /} ]] ; then
+  if   [[ -z ${test_mode// /} ]] ; then
+    TOTAL_JOBS=`cat "$URI_LIST_FILE" | sed --regexp-extended '/^[\s\t]*https?:/!d' | wc -l`
+  else
+    TOTAL_JOBS=`head -n200 "$URI_LIST_FILE" | sed --regexp-extended '/^[\s\t]*https?:/!d' | wc -l`
+  fi
 else
-  TOTAL_JOBS=`head -n200 "$URI_LIST_FILE" | sed --regexp-extended '/^[\s\t]*https?:/!d' | wc -l`
+  if   [[ -z ${test_mode// /} ]] ; then
+    TOTAL_JOBS=`cat "$URI_LIST_FILE" | shuf | sed --regexp-extended '/^[\s\t]*https?:/!d' | wc -l`
+  else
+    TOTAL_JOBS=`head -n200 "$URI_LIST_FILE" | shuf | sed --regexp-extended '/^[\s\t]*https?:/!d' | wc -l`
+  fi
 fi
 
 get_info_http_return_codes() {
@@ -227,8 +246,8 @@ getrdf_with_urlstatus_check() {
   # echo "$wget_log" | sed --silent "1 { s@\$@ Codes: ${this_return_codes}@;p}"
   # --2020-11-11 12:34:26--  http://data.nhm.ac.uk/object/4c19e397-de11-47ea-a775-5ae2869edb5d Codes: OK: 302 Redirect;OK: 303 SEE OTHER;OK: 200 OK;
   # -----------------
-#   wget_log=$( { wget --header='Accept: application/rdf+xml' --no-check-certificate --max-redirect 4 -O - "$this_uri" >> "Thread-${this_job_number}_${this_domainname}_${this_datetime_now}.rdf"; } 2>&1  )
-  wget_log=$( { wget --header='Accept: application/rdf+xml' --max-redirect 4 -O - "$this_uri" >> "Thread-${this_job_number}_${this_domainname}_${this_datetime_now}.rdf"; } 2>&1  )
+  # wget_log=$( { wget --header='Accept: application/rdf+xml' --max-redirect 4 -O - "$this_uri" >> "Thread-${this_job_number}_${this_domainname}_${this_datetime_now}.rdf"; } 2>&1  )
+  wget_log=$( { wget --header='Accept: application/rdf+xml' --no-check-certificate --max-redirect 4 -O - "$this_uri" >> "Thread-${this_job_number}_${this_domainname}_${this_datetime_now}.rdf"; } 2>&1  )
 
   echo "$wget_log" >> "Thread-${this_job_number}_${this_domainname}_${this_datetime_now}.log"
 
@@ -272,16 +291,29 @@ if   [[ -z ${PROGRESS_LOGFILE// /} ]] ; then
   
   # correct start time
   datetime_start=`date --rfc-3339 'seconds'`; # unix_seconds_start=$(date +"%s")
-  
-  if   [[ -z ${test_mode// /} ]] ; then
-    cat "$URI_LIST_FILE" | sed --regexp-extended 's@\r@@g;/^[\s\t]*https?:/!d;s@.*(https?://[^\s\t]+).*@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW}"
-    # extract only the (https?://…)
+
+  if [[ -z ${randomize_urilist// /} ]] ; then
+    if   [[ -z ${test_mode// /} ]] ; then
+      cat "$URI_LIST_FILE" | sed --regexp-extended 's@\r@@g;/^[\s\t]*https?:/!d;s@.*(https?://[^\s\t]+).*@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW}"
+      # extract only the (https?://…)
+    else
+      echo "# Running in test mode ($TOTAL_JOBS jobs)" 
+      # head -n200 "$URI_LIST_FILE" | sed --regexp-extended '/^https?:/!d;s@\r@@g' | parallel -j$N_JOBS echo {%} {#} ${TOTAL_JOBS} {}
+      head -n200 "$URI_LIST_FILE" | sed --regexp-extended 's@\r@@g;/^[\s\t]*https?:/!d;s@.*(https?://[^\s\t]+).*@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW}"
+      # extract only the (https?://…)
+    fi
   else
-    echo "# Running in test mode ($TOTAL_JOBS jobs)" 
-    # head -n200 "$URI_LIST_FILE" | sed --regexp-extended '/^https?:/!d;s@\r@@g' | parallel -j$N_JOBS echo {%} {#} ${TOTAL_JOBS} {}
-    head -n200 "$URI_LIST_FILE" | sed --regexp-extended 's@\r@@g;/^[\s\t]*https?:/!d;s@.*(https?://[^\s\t]+).*@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW}"
-    # extract only the (https?://…)
+    if   [[ -z ${test_mode// /} ]] ; then
+      cat "$URI_LIST_FILE" | shuf | sed --regexp-extended 's@\r@@g;/^[\s\t]*https?:/!d;s@.*(https?://[^\s\t]+).*@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW}"
+      # extract only the (https?://…)
+    else
+      echo "# Running in test mode ($TOTAL_JOBS jobs)" 
+      # head -n200 "$URI_LIST_FILE" | sed --regexp-extended '/^https?:/!d;s@\r@@g' | parallel -j$N_JOBS echo {%} {#} ${TOTAL_JOBS} {}
+      head -n200 "$URI_LIST_FILE" | shuf | sed --regexp-extended 's@\r@@g;/^[\s\t]*https?:/!d;s@.*(https?://[^\s\t]+).*@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW}"
+      # extract only the (https?://…)
+    fi
   fi
+  
   datetime_end=`date --rfc-3339 'seconds'`; 
   # take end time
   # unix_seconds_end=$(date +"%s")
@@ -291,7 +323,7 @@ if   [[ -z ${PROGRESS_LOGFILE// /} ]] ; then
   $exec_datediff "$datetime_start" "$datetime_end" -f "# Done. $TOTAL_JOBS jobs took %dd %Hh:%Mm:%Ss" 
 
 else   # PROGRESS_LOGFILE and log into file
-
+  logfile_alternative; PROGRESS_LOGFILE=$logfile_alternative
   datetime_start=`date --rfc-3339 'seconds'`; unix_seconds_start=$(date +"%s")
   # take start time
   if   [[ -z ${test_mode// /} ]] ; then
@@ -302,7 +334,11 @@ else   # PROGRESS_LOGFILE and log into file
     echo -e "#   (2) kill process ID (PID) of \e[34m/usr/bin/perl parallel\e[0m, find it by: « ps -fp \$(pgrep -d, --full parallel)' »" 1>&2; 
     processinfo             &>> "${PROGRESS_LOGFILE}"
     echo " yes"             &>> "${PROGRESS_LOGFILE}"
-    cat "$URI_LIST_FILE" | sed --regexp-extended '/^https?:/!d;s@\r@@g;s@.*(https?://[^ ]+).*@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW}" "${PROGRESS_LOGFILE}"
+    if [[ -z ${randomize_urilist// /} ]] ; then
+      cat "$URI_LIST_FILE" | sed --regexp-extended '/^https?:/!d;s@\r@@g;s@.*(https?://[^ ]+).*@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW}" "${PROGRESS_LOGFILE}"
+    else
+      cat "$URI_LIST_FILE" | shuf | sed --regexp-extended '/^https?:/!d;s@\r@@g;s@.*(https?://[^ ]+).*@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW}" "${PROGRESS_LOGFILE}"
+    fi
   else
     echo -e "# Running in TEST MODE ($TOTAL_JOBS jobs). See progress log files:\n  tail ${PROGRESS_LOGFILE} # logging all progress or\n  tail ${PROGRESS_LOGFILE%.*}_error.log # loggin errors only: 404 500 etc." 
     echo -e "# ------------------------------" 1>&2; 
@@ -311,7 +347,11 @@ else   # PROGRESS_LOGFILE and log into file
     echo -e "#   (2) kill process ID (PID) of \e[34m/usr/bin/perl parallel\e[0m, find it by: « ps -fp \$(pgrep -d, --full parallel)' »" 1>&2; 
     processinfo             &>> "${PROGRESS_LOGFILE}"
     echo " yes"             &>> "${PROGRESS_LOGFILE}"
-    head -n200 "$URI_LIST_FILE" | sed --regexp-extended '/^https?:/!d;s@\r@@g;s@.*(https?://[^ ]+).*@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW}" "${PROGRESS_LOGFILE}"
+    if [[ -z ${randomize_urilist// /} ]] ; then
+      head -n200 "$URI_LIST_FILE" | sed --regexp-extended '/^https?:/!d;s@\r@@g;s@.*(https?://[^ ]+).*@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW}" "${PROGRESS_LOGFILE}"
+    else
+      head -n200 "$URI_LIST_FILE" | shuf | sed --regexp-extended '/^https?:/!d;s@\r@@g;s@.*(https?://[^ ]+).*@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW}" "${PROGRESS_LOGFILE}"
+    fi
   fi
 
   datetime_end=`date --rfc-3339 'seconds'`; 
