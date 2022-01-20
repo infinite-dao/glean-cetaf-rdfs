@@ -47,11 +47,12 @@ function usage() {
   echo -e "# Usage: \e[32m${0##*/}\e[0m [-s 'Thread*file-search-pattern*.rdf']" 1>&2; 
   echo    "#   -h  ...................................... show this help usage" 1>&2; 
   echo -e "#   -s  \e[32m'Thread*file-search-pattern*.rdf'\e[0m .... optional specific search pattern" 1>&2; 
-  echo -e "#       Note: the pattern set by the script now, is \e[32m${file_search_pattern}\e[0m (i.e. ${n} files)" 1>&2; 
-  echo -e "#       Note: better use quotes for pattern with asterisk '*pattern*' (default: ${file_search_pattern_default})" 1>&2; 
+  echo -e "#       Note: the pattern set by the script now, is \e[32m'${file_search_pattern}'\e[0m (i.e. ${n} files)" 1>&2; 
+  echo -e "#             you must use quotes around '*pattern*' (default: '${file_search_pattern_default}')" 1>&2; 
   echo -e "# Log file would go into \e[32m${logfile}\e[0m in this directory" 1>&2; 
   exit 1; 
 }
+
 
 function processinfo () {
 # # # # 
@@ -60,7 +61,6 @@ echo -e  "\e[32m############  Validate RDF (\e[31mdebug mode\e[35m) ####\e[0m"
 else
 echo -e  "\e[32m############  Validate RDF #################\e[0m"
 fi
-echo     "############ Validate RDF #################"
 echo     "# Check it via ${apache_jena_bin}/rdfxml "
 echo     "# Log goes to:     '${logfile}' ..."
 echo     "# Read directory:  '${this_wd}' ..."
@@ -68,8 +68,7 @@ echo -ne "\e[32m# Do you want to validate ${n} files with search pattern: «${fi
 }
 
 
-this_wd="$PWD"
-i=1; n=`find "${this_wd}" -maxdepth 1 -type f -iname "${file_search_pattern##*/}" | sort --version-sort | wc -l `
+
 # set (i)ndex and (n)umber of files alltogether
 
 while getopts ":s:h" options; do
@@ -78,7 +77,7 @@ while getopts ":s:h" options; do
             usage; exit 0;
             ;;
         s)
-            file_search_pattern=${OPTARG}
+            file_search_pattern=${OPTARG} # TODO problems when file_search_pattern is not wrapped by quotes
             if   [[ -z ${file_search_pattern// /} ]] ; then 
               file_search_pattern_default; file_search_pattern="$file_search_pattern_default" ; 
               shift
@@ -92,6 +91,12 @@ while getopts ":s:h" options; do
     esac
 done
 shift $((OPTIND-1))
+
+this_wd="$PWD"
+i=1; n=`find "${this_wd}" -maxdepth 1 -type f -iname "${file_search_pattern##*/}" | sort --version-sort | wc -l `
+
+# echo "# Debug"
+# echo "find \"${this_wd}\" -maxdepth 1 -type f -iname \"${file_search_pattern##*/}\""
 
 
 processinfo
