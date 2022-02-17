@@ -8,7 +8,7 @@ Collect and glean RDF data in parallel of stable identifiers of the Consortium o
 
 BASH
 - cat, dateutils, date, find, gawk, grep, gunzip, gzip, parallel, sed, sort, uniq, wget
-- scripts
+- scripts, and recommended steps up and until import:
   - [`./get_RDF4domain_from_urilist.sh`](./bin/get_RDF4domain_from_urilist.sh)
   - [`./fixRDF_before_validateRDFs.sh`](./bin/fixRDF_before_validateRDFs.sh)
   - [`./validateRDFs.sh`](./bin/validateRDFs.sh)
