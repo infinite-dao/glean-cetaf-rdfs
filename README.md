@@ -7,14 +7,14 @@ Collect and glean RDF data in parallel of stable identifiers of the Consortium o
 ## Dependencies
 
 BASH
-- cat, dateutils, date, find, gawk, grep, gunzip, gzip, parallel, sed, sort, uniq, wget
+- cat, dateutils (for date diff), date, find, gawk, grep, gunzip, gzip, parallel, sed, sort, uniq, wget
 - scripts, and recommended steps up and until import:
-  - [`./get_RDF4domain_from_urilist.sh`](./bin/get_RDF4domain_from_urilist.sh)
-  - [`./fixRDF_before_validateRDFs.sh`](./bin/fixRDF_before_validateRDFs.sh)
-  - [`./validateRDFs.sh`](./bin/validateRDFs.sh)
-  - [`./convertRDF4import_normal-files.sh`](./bin/convertRDF4import_normal-files.sh)
-  - gawk program [`./patternsplit.awk`](./bin/patternsplit.awk) to split a large file into handy pieces
-  - [`./import_rdf2trig.gz4docker-fuseki-app.sh`](./bin/import_rdf2trig.gz4docker-fuseki-app.sh)
+  1. [`./get_RDF4domain_from_urilist.sh`](./bin/get_RDF4domain_from_urilist.sh)
+  2. [`./fixRDF_before_validateRDFs.sh`](./bin/fixRDF_before_validateRDFs.sh)
+  3. [`./validateRDFs.sh`](./bin/validateRDFs.sh)
+  4. [`./convertRDF4import_normal-files.sh`](./bin/convertRDF4import_normal-files.sh)
+     - optional: with the `gawk` program [`./patternsplit.awk`](./bin/patternsplit.awk) to split a large file into handy pieces (e.g. 50MB uncompressed RDF data)
+  5. and eventually within the docker-fuseki app: [`./import_rdf2trig.gz4docker-fuseki-app.sh`](./bin/import_rdf2trig.gz4docker-fuseki-app.sh)
 
 RDF checks
 - Apache Jena Fuseki<br/>☞&nbsp;[jena.apache.org/download/](https://jena.apache.org/download/index.cgi)
@@ -24,8 +24,21 @@ SPARQL endpoint
 
 ## (1) Harvesting RDFs
 
+In this example we have all the data, the rdf, and binaries in `/opt/jena-fuseki/import-sandbox/` that can be read by all neccessary users.
+
 ``` bash
-./get_RDF4domain_from_urilist.sh
+/opt/jena-fuseki/import-sandbox/bin/get_RDF4domain_from_urilist.sh -h # show help
+
+# example call, that runs in background:
+cd /opt/jena-fuseki/import-sandbox/rdf/tmpimport-jacq-20220112
+# get RDF from urilist … 
+/opt/jena-fuseki/import-sandbox/bin/get_RDF4domain_from_urilist_with_ETA.sh -u list-of-JACQ-URI_remaining-institutions_20220112.csv \
+  -j 10 -l \
+  -d xx-jacq.org &
+  # -u …… → a simple CSV list to read from the URIs
+  # -j 10 → 10 jobs in parallel
+  # -l    → log progress into log file
+  # -d …… → is the domain-like label: “xx-jacq.org” to name log files and data files
 ```
 
 ## (2) Check Errors and Validation
