@@ -139,10 +139,11 @@ sed --regexp-extended --quiet '/<rdf:RDF/,/>/{ s@<rdf:RDF +@@; s@\bxmlns:@\n  xm
   gzip --verbose "$this_file.$bak"
   i=$((i + 1))
 done
-echo     "# Done. Original data are kept in ${file_search_pattern}.$bak.gz ..." # final line break
-echo     "# Each RDF file is prepared for validation and could be imported from this point on." # final line break
-echo     "# Check also if the RDF-head is equal to the extracted ones with ${this_file%.*}_rdfRDF_headers_extracted.rdf ..." # final line break
-echo     "# You can use command pr to print the RDF headers side by side:" # final line break
-for this_file in `ls $file_search_pattern | sort --version-sort`; do
-echo     "#   f='${this_file}'; sed --quiet -r '/<rdf:RDF/,/>/{s@[ \t\s]+(xmlns:)@\n  \1@g; p}' \${f} | pr --page-width 140 --merge --omit-header \${f%.*}_rdfRDF_headers_extracted.rdf -" # final line break
+echo -e  "\e[32m# Done. Original data are kept in \e[0m${file_search_pattern}.$bak.gz\e[32m ...\e[0m" # final line break
+echo -e  "\e[32m# Each RDF file is prepared for validation and could be imported from this point on.\e[0m" # final line break
+echo -e  "\e[32m# Check also if the RDF-head is equal to the extracted ones with \e[0m${this_file%.*}_rdfRDF_headers_extracted.rdf\e[32m ...\e[0m" # final line break
+echo -e  "\e[32m# You can use command pr to print the RDF headers side by side:\e[0m" # final line break
+
+for this_file in `ls $file_search_pattern | sort --version-sort`; do exclamation='!';
+  echo     "#   f='${this_file}'; sed --quiet -r '/<rdf:RDF/{ :n_anchor;N;/<rdf:RDF[^>]*>/${exclamation}b n_anchor; s@[ \t\s]+(xmlns:)@\n  \1@g; s@\n\n@\n@g; p}' \"\${f}\" | pr --page-width 140 --merge --omit-header \${f%.*}_rdfRDF_headers_extracted.rdf -"; # final line break
 done
