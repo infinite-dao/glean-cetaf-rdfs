@@ -1,8 +1,8 @@
 #!/bin/bash
 # filename convertRDF4import_normalise-files.sh
 ###########################
-# dependencies $apache_jena_bin, e.g. /home/aplank/apache-jena-4.2.0/bin programs: turtle rdfparse
-# dependencies /home/aplank/apache-jena-4.2.0/bin/rdfparse
+# dependencies $apache_jena_bin, e.g. in home directory: ~/apache-jena-4.2.0/bin programs: turtle rdfparse
+# dependencies ~/apache-jena-4.2.0/bin/rdfparse
 # dependencies gzip, sed, cat
 # # # # 
 # Description: Use RDF and convert to ...
@@ -30,9 +30,18 @@
 # file_search_pattern="Thread-*biodiversitydata.nl*.rdf"
 # file_search_pattern="test-space-in-URIs.rdf"
 debug_mode=0
+apache_jena_bin=""
 
-apache_jena_bin=$([ -d ~/"Programme/apache-jena-4.3.2/bin" ] && echo ~/"Programme/apache-jena-4.3.2/bin" || echo ~/"apache-jena-4.2.0/bin" )
+# apache_jena_bin=$([ -d ~/"Programme/apache-jena-4.3.2/bin" ] && echo ~/"Programme/apache-jena-4.3.2/bin" || echo ~/"apache-jena-4.2.0/bin" )
 # apache_jena_bin=$([ -d ~/"Programme/apache-jena-4.1.0/bin" ] && echo ~/"Programme/apache-jena-4.1.0/bin" || echo ~/"apache-jena-4.0.0/bin" )
+# find latest version of apache jena either in home directory in ~/Programme or in home directory
+# TODO check find ~ -maxdepth 1  -iname 'apache-jena*' | sort --version-sort --reverse
+apache_jena_folder=$(find ~/Programme -maxdepth 1 -type d -iname 'apache-jena*' 2>/dev/null | sort --version-sort --reverse | head -n 1)
+if [[ -z ${apache_jena_folder// /} ]];then
+  apache_jena_folder=$(find ~ -maxdepth 1 -type d -iname 'apache-jena*' 2>/dev/null | sort --version-sort --reverse | head -n 1);
+fi
+if ! [[ -z ${apache_jena_folder// /} ]];then apache_jena_bin="${apache_jena_folder}/bin"; fi
+
 
 if ! [ -d "${apache_jena_bin}" ];then
   echo -e "# \e[33m${apache_jena_bin}\e[0m does not exists to run rdfxml with!"
