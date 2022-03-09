@@ -20,7 +20,8 @@ RDF checks
 - Apache Jena Fuseki<br/>☞&nbsp;[jena.apache.org/download/](https://jena.apache.org/download/index.cgi)
 
 SPARQL endpoint
-- Apache Jena Fuseki Server<br/>e.g. ☞&nbsp;[hub.docker.com/r/stain/jena-fuseki/](https://hub.docker.com/r/stain/jena-fuseki/)
+- Apache Jena Fuseki Server<br/>e.g. ☞&nbsp;[hub.docker.com/r/stain/jena-fuseki/](https://hub.docker.com/r/stain/jena-fuseki/), i.e. 
+  `jena-fuseki` from [stain/jena-docker](https://github.com/stain/jena-docker)
 
 ## (1) Harvesting RDFs
 
@@ -32,7 +33,8 @@ In this example we have all the data, the rdf, and binaries in `/opt/jena-fuseki
 # example call, that runs in background:
 cd /opt/jena-fuseki/import-sandbox/rdf/tmpimport-jacq-20220112
 # get RDF from urilist … 
-/opt/jena-fuseki/import-sandbox/bin/get_RDF4domain_from_urilist_with_ETA.sh -u list-of-JACQ-URI_remaining-institutions_20220112.csv \
+/opt/jena-fuseki/import-sandbox/bin/get_RDF4domain_from_urilist_with_ETA.sh \
+  -u list-of-JACQ-URI_remaining-institutions_20220112.csv \
   -j 10 -l \
   -d xx-jacq.org &
   # -u …… → a simple CSV list to read from the URIs
@@ -45,7 +47,8 @@ cd /opt/jena-fuseki/import-sandbox/rdf/tmpimport-jacq-20220112
 
 ``` bash
 # check for errors
-sed --quiet --regexp-extended 's/^.*(ERROR:.*)/\1/p' Thread-X_data.nhm.ac.uk_20201111-1335.log | sort | uniq  --count | sed 's@^@# @'
+sed --quiet --regexp-extended 's/^.*(ERROR:.*)/\1/p' Thread-X_data.nhm.ac.uk_20201111-1335.log \
+  | sort | uniq  --count | sed 's@^@# @'
 # 1071846 ERROR: 404 Not Found;
 #      15 ERROR: 500 INTERNAL SERVER ERROR;                       # re-capture: works later on
 #       7 ERROR: No data received.;OK: 200 OK;                    # re-capture: works later on
@@ -78,7 +81,8 @@ Proceed with:
 
 Check that all the prefixes are there:
 ``` bash
-sed -n '/<rdf:RDF/,/>/{ s@\bxmlns:@\nxmlns:@g; /\nxmlns:/!d; /^[\s\t\n]*$/d; p; }' Thread-1_data.nhm.ac.uk_20201111-1335.rdf | sort --unique | sed '1i\<rdf:RDF 
+sed -n '/<rdf:RDF/,/>/{ s@\bxmlns:@\nxmlns:@g; /\nxmlns:/!d; /^[\s\t\n]*$/d; p; }' \
+  Thread-1_data.nhm.ac.uk_20201111-1335.rdf | sort --unique | sed '1i\<rdf:RDF 
 $a\ >'
 # <rdf:RDF 
 #   
@@ -121,6 +125,9 @@ convertRDF4import_normal-files.sh -s 'Threads_import*.rdf'
 ```
 
 ## (4) Import Data Into the Triple Store
+
+Data are imported into the RDF store via **S**PARQL **O**ver **H**TTP (SOH: https://jena.apache.org/documentation/fuseki2/soh.html) using `s-post` in the end.
+
 ### Prepare file sizes
 
 Better split data into smaller pieces (~50MB) using `patternsplit.awk`; 50MB may take 4 to 15 minutes to import.
