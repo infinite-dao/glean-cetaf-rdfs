@@ -8,11 +8,10 @@
 # dependencies: sed
 # dependencies: awk
 # Usage example: /import-data/bin/import_rdf2trig.gz4docker-fuseki-app.sh -d 'xxx.jacq.org' -s 'Thread-*20211117-1006.rdf._normalized.ttl.trig.gz'
+
 sparql_end_point="CETAF-IDs"
 datetime_now=$(date '+%Y%m%d-%H%M%Ss')
 DOMAINNAME='id.snsb.info'
-DOMAINNAME='jacq.org'
-DOMAINNAME='finnland.fi'
 
 # LOGFILE="Thread-import-trig_data.biodiversitydata.nl_0000001-7963204${datetime_now}.log"
 # FILE_SEARCH_PATTERN="Thread-*_coldb.mnhn.fr_*2020-06-*.rdf._normalized.ttl.trig.gz"
@@ -48,19 +47,29 @@ THIS_WD="/import-data/rdf/tmpimport-jacq_20211206"
 FILE_SEARCH_PATTERN="Thread-*finnland.fi_20211206-1647.rdf._normalized.ttl.trig.gz"
 LOGFILE="Import_Thread-finland.fi_${datetime_now}.log"
 THIS_WD="/import-data/rdf/Finnland"
+DOMAINNAME='finnland.fi'
 
+THIS_WD="${PWD}"
+
+LOGFILE="Import_Thread-jacq.org_${datetime_now}.log"
+DOMAINNAME='jacq.org'
+
+LOGFILE="Import_inside_Thread-XX-data.rbge.org.uk_20220228ff_${datetime_now}.log"
+DOMAINNAME='data.rbge.org.uk'
+# LOGFILE=""
+# DOMAINNAME=""
 
 i=1; 
 # set (i)ndex and (n)umber of files alltogether
 
 
-function logfile_alternative () {
-  LOGFILE=`printf "Import_fuseki_%s_${DOMAINNAME}_${datetime_now}.log" X`
+function reset_logfile_name () {
+  LOGFILE_DEFAULT=`printf "Import_fuseki_%s_${DOMAINNAME}_${datetime_now}.log" X`
+  if [[ -z "${LOGFILE// /}"  ]];then LOGFILE=$LOGFILE_DEFAULT; fi
 }
-logfile_alternative;
 
 function file_search_pattern_default () {
-  file_search_pattern_default=`printf "SNSB_import_*_%s_*normalized*.trig.gz" $(date '+%Y%m%d')`
+  FILE_SEARCH_PATTERN_DEFAULT=`printf "SNSB_import_*_%s_*normalized*.trig.gz" $(date '+%Y%m%d')`
 }
 file_search_pattern_default
 
@@ -84,7 +93,8 @@ function testdependencies () {
   if [[ $doexit -gt 0 ]]; then exit; fi
 }
 
-function test_files_size () {
+function test_max_filesize () {
+  # Description: Warns about the maximal file size in the set. If it could be to large and continue can result in failure.
   # dependency FILE_SEARCH_PATTERN
   # dependency FILE_SEARCH_PATTERN_NOT
   # dependency THIS_WD
@@ -148,20 +158,21 @@ function test_files_size () {
     esac
   fi
 }
-test_files_size
+test_max_filesize
 
 function usage() { 
- logfile_alternative;
+  reset_logfile_name;
   echo -e "# ######################################################" 1>&2; 
   echo -e "# Import TriG-normalized format inside Docker fuseki-app" 1>&2; 
+  echo -e "# Note that you cannot overwrite data with s-post, you have to delete them before." 1>&2; 
   echo -e "# Usage: \e[32m${0##*/}\e[0m [-s 'SNSB_import_[3-5]_*.normalized*.trig.gz']" 1>&2; 
   echo    "#   -h  ................................................ show this help usage" 1>&2; 
-  echo -e "#   -d  \e[32m'data.nhm.ac.uk'\e[0m ............................... domainname of this harvest (default: id.snsb.info)" 1>&2; 
+  echo -e "#   -d  \e[32m'data.nhm.ac.uk'\e[0m ............................... domainname of this harvest (default: $DOMAINNAME)" 1>&2; 
   echo -e "#   -s  \e[32m'SNSB_import_*file-search-pattern*.trig.gz'\e[0m .... optional specific search pattern" 1>&2; 
   echo -e "#       Note: better use quotes for pattern with asterisk '*pattern*'" 1>&2; 
-  echo -e "#       (default: '${file_search_pattern_default}')" 1>&2; 
+  echo -e "#       (default: '${FILE_SEARCH_PATTERN_DEFAULT}')" 1>&2; 
   echo -e "#   -l \e[32m'special_logfile_20201101.log'\e[0m .................. logfile output" 1>&2; 
-  echo -e "#       (default: $LOGFILE)" 1>&2; 
+  echo -e "#       (default: $LOGFILE_DEFAULT)" 1>&2; 
   echo -e "#   -w \e[32m'/import-data/rdf/tmpimport-kew'\e[0m ................ working directory" 1>&2; 
   echo -e "#       (default: $THIS_WD)" 1>&2; 
   testdependencies;
@@ -169,47 +180,59 @@ function usage() {
 }
 
 function processinfo () {
-logfile_alternative
-echo     "#############################################################"
-echo     "# Import TriG-normalized format inside Docker fuseki-app ..."
-echo     "# Steps before:"
-echo     "# * to check RDF use   validateRDF.sh "
-echo     "# * to convert RDF use convertRDF4import_normal-files.sh "
-echo     "# Now ..."
-echo     "# * we can use compressed *.trig.gz or uncompressed files for import via s-post"
-echo  -e "# * we import to SPARQL end point http://localhost:3030/\e[32m${sparql_end_point}\e[0m"
-echo  -e "# Read directory:  \e[32m${THIS_WD}\e[0m ..."
-echo  -e "# Log file:        \e[32m/import-data/${LOGFILE}\e[0m"
-testdependencies;
-if [[ -z "${FILE_SEARCH_PATTERN_NOT// /}" ]]; then
-echo -ne "# Do you want to import \e[32m${n}\e[0m files with search pattern: «\e[32m${FILE_SEARCH_PATTERN}\e[0m» ?\n# [yes or no (default: no)]: "
-else
-echo -ne "# Do you want to import \e[32m${n}\e[0m files with search pattern: «\e[32m${FILE_SEARCH_PATTERN}\e[0m» but not «\e[33m${FILE_SEARCH_PATTERN_NOT}\e[0m»?\n# [\e[32myes\e[0m or \e[31mno\e[0m (default: no)]: \e[0m"
-fi
+  reset_logfile_name
+  echo     "#############################################################"
+  echo     "# Import TriG-normalized format inside Docker fuseki-app ..."
+  echo     "# Steps before:"
+  echo     "# * to check RDF use   validateRDF.sh "
+  echo     "# * to convert RDF use convertRDF4import_normal-files.sh "
+  echo     "# * manully delete old data (you cannot overwrite data with s-post on import)" 1>&2; 
+  echo     "# Now ..."
+  echo     "# * we can use compressed *.trig.gz or uncompressed files for import via s-post"
+  echo  -e "# * we import to SPARQL end point http://localhost:3030/\e[32m${sparql_end_point}\e[0m"
+  echo  -e "# Read directory:  \e[32m${THIS_WD}\e[0m ..."
+  echo  -e "# Log file:        \e[32m/import-data/${LOGFILE}\e[0m"
+  testdependencies;
+
+  if [[ -z "${FILE_SEARCH_PATTERN_NOT// /}" ]]; then
+    if [[ $n -eq 0 ]];then
+  echo -ne "# \e[31mNothing found to import (${n} files)\e[0m using search pattern (within ${THIS_WD}):\n#   «\e[32m${FILE_SEARCH_PATTERN}\e[0m»\n# [stop here]\n";
+  exit 1
+    else
+  echo -ne "# Do you want to import \e[32m${n}\e[0m files with search pattern: «\e[32m${FILE_SEARCH_PATTERN}\e[0m» ?\n# [yes or no (default: no)]: "
+    fi
+  else
+    if [[ $n -eq 0 ]];then
+  echo -ne "# \e[31mNothing found to import (${n} files)\e[0m using search pattern (within ${THIS_WD}):\n#   «\e[32m${FILE_SEARCH_PATTERN}\e[0m» but not «\e[33m${FILE_SEARCH_PATTERN_NOT}\e[0m»\n# [stop here]\n";
+  exit 1
+    else
+  echo -ne "# Do you want to import \e[32m${n}\e[0m files with search pattern: «\e[32m${FILE_SEARCH_PATTERN}\e[0m» but not «\e[33m${FILE_SEARCH_PATTERN_NOT}\e[0m»?\n# [\e[32myes\e[0m or \e[31mno\e[0m (default: no)]: \e[0m"
+    fi
+  fi
 }
 
 while getopts "hd:l:s:w:" this_opt; do
     case "${this_opt}" in
         d)
-            DOMAINNAME=${OPTARG}
+            DOMAINNAME_OPTION=${OPTARG}
+            DOMAINNAME=$DOMAINNAME_OPTION;
+            # echo "# DEBUG getopts … case d: $DOMAINNAME"
             if   [[ -z ${DOMAINNAME// /} ]] ; then echo "error: $DOMAINNAME cannot be empty" >&2; usage; exit 1; fi
-            # logfile_alternative
             ;;
         h)
             usage; exit 0;
             ;;
         l)
             LOGFILE=${OPTARG}
-            if   [[ -z ${LOGFILE// /} ]] ; then logfile_alternative; LOGFILE="$logfile_alternative" ; fi
+            if   [[ -z ${LOGFILE// /} ]] ; then reset_logfile_name ; fi
             ;;
         s)
             FILE_SEARCH_PATTERN="${OPTARG}"
-            if   [[ -z ${FILE_SEARCH_PATTERN// /} ]] ; then file_search_pattern_default; FILE_SEARCH_PATTERN="$file_search_pattern_default" ; fi
+            if   [[ -z ${FILE_SEARCH_PATTERN// /} ]] ; then file_search_pattern_default; FILE_SEARCH_PATTERN="$FILE_SEARCH_PATTERN_DEFAULT" ; fi
             ;;
         w)
             THIS_WD=${OPTARG}
             if   [[ -z ${THIS_WD// /} ]] ; then echo "error: $THIS_WD cannot be empty" >&2; usage; exit 1; fi
-            # logfile_alternative
             ;;
         *)
             usage; exit 0;
@@ -268,10 +291,15 @@ esac
     i=$((i + 1 ))
   done
 
+n_failed_files=`cat "/import-data/${LOGFILE}" | grep "Failed" | wc -l `
+n_ok_files=`cat "/import-data/${LOGFILE}" | grep "200 OK" | wc -l `
 echo     "#----------------------------------------"
-echo     "# Done. Check the import log file (if status is »200 OK«, then it is fine)"
-printf   "# %02d files report status “\e[33mFailed\e[0m” (details see in log file below)\n" `cat "/import-data/${LOGFILE}" | grep "Failed" | wc -l `
-printf   "# %02d files report status “\e[32m200 OK\e[0m” (details see in log file below)\n" `cat "/import-data/${LOGFILE}" | grep "200 OK" | wc -l `
+echo     "# Done. Check the import log file (if status is «200 OK», then it is fine)"
+printf   "# %02d files report status “\e[32m200 OK\e[0m” (details see in log file below)\n" $n_ok_files
+if [[ $n_failed_files -gt 0 ]];then
+printf   "# %02d files report status “\e[33mFailed\e[0m” (details see in log file below)\n" $n_failed_files
+printf   "# %02d failed files can be checked by:\n#  grep --before-context=1 Failed /import-data/${LOGFILE}\n" $n_failed_files
+fi
 printf   "# \e[34mcat\e[0m /import-data/\e[32m${LOGFILE}\e[0m\n"
 echo     "#########################################"
 
