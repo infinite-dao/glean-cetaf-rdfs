@@ -1,4 +1,6 @@
 #!/bin/bash
+# This script is somewhat deprecated, better use get_RDF4domain_from_urilist_with_ETA.sh (20220404)
+
 # Usage: download RDF files in parallel based on a text listfile 
 #   get_RDF4domain_from_urilist.sh -h # get help; see also function usage()
 # dependency: parallel
