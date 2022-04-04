@@ -32,23 +32,29 @@
 debug_mode=0
 apache_jena_bin=""
 
-# apache_jena_bin=$([ -d ~/"Programme/apache-jena-4.3.2/bin" ] && echo ~/"Programme/apache-jena-4.3.2/bin" || echo ~/"apache-jena-4.2.0/bin" )
-# apache_jena_bin=$([ -d ~/"Programme/apache-jena-4.1.0/bin" ] && echo ~/"Programme/apache-jena-4.1.0/bin" || echo ~/"apache-jena-4.0.0/bin" )
-# find latest version of apache jena either in home directory in ~/Programme or in home directory
+# # # # 
+# find latest version of apache jena assume apache_jena_bin in: ~/Programme OR ~ OR /opt/jena-fuseki/import-sandbox/bin
 # TODO check find ~ -maxdepth 1  -iname 'apache-jena*' | sort --version-sort --reverse
 apache_jena_folder=$(find ~/Programme -maxdepth 1 -type d -iname 'apache-jena*' 2>/dev/null | sort --version-sort --reverse | head -n 1)
 if [[ -z ${apache_jena_folder// /} ]];then
   apache_jena_folder=$(find ~ -maxdepth 1 -type d -iname 'apache-jena*' 2>/dev/null | sort --version-sort --reverse | head -n 1);
 fi
+if [[ -z ${apache_jena_folder// /} ]];then
+  apache_jena_folder=$(find /opt/jena-fuseki/import-sandbox/bin -maxdepth 1 -type d -iname 'apache-jena*' 2>/dev/null | sort --version-sort --reverse | head -n 1);
+fi
+
 if ! [[ -z ${apache_jena_folder// /} ]];then apache_jena_bin="${apache_jena_folder}/bin"; fi
 
 
 if ! [ -d "${apache_jena_bin}" ];then
-  echo -e "# \e[33m${apache_jena_bin}\e[0m does not exists to run rdfxml with!"
-  echo    "# Download it from jena.apache.org and set path in \$apache_jena_bin accordingly."
+  echo -e "# apache_jena_bin \e[33m${apache_jena_bin}\e[0m does not exists to run rdfxml with!"
+  echo    "# We searched in ~/Programme OR " ~ " OR /opt/jena-fuseki/import-sandbox/bin"
+  echo    "# Locate it manually and set the right value in this script (see \$apache_jena_bin)."
+  echo    "# Or download it from jena.apache.org to one of the above paths"
   echo    "# (stop)"
   exit 1;
 fi
+# # # # 
 
 function file_search_pattern_default () {
   file_search_pattern_default=`printf "Threads_import_*_%s.rdf" $(date '+%Y%m%d')`
