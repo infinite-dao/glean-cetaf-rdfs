@@ -1,5 +1,5 @@
 #!/bin/bash
-# Usage: download RDF files in parallel based on a text listfile 
+# Usage: download RDF files in parallel based on a text urilistfile and compress eventually harvested RDFs
 #   get_RDF4domain_from_urilist.sh -h # get help; see also function usage()
 # dependency: parallel
 # dependency: dateutils
@@ -8,16 +8,20 @@
 # dependency: grep
 # dependency: wget
 # dependency: shuf
+# dependency: gzip
 
 
-URI_LIST_FILE='urilist.txt'
-# DOMAINNAME='data.nhm.ac.uk'
 DOMAINNAME='jacq.org'
-N_JOBS=5
+# DOMAINNAME='data.nhm.ac.uk'
+
+URI_LIST_FILE="urilist_$DOMAINNAME.txt"
+N_JOBS=10
+
 DATETIME_NOW_YmdHM=$(date '+%Y%m%d-%H%M')
 # DATETIME_NOW_YmdHM_NANOSECONDS=$(date --rfc-3339 'ns')
 # 
-
+DEBUGLOGFILE=get_RDF4domain_from_urilist_debug.log
+export DEBUGLOGFILE # get it accessible in getrdf_with_urlstatus_check() (?and other functions)
 
 unset LOGFILE PROGRESS_LOGFILE test_mode randomize_urilist do_exit
 
@@ -67,27 +71,27 @@ fi
 function usage() { 
  logfile_alternative;
   echo    "# ################################################################" 1>&2; 
-  echo -e "# Usage: \e[34m${0##*/}\e[0m [-u urilist_special.txt] [-j 10] [-d 'data.nhm.ac.uk']" 1>&2; 
+  echo -e "# Usage: \e[34m${0##*/}\e[0m [-u urilist_special.txt] [-j 10] [-d '$DOMAINNAME']" 1>&2; 
   echo -e "#   What does \e[34m${0##*/}\e[0m do?" 1>&2; 
   echo    "#   Download RDF files in parallel from a list of URLs reading a text file into the current working directory." 1>&2; 
   echo    "#   The script will prompt before running except when you use the log file mode with option: -l" 1>&2; 
   echo    "# Options:" 1>&2; 
   echo    "#   -h  .......................... show this help usage" 1>&2; 
-  echo -e "#   -d \e[32m'id.snsb.info'\e[0m ............ domainname of this harvest (default: data.nhm.ac.uk)" 1>&2; 
-  echo    "#   -j 10 ........................ number of parallel jobs (default: 5)" 1>&2; 
-  echo -e "#   -l ........................... logfile mode, without command prompt (into $logfile_alternative)" 1>&2; 
+  echo -e "#   -d \e[32m'id.snsb.info'\e[0m ............ domainname of this harvest (default: $DOMAINNAME)" 1>&2; 
+  echo    "#   -j 15 ........................ number of parallel jobs (default: $N_JOBS)" 1>&2; 
+  echo -e "#   -l ........................... logfile mode, without command prompt (into \e[32m$logfile_alternative\e[0m)" 1>&2; 
   echo    "#      Note that each Thread has its own log file logging URI and" 1>&2; 
   echo    "#      status code(s) of requests." 1>&2; 
   echo    "#   -t ........................... test mode: run 200 entries only" 1>&2; 
-  echo -e "#   -u \e[32murilist_special.txt\e[0m ....... an uri list file (default: urilist.txt)" 1>&2; 
-  echo    "#      Note that urilist.txt can be a csv export including a column:" 1>&2; 
+  echo -e "#   -u \e[32murilist_special.txt\e[0m ....... an uri list file (default: \e[32m$URI_LIST_FILE\e[0m)" 1>&2; 
+  echo    "#      Note that $URI_LIST_FILE can be a csv export including a column:" 1>&2; 
   echo    "#      only an intact very first http(s)://URL in a line is used, also" 1>&2; 
   echo    "#      comments or strings behind the URL are filtered out." 1>&2; 
   echo    "#   -r ........................... randomize order from URI list" 1>&2; 
   echo    "# " 1>&2; 
   echo    "# Examples:" 1>&2; 
   echo    "#   Running normally with prompt before starting (progress to STDOUT)" 1>&2; 
-  echo -e "#     \e[34m${0##*/}\e[0m -d id.snsb.info              # using default urilist.txt, set domainname only" 1>&2; 
+  echo -e "#     \e[34m${0##*/}\e[0m -d id.snsb.info       # setting the domainname will search urilist in: \e[32m${URI_LIST_FILE/$DOMAINNAME/\\e[7mid.snsb.info\\e[0;32m}\e[0m" 1>&2; 
   echo -e "#     \e[34m${0##*/}\e[0m -u snsb_20201102_occurrenceID.csv -d id.snsb.info " 1>&2; 
   echo    "#   Running in log file mode (immediately without a prompt!!)" 1>&2; 
   echo -e "#     \e[34m${0##*/}\e[0m -u snsb_20201102_occurrenceID.csv -l -d id.snsb.info & " 1>&2; 
@@ -95,8 +99,10 @@ function usage() {
   echo -e "#     \e[34m${0##*/}\e[0m -u snsb_20201102_occurrenceID.csv -l -t -d id.snsb.info & " 1>&2; 
   echo    "# " 1>&2; 
   echo    "# To interrupt all the downloads in progress you have to:" 1>&2; 
-  echo -e "#   (1) kill process ID (PID) of \e[34m${0##*/}\e[0m, find it by: « ps -fp \$(pgrep -d, --full ${0##*/}) »" 1>&2; 
-  echo -e "#   (2) kill process ID (PID) of \e[34m/usr/bin/perl parallel\e[0m, find it by: « ps -fp \$(pgrep -d, --full parallel)' »" 1>&2; 
+  echo -e "#   (1) kill process ID (PID) of \e[34m${0##*/}\e[0m, find it by:" 1>&2; 
+  echo -e "#       \e[1;34mps\e[0m\e[1m -fp \$( \e[1;34mpgrep\e[0m\e[1m -d, --full ${0##*/} )\e[0m " 1>&2; 
+  echo -e "#   (2) kill process ID (PID) of \e[34m/usr/bin/perl parallel\e[0m, find it by:" 1>&2; 
+  echo -e "#       \e[1;34mps\e[0m\e[1m -fp \$( \e[1;34mpgrep\e[0m\e[1m -d, --full parallel )\e[0m " 1>&2; 
   echo    "# ################################################################" 1>&2; 
   exit 1; 
 }
@@ -142,6 +148,7 @@ while getopts "d:h:j:u:lrt" o; do
             DOMAINNAME=${OPTARG}
             if   [[ -z ${DOMAINNAME// /} ]] ; then echo "error: $DOMAINNAME cannot be empty" >&2; usage; exit 1; fi
             logfile_alternative
+            # export DOMAINNAME
             ;;
         h)
             usage; exit 0;
@@ -150,6 +157,7 @@ while getopts "d:h:j:u:lrt" o; do
             N_JOBS=${OPTARG}
             re='^[0-9]+$'
             if ! [[ $N_JOBS =~ $re ]] ; then echo "error: $N_JOBS cannot be the number of parallel jobs" >&2; usage; exit 1; fi
+            export N_JOBS # export to make it accessible in function getrdf_with_urlstatus_check()
             ;;
         l)
             PROGRESS_LOGFILE=${OPTARG}
@@ -170,6 +178,11 @@ while getopts "d:h:j:u:lrt" o; do
     esac
 done
 shift $((OPTIND-1))
+
+# TODO check zero padding of Thread-01_
+# $(printf "%.6d" "$myvar")
+# $(printf "%.${#N_JOBS}d" "$this_job_counter")
+
 
 # process all variables first
 
@@ -214,7 +227,7 @@ get_info_http_return_codes() {
     echo "$this_wget_log" | sed --silent "1 { s@\$@ Codes: ${this_return_codes}@;p}"
   fi
 }
-export -f get_info_http_return_codes # to use it in the script
+export -f get_info_http_return_codes # export needed otherwise /usr/bin/bash: get_timediff_for_njobs_new: command not found
 
 get_timediff_for_njobs_new () {
 # Description: calculate estimated time to finish n jobs (here, it only prints the estimate and $njobs_done_so_far is commented out)
@@ -287,7 +300,7 @@ get_timediff_for_njobs_new () {
   echo "$this_msg_estimated_sofar"
   # END estimate time to do 
 }
-export -f get_timediff_for_njobs_new 
+export -f get_timediff_for_njobs_new # export needed otherwise /usr/bin/bash: get_timediff_for_njobs_new: command not found
 get_timediff_for_njobs_new --test
 
 
@@ -314,7 +327,10 @@ getrdf_with_urlstatus_check() {
   local this_datetime_now="$6"
   local this_datetime_started="$7"
   local this_progress_logfile="$8" # optional
-
+  local this_n_digits=${#N_JOBS}
+  local this_zeropadded_job_number=$(printf "%.${this_n_digits}d" "$this_job_number")
+  
+  # local this_zeropadded_job_number=$(printf "%.2d" "$this_job_number")
   # START estimate time to do
   # starttime nowtime ntotaljobs nowjobsdone
   local this_estimated_todo=`get_timediff_for_njobs_new "$this_datetime_started" "$(date --rfc-3339 'ns')" "$this_jobs_total" "$this_job_counter"`
@@ -324,7 +340,13 @@ getrdf_with_urlstatus_check() {
   local this_loginfo=""  
   # local this_return_codes=""
   local this_debug_mode=0  # default 0, or 1 adds info to terminal
-  this_loginfo=$(printf '%s file job %02d (step %06d of %06d, %s)' Thread-${this_job_number}_${this_domainname}_${this_datetime_now}.rdf "${this_job_number}" "${this_job_counter}" "${this_jobs_total}" "${this_estimated_todo}")
+  if [[ $this_debug_mode -gt 0 ]];then
+    echo $(date) >> "$DEBUGLOGFILE"
+    echo "this_n_digits: $this_n_digits" >> "$DEBUGLOGFILE"
+    echo "N_JOBS: $N_JOBS" >> "$DEBUGLOGFILE"
+    echo "this_zeropadded_job_number: $this_zeropadded_job_number" >> "$DEBUGLOGFILE"
+  fi
+  this_loginfo=$(printf '%s file job %02d (step %06d of %06d, %s)' Thread-${this_zeropadded_job_number}_${this_domainname}_${this_datetime_now}.rdf "${this_job_number}" "${this_job_counter}" "${this_jobs_total}" "${this_estimated_todo}")
 #   echo $(date --date="2021-12-06 16:47:29" '+%s')
   # uri='https://data.nhm.ac.uk/object/a9f64c90-1703-4397-8a31-7a877e3e7d44'
   # -----------------
@@ -339,10 +361,10 @@ getrdf_with_urlstatus_check() {
   # echo "$wget_log" | sed --silent "1 { s@\$@ Codes: ${this_return_codes}@;p}"
   # --2020-11-11 12:34:26--  http://data.nhm.ac.uk/object/4c19e397-de11-47ea-a775-5ae2869edb5d Codes: OK: 302 Redirect;OK: 303 SEE OTHER;OK: 200 OK;
   # -----------------
-  # wget_log=$( { wget --header='Accept: application/rdf+xml' --max-redirect 4 -O - "$this_uri" >> "Thread-${this_job_number}_${this_domainname}_${this_datetime_now}.rdf"; } 2>&1  )
-  wget_log=$( { wget --header='Accept: application/rdf+xml' --no-check-certificate --max-redirect 4 -O - "$this_uri" >> "Thread-${this_job_number}_${this_domainname}_${this_datetime_now}.rdf"; } 2>&1  )
+  # wget_log=$( { wget --header='Accept: application/rdf+xml' --max-redirect 4 -O - "$this_uri" >> "Thread-${this_zeropadded_job_number}_${this_domainname}_${this_datetime_now}.rdf"; } 2>&1  )
+  wget_log=$( { wget --header='Accept: application/rdf+xml' --no-check-certificate --max-redirect 4 -O - "$this_uri" >> "Thread-${this_zeropadded_job_number}_${this_domainname}_${this_datetime_now}.rdf"; } 2>&1  )
 
-  echo "$wget_log" >> "Thread-${this_job_number}_${this_domainname}_${this_datetime_now}.log"
+  echo "$wget_log" >> "Thread-${this_zeropadded_job_number}_${this_domainname}_${this_datetime_now}.log"
 
   download_info="${this_loginfo} "`get_info_http_return_codes "$wget_log"`
   
@@ -354,9 +376,9 @@ getrdf_with_urlstatus_check() {
       echo "${download_info}" >> "${this_progress_logfile%.*}_error.log"
     fi
   fi
-  if [[ $this_debug_mode -gt 0 ]];then echo "DEBUG: ${download_info} … ${this_progress_logfile}"; fi
+  if [[ $this_debug_mode -gt 0 ]];then echo "DEBUG: ${download_info} … ${this_progress_logfile}" >> "$DEBUGLOGFILE"; fi
 }
-export -f getrdf_with_urlstatus_check # for use with parallel below
+export -f getrdf_with_urlstatus_check # export needed otherwise /usr/bin/bash: getrdf_with_urlstatus_check: command not found
 
 # DEBUG (in pure bash without datediff package)
 # datetime_start=`date --rfc-3339 'seconds'`; unix_seconds_start=$(date +"%s")
@@ -424,6 +446,8 @@ if   [[ -z ${PROGRESS_LOGFILE// /} ]] ; then
   #   echo "# Ended:   $datetime_end"   
   
   $exec_datediff "$datetime_start" "$datetime_end" -f "# Done. $TOTAL_JOBS jobs took %dd %Hh:%Mm:%Ss" 
+  echo "# compress all files Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.rdf …"
+  gzip --verbose $(echo "Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.rdf")
 
 else   # PROGRESS_LOGFILE and log into file
   # echo "# DEBUG script line ${LINENO}: PROGRESS_LOGFILE not zero"
@@ -437,9 +461,12 @@ else   # PROGRESS_LOGFILE and log into file
     # echo "# DEBUG script line ${LINENO}: PROGRESS_LOGFILE not zero; test mode zero"
     echo -e "# Running $TOTAL_JOBS jobs. See progress log files:\n  tail ${PROGRESS_LOGFILE} # logging all progress or\n  tail ${PROGRESS_LOGFILE%.*}_error.log # loggin errors only: 404 500 etc." 
     echo -e "# ------------------------------" 1>&2; 
-    echo -e "# To interrupt all the downloads in progress you have to:" 1>&2; 
-    echo -e "#   (1) kill process ID (PID) of \e[34m${0##*/}\e[0m, find it by: « ps -fp \$(pgrep -d, --full ${0##*/}) »" 1>&2; 
-    echo -e "#   (2) kill process ID (PID) of \e[34m/usr/bin/perl parallel\e[0m, find it by: « ps -fp \$(pgrep -d, --full parallel)' »" 1>&2; 
+    echo    "# To interrupt all the downloads in progress you have to:" 1>&2; 
+    echo -e "#   (1) kill process ID (PID) of \e[34m${0##*/}\e[0m, find it by:" 1>&2; 
+    echo -e "#       \e[1;34mps\e[0m\e[1m -fp \$( \e[1;34mpgrep\e[0m\e[1m -d, --full ${0##*/} )\e[0m " 1>&2; 
+    echo -e "#   (2) kill process ID (PID) of \e[34m/usr/bin/perl parallel\e[0m, find it by:" 1>&2; 
+    echo -e "#       \e[1;34mps\e[0m\e[1m -fp \$( \e[1;34mpgrep\e[0m\e[1m -d, --full parallel )\e[0m " 1>&2; 
+
     processinfo             &>> "${PROGRESS_LOGFILE}"
     echo " yes"             &>> "${PROGRESS_LOGFILE}"
     if [[ -z ${randomize_urilist// /} ]] ; then
@@ -453,9 +480,11 @@ else   # PROGRESS_LOGFILE and log into file
     # echo "# DEBUG script line ${LINENO}: PROGRESS_LOGFILE not zero; test mode not zero"
     echo -e "# Running in TEST MODE ($TOTAL_JOBS jobs). See progress log files:\n  tail ${PROGRESS_LOGFILE} # logging all progress or\n  tail ${PROGRESS_LOGFILE%.*}_error.log # loggin errors only: 404 500 etc." 
     echo -e "# ------------------------------" 1>&2; 
-    echo -e "# To interrupt all the downloads in progress you have to:" 1>&2; 
-    echo -e "#   (1) kill process ID (PID) of \e[34m${0##*/}\e[0m, find it by: « ps -fp \$(pgrep -d, --full ${0##*/}) »" 1>&2; 
-    echo -e "#   (2) kill process ID (PID) of \e[34m/usr/bin/perl parallel\e[0m, find it by: « ps -fp \$(pgrep -d, --full parallel)' »" 1>&2; 
+    echo    "# To interrupt all the downloads in progress you have to:" 1>&2; 
+    echo -e "#   (1) kill process ID (PID) of \e[34m${0##*/}\e[0m, find it by:" 1>&2; 
+    echo -e "#       \e[1;34mps\e[0m\e[1m -fp \$( \e[1;34mpgrep\e[0m\e[1m -d, --full ${0##*/} )\e[0m " 1>&2; 
+    echo -e "#   (2) kill process ID (PID) of \e[34m/usr/bin/perl parallel\e[0m, find it by:" 1>&2; 
+    echo -e "#       \e[1;34mps\e[0m\e[1m -fp \$( \e[1;34mpgrep\e[0m\e[1m -d, --full parallel )\e[0m " 1>&2; 
     processinfo             &>> "${PROGRESS_LOGFILE}"
     echo " yes"             &>> "${PROGRESS_LOGFILE}"
     if [[ -z ${randomize_urilist// /} ]] ; then
@@ -475,6 +504,8 @@ else   # PROGRESS_LOGFILE and log into file
   # echo "# Started: $datetime_start" >> "${PROGRESS_LOGFILE}"
   # echo "# Ended:   $datetime_end"   >> "${PROGRESS_LOGFILE}"
   $exec_datediff "$datetime_start" "$datetime_end" -f "# Done. $TOTAL_JOBS jobs took %dd %Hh:%Mm:%Ss" >> "${PROGRESS_LOGFILE}"
+  echo "# compress all files Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.rdf …" >> "${PROGRESS_LOGFILE}"
+  gzip --verbose $(echo "Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.rdf") &>> "${PROGRESS_LOGFILE}"
   # unix_seconds_end=$(date +"%s")
   # echo `date -u -d "0 ${unix_seconds_end} sec -  ${unix_seconds_start} sec - $(date -u -d "$datetime_start - 1 day" +"%j") days" +"Done. $TOTAL_JOBS jobs took %j days (minus 1 day) %Hh%Mm%Ss"` >> "${PROGRESS_LOGFILE}"
 fi
