@@ -2,6 +2,7 @@
 # Usage: fix misstakes in RDF in files
 #   fixRDF_before_validateRDFs.sh -h # get help; see also function usage()
 # dependency: sed
+# dependency: file
 
 # for this_file in `ls *coldb*get_2510001-2810000*.rdf | sort --version-sort`; do echo "# Insert </rdf:RDF> to $this_file"; echo '</rdf:RDF><!-- manually inserted 20200618 -->' >> "$this_file"; done
 file_search_pattern="Thread-*data.biodiversitydata.nl*.rdf"
@@ -9,49 +10,151 @@ file_search_pattern="Test_sed*.rdf"
 file_search_pattern="Threads_import_*_20201116.rdf"
 file_search_pattern="Thread-*_jacq.org_20211108-1309.rdf"
 
-bak="bak_"$(date '+%Y%m%d_%H%M')
+bak="bak_"$(date '+%Y%m%d_%H%M') # deprecated: use _modified.rdf as a copy of original file
 n=0
+DO_PRINT_ONLY_RDF_COMPARISON=0
 
 function file_search_pattern_default () {
-  file_search_pattern_default=`printf "Threads_import_*_%s.rdf" $(date '+%Y%m%d')`
+  file_search_pattern_default=`printf "Thread-[0-9][0-9]_*_%s-[0-9][0-9][0-9][0-9].rdf" $(date '+%Y%m%d')`
 }
 file_search_pattern_default
 
+get_timediff_for_njobs_new () {
+# Description: calculate estimated time to finish n jobs (here, it only prints the estimate and $njobs_done_so_far is commented out)
+# # # # # 
+# Usage:
+# get_timediff_for_njobs_new --test # to check for dependencies (datediff)
+# get_timediff_for_njobs_new begintime nowtime ntotaljobs njobscurrentlydone
+# get_timediff_for_njobs_new "2021-12-06 16:47:29" "2021-12-09 13:38:08" 696926 611613
+# # # # # # # # # # # # # # # # # # 
+# echo '('`date +"%s.%N"` ' * 1000)/1' | bc # get milliseconds
+# echo '('`date +"%s.%N"` ' * 1000000)/1' | bc # get nanoseconds
+# echo $( date --rfc-3339 'ns' ) | ( read -rsd '' x; echo ${x@Q} ) # escaped
+    
+  local this_command_timediff
+  
+  # read if test mode
+  while [[ "$#" -gt 0 ]]
+  do
+    case $1 in
+      -t|--test)
+        if ! command -v datediff &> /dev/null &&  ! command -v dateutils.ddiff &> /dev/null
+        then
+          echo -e "\e[31m# Error: Neither command datediff or dateutils.ddiff could not be found. Please install package dateutils.\e[0m"
+          exit
+        else
+          return 0 # return [Zahl] und verlasse gesamte Funktion get_timediff_for_njobs_new
+        fi
+      ;;
+      *)
+      break
+      ;;
+    esac
+  done
+  
+  if ! command -v datediff &> /dev/null
+  then
+    # echo "Command dateutils.ddiff found"
+    this_command_timediff="dateutils.ddiff"
+  elif ! command -v dateutils.ddiff &> /dev/null
+    then
+      # echo "Command datediff found"
+      this_command_timediff="datediff"
+  fi
+
+  # START estimate time to do 
+  local this_unixnanoseconds_start_timestamp=$(date --date="$1" '+%s.%N')
+  local this_unixnanoseconds_now=$(date --date="$2" '+%s.%N')
+  local this_unixnanoseconds_todo=0
+  local this_n_jobs_all=$(expr $3 + 0)
+  local this_i_job_counter=$(expr $4 + 0)
+  # echo "scale=10; 1642073008.587244684 - 1642028400.000000000" | bc -l
+  local this_timediff_unixnanoseconds=`echo "scale=10; $this_unixnanoseconds_now - $this_unixnanoseconds_start_timestamp" | bc -l`
+  # $(( $this_unixnanoseconds_now - $this_unixnanoseconds_start_timestamp ))
+  local this_n_jobs_todo=$(( $this_n_jobs_all - $this_i_job_counter ))
+  local this_msg_estimated_sofar=""
+
+  # echo -e "\033[2m# DEBUG Test mode: all together $this_n_jobs_all ; counter $this_i_job_counter\033[0m"
+  if [[ $this_n_jobs_all -eq $this_i_job_counter ]];then # done
+    this_unixnanoseconds_todo=0
+    # njobs_done_so_far=`$this_command_timediff "@$this_unixnanoseconds_start_timestamp" "@$this_unixnanoseconds_now" -f "all $this_i_job_counter done, duration %dd %Hh:%Mm:%Ss"`
+    this_msg_estimated_sofar="nothing left to do"
+  else
+    # this_unixnanoseconds_todo=$(( $this_timediff_unixnanoseconds * $this_n_jobs_todo / $this_i_job_counter ))
+    # this_unixnanoseconds_todo=$(( $this_timediff_unixnanoseconds * $this_n_jobs_todo / $this_i_job_counter ))
+    this_unixnanoseconds_todo=`echo "scale=0; $this_timediff_unixnanoseconds * $this_n_jobs_todo / $this_i_job_counter" | bc -l`
+    # njobs_done_so_far=`$this_command_timediff "@$this_unixnanoseconds_start_timestamp" "@$this_unixnanoseconds_now" -f "$this_i_job_counter done so far %dday(s) %Hh:%Mmin:%Ssec"`
+    this_msg_estimated_sofar=`$this_command_timediff "@0" "@$this_unixnanoseconds_todo" -f "Still $this_n_jobs_todo job to do, estimated end %dday(s) %Hh:%Mmin:%Ssec"`
+  fi
+  #echo "from $this_n_jobs_all, $njobs_done_so_far; $this_msg_estimated_sofar"
+  echo "$this_msg_estimated_sofar"
+  # END estimate time to do 
+}
+export -f get_timediff_for_njobs_new 
+get_timediff_for_njobs_new --test
+
 function usage() { 
-  echo -e "# Merge multiple RDFs from a download stack into one RDF" 1>&2; 
+  echo    "################ Fix RDF before validateRDF.sh #####################"
+  echo -e "# Clean up and fix each of previousely merged RDFs from a download" 1>&2; 
+  echo -e "# stack to be each valid RDF files. The file’s search patterns and" 1>&2; 
+  echo -e "# fixing etc. is considered in development stage, so checking its" 1>&2; 
+  echo -e "# right functioning is still of essence." 1>&2; 
+  echo    "# -----------------------------------------------------------------"
   echo -e "# Usage: \e[32m${0##*/}\e[0m [-s 'Thread*file-search-pattern*.rdf']" 1>&2; 
   echo    "#   -h  ...................................... show this help usage" 1>&2; 
+  echo    "#   -p  ..... print only RDF header comparison (no file processing)" 1>&2; 
   echo -e "#   -s  \e[32m'Thread*file-search-pattern*.rdf'\e[0m .... optional specific search pattern" 1>&2; 
-  echo -e "#       Note: better use quotes for pattern with asterisk '*pattern*' (default: '${file_search_pattern_default}')" 1>&2; 
+  echo -e "#       Note: better use quotes for pattern with asterisk '*pattern*'" 1>&2; 
+  echo -e "#       and use a narrow search pattern that really matches the RDF \e[1msource files only\e[0m" 1>&2; 
+  echo -e "#       (default: '\e[32m${file_search_pattern_default}\e[0m')" 1>&2; 
+  echo    "# -----------------------------------------------------------------"
+  echo -e "# Eventually the processed files \e[32m…\e[34m_modified\e[32m.rdf\e[0m are get zip-ed to save space." 1>&2; 
   exit 1; 
 }
 
 function processinfo () {
-echo     "############ Fix RDF before validateRDF.sh #################"
-echo -e  "# Process for search pattern: \e[32m$file_search_pattern\e[0m ..."
-echo -e  "# Originals are kept as:      \e[32m${file_search_pattern}.$bak.gz\e[0m ..." # final line break
-echo -e  "# Read directory:  \e[32m${this_wd}\e[0m ..."
-if [ ${n} -gt 0 ];then
-echo -ne "# Do you want to process \e[32m${n}\e[0m files with search pattern: «\e[32m${file_search_pattern}\e[0m» ?\n# [\e[32myes\e[0m or \e[31mno\e[0m (default: no)]: \e[0m"
-else 
-echo -ne "# \e[0mBy using search pattern: «\e[32m${file_search_pattern}\e[0m» the number of processed files is \e[31m${n}\e[0m.\n# \e[31m(Stop) We stop here; please check or add the correct search pattern, directory and/or data.\e[0m\n";
-exit 1;
+if [[ $DO_PRINT_ONLY_RDF_COMPARISON -gt 0 ]];then
+  echo     "################ Fix RDF before validateRDF.sh (print rdf header comparison) #####################"
+  echo -e  "# Print only rdf header comparison"
+  echo -e  "# Read directory:  \e[32m${this_wd}\e[0m ..."
+  echo -e  "# Process for search pattern:  \e[32m$file_search_pattern\e[0m ..."
+  if [[ ${n} -gt 0 ]];then
+  echo -ne "# Do you want to print out rdf header comparison for \e[32m${n}\e[0m files with search pattern: «\e[32m${file_search_pattern}\e[0m» ?\n# [\e[32myes\e[0m or \e[31mno\e[0m (default: no)]: \e[0m"
+  else 
+  echo -ne "# \e[0mBy using search pattern: «\e[32m${file_search_pattern}\e[0m» the number of processed files is \e[31m${n}\e[0m.\n# \e[31m(Stop) We stop here; please check or add the correct search pattern, directory and/or data.\e[0m\n";
+  exit 1;
+  fi
+else
+  echo     "################ Fix RDF before validateRDF.sh #####################"
+  echo -e  "# Working directory:             \e[32m${this_wd}\e[0m ..."
+  echo -e  "# Files get processed as:        \e[32m…\e[34m_modified\e[32m.rdf\e[0m finally compressed to \e[32m*.rdf.gz\e[0m ..."
+  echo -e  "# Original files are kept untouched and eventually compressed to: \e[32m*.rdf.gz\e[0m ..." # final line break
+  echo -e  "# Do processing for search pattern: \e[32m$file_search_pattern\e[0m ..."
+  if [[ ${n} -gt 0 ]];then
+  echo -ne "# Do you want to process \e[32m${n}\e[0m files with above search pattern?\n# [\e[32myes\e[0m or \e[31mno\e[0m (default: no)]: \e[0m"
+  else 
+  echo -ne "# \e[0mBy using above search pattern the number of processed files is \e[31m${n}\e[0m.\n# \e[31m(Stop) We stop here; please check or add the correct search pattern, directory and/or data.\e[0m\n";
+  exit 1;
+  fi
 fi
-
 }
 
 
 this_wd="$PWD"
 cd "$this_pwd"
 
-while getopts ":s:h" o; do
+
+while getopts ":s:hp" o; do
     case "${o}" in
         h)
             usage; exit 0;
             ;;
         s)
             file_search_pattern="${OPTARG}"
-            if   [[ -z ${file_search_pattern// /} ]] ; then file_search_pattern_default; file_search_pattern="$file_search_pattern_default" ; fi
+            if  [[ -z ${file_search_pattern// /} ]] ; then file_search_pattern_default; file_search_pattern="$file_search_pattern_default" ; fi
+            ;;
+        p)
+            DO_PRINT_ONLY_RDF_COMPARISON=1
             ;;
         *)
             usage; exit 0;
@@ -60,18 +163,12 @@ while getopts ":s:h" o; do
 done
 shift $((OPTIND-1))
 
-# echo "# Options passed …"
+# echo "# DEBUG Options passed …"
 # echo "find \"${this_wd}\" -maxdepth 1 -type f -iname \"${file_search_pattern##*/}\" | sort --version-sort | wc -l "
 
-i=1; n=`find "${this_wd}" -maxdepth 1 -type f -iname "${file_search_pattern##*/}" | sort --version-sort | wc -l `
+i=1; n=`find "${this_wd}" -maxdepth 1 -type f -iname "${file_search_pattern##*/}" | wc -l `
 # echo "# find passed …"
 # set (i)ndex and (n)umber of files alltogether
-
-# echo     "############ Fix RDF before validateRDF.sh #################"
-# echo     "# Process for search pattern: $file_search_pattern ..."
-# echo     "# Originals are kept in ${file_search_pattern}.$bak ..." # final line break
-# echo     "# Read directory:  ${this_wd} ..."
-# echo -ne "# Do you want to process ${n} files with search pattern: «${file_search_pattern}» ?\n# [yes or no (default: no)]: "
 
 processinfo
 read yno
@@ -88,62 +185,263 @@ case $yno in
     exit 1
   ;;
 esac
-echo "# Read passed …"
+# echo "# Read passed …"
+
+datetime_start=`date --rfc-3339 'ns'` ; # unix_seconds_start=$(date +"%s")
+datetime_start_quoted=`date --rfc-3339 'ns' | ( read -rsd '' x; echo ${x@Q} )`; # unix_seconds_start=$(date +"%s")
 
 # check all RDFs
-
+if [[ $DO_PRINT_ONLY_RDF_COMPARISON -eq 0 ]];then
 for this_file in `ls $file_search_pattern | sort --version-sort`; do
-printf "# Process %03d of %03d in %s " $i $n "${this_file##*/}";
+printf "# \e[32mProcess %03d of %03d in \e[3m%s\e[32m …\e[0m\n" $i $n "${this_file##*/}";
+  
+  if [[ $i -gt 1 ]];then
+    printf "#    ";  get_timediff_for_njobs_new "$datetime_start" "$(date --rfc-3339 'ns')" "$n" "$((i - 1))"
+  fi
+  
+  this_file_mimetype=$(file --mime-type "${this_file}" | sed -r 's@.*: ([^:]+)@\1@')
+  this_file_modified="${this_file%.*}_modified.rdf";
+  this_file_headers_extracted="${this_file%.*}_rdfRDF_headers_extracted.rdf"
 
-echo "#   extract all <rdf:RDF …> to ${this_file%.*}_rdfRDF_headers_extracted.rdf ... " 
-sed --regexp-extended --quiet '/<rdf:RDF/,/>/{ s@<rdf:RDF +@@; s@\bxmlns:@\n  xmlns:@g; s@>@@; /\n  xmlns:/!d; /^[\s\t\n]*$/d; p; }' "$this_file" | sort --unique \
+  # check if this_file is compressed
+  if [[ "$this_file_mimetype" == "application/gzip" ]];then
+    this_file_modified="${this_file%.*.gz}_modified.rdf";
+    this_file_headers_extracted="${this_file%.*.gz}_rdfRDF_headers_extracted.rdf"
+    
+    stat --printf="#    \e[32mRead out comperessd\e[0m \e[3m%n\e[0m (%s bytes) using \e[34mzcat\e[0m …" "${this_file}"; printf " > \e[3m%s\e[0m …\n" "${this_file_modified}";
+    zcat "$this_file" > "$this_file_modified"
+    
+  else
+    # assume text/xml
+    if ! [[ "${this_file_mimetype}" == "text/xml" ]];then
+      echo -e "#    \e[31mError:\e[0m Please fix wrong file type: $this_file_mimetype, we expects file type “text/xml” (skip to next step)";
+      continue;
+    else
+    printf "#    \e[32mCopy anew\e[0m \e[3m%s\e[0m for processing …\n" "${this_file_modified}";
+      cp --force "$this_file" "$this_file_modified"
+      printf "#    \e[32mCompress source file\e[0m \e[3m%s\e[0m (to keep storage minimal)…\n#    " "${this_file}";
+      gzip --verbose "$this_file"
+    fi
+  fi
+  
+  if ! [[ -e "${this_file_modified}" ]]; then
+    echo -e "#    \e[31mError:\e[0m File not found to process: $this_file_modified (skip to next step)";
+    continue;
+  fi
+  
+  this_file_modified_mimetype=$(file --mime-type "${this_file_modified}" | sed -r 's@.*: ([^:]+)@\1@')
+  if ! [[ "${this_file_modified_mimetype}" == "text/xml" ]];then
+    echo -e "#    \e[31mError:\e[0m Please fix wrong file type: ${this_file_modified_mimetype}, we expects file type “text/xml” (skip to next step)";
+    continue;
+  fi
+
+  echo -e "#    \e[32mExtract all\e[0m <rdf:RDF …> to \e[3m${this_file_headers_extracted}\e[0m ... " 
+
+  # TODO check correct functioning
+  sed --regexp-extended --quiet \
+  '/<rdf:RDF/,/>/{ 
+    s@<rdf:RDF +@@; 
+    s@\bxmlns:@\n  xmlns:@g; 
+    s@>@@; 
+    /\n  xmlns:/!d; 
+    /^[\s\t\n]*$/d; 
+    p; 
+  }' \
+  "$this_file_modified" \
+  | sort --unique \
   | sed --regexp-extended --quiet  '/^[\t ]+$/d;/^$/d;p;' \
   | sed "1i\<rdf:RDF
-  \$a\>\n<\!-- these are all RDF-headers extracted from ${this_file} -->" > "${this_file%.*}_rdfRDF_headers_extracted.rdf"
+  \$a\>\n<\!-- *Initially* extracted RDF-headers from\n     ${this_file} -->" \
+    > "${this_file_headers_extracted}"
   
-  echo "#   fix xml head, rdf:RDF, illegal characters in URIs, '--' in comments etc.) ... " 
-  sed --regexp-extended -i.$bak '
-  0,/<!--/{N; s@(.+)(<\?xml[^>]+>)@\2\1@; };
+  echo -e "#    \e[32mfix RDF \e[0m(xml-head, xml-stylesheet, rdf:RDF, illegal characters in URIs, '--' in comments etc.) ... " 
+  sed --regexp-extended --in-place '
+  0,/<\?xml /{
+    /<!--/,/<\?xml/{
+     N; s@(<!--.+-->\n?)(<\?xml [^>]+\?>)@\2\1@; 
+    }
+  };
   # move comments that may be there before first starting <?xml…>
   
-  0,/<\?xml/!{s@(<\?xml[^>]+>)@<!-- xml replaced -->@}; 
+  /<!DOCTYPE rdf:RDF +\[/ {     
+      :label_DOCTYPE; N;  s@\n@@;   /<!DOCTYPE rdf:RDF .+\]>/!t label_DOCTYPE;  
+      s@(<!DOCTYPE .+\]>)@<!-- DOCTYPE rdf:RDF REPLACED -->@
+  }
+  0,/<rdf:RDF / !{    /<rdf:RDF /{    :label_rdfRDF; N;  /<rdf:RDF[^>]+[^]]>/!b label_rdfRDF;         s@<rdf:RDF[^>]*[^]]>@<!-- rdf:RDF REPLACED -->@g;    } }
+  # replace all <rdf:RDF…> but the first
+  
+  0,/<\?xml /!{
+    # TODO xml
+    s@(<\?xml [^>]+\?>)@<!-- xml replaced -->@g 
+  };
   # replace all <?xml…> but the first
   
-  0,/<rdf:RDF/!{ /<rdf:RDF/{:label_rdfRDF; N; /<rdf:RDF[^>]*>/!b label_rdfRDF; s@<rdf:RDF[^>]*>@<!-- rdf:RDF replaced -->@;} }
-  # replace all <rdf:RDF…> but the first
+  s@(<\?xml-stylesheet [^>]+\?>)@<!-- xml-stylesheet replaced -->@
+  # /<\?xml-stylesheet /,/\?>/{ };
+  # replace stylesheet
   
   s@</rdf:RDF>@@; $ a\ </rdf:RDF>
   # replace all </rdf:RDF…> but append at the very last line
   
-  /<!--.*[^<][^!]--[^>].*-->/ { # rdfparse Fatal Error:  (line 75 column 113): The string "--" is not permitted within comments.
-      :label.uriminus_in_comment; s@\s(https?://.+)--([^>]* -->)@ \1%2D%2D\2@; tlabel.uriminus_in_comment;
-    }
-  # replace all double minus -- in comments 
+  # TODO check comment in comment substitution
+  /<!--.*[^<][^!]--[^>].*-->/ { 
+    # rdfparse Fatal Error:  (line 75 column 113): The string "--" is not permitted within comments.
+    :label.uriminus_in_comment; s@\s(https?://.+)--([^>]* -->)@ \1%2D%2D\2@; tlabel.uriminus_in_comment;
+  }
+  # replace all double minus -- in comments
   
-  # fix some characters that should be encoded (see https://www.ietf.org/rfc/rfc3986.txt)
   /"https?:\/\/[^"]+[][ `\\]+[^"]*"/ { # replace characters that are not allowed in URL
       :label.urispace; s@"(https?://[^" ]+)\s@"\1%20@; tlabel.urispace;
       :label.uriaccentgrave; s@"(https?://[^"`]+)`@"\1%60@; tlabel.uriaccentgrave;
       :label.backslash; s@"(https?://[^"\\]+)\\@"\1%5C@; tlabel.backslash;
       :label.leftsquaredbracket; s@"(https?://[^"\[]+)\[@"\1%5B@; tlabel.leftsquaredbracket;
       :label.rightsquaredbracket; s@"(https?://[^"\[]+)\]@"\1%5D@; tlabel.rightsquaredbracket;
-    }
-  # add datatype to <dcterms:decimalLatitude> or <dcterms:decimalLatitude>
+  }
+  # fix some characters that should be encoded (see https://www.ietf.org/rfc/rfc3986.txt)
+  
   s@(<)([[:alpha:]]+:)(decimalLongitude|decimalLatitude)(>)([^<>]*)(</\2\3>)@\1\2\3 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"\4\5\6@g;
+  # add datatype to <dcterms:decimalLatitude> or <dcterms:decimalLatitude>
 
-  # remove double http… (some JACQ had such data)
   s@(rdf:resource|rdf:about)="(https?://[^"]+)\2"@\1="\2"@
   s@<(dwc:materialSampleID)>(https?://[^<>]+)\2</\1>@<\1>\2</\1>@
+  # remove double http…http… (some JACQ had such data)
   
-  ' "$this_file" #
-  gzip --verbose "$this_file.$bak"
+  s@& @\&amp; @g;
+  s@&([^ ;]+) @\&amp;\1 @g
+  # fix non-encoded & to &amp;
+  
+  s@https://data.rbge.org.uk:443/@https://data.rbge.org.uk/@g;
+  # fix https :443 => default HTTPS port should be ommited (tells apache/bin/turtle --validate)
+
+  ' "${this_file_modified}" #
   i=$((i + 1))
 done
-echo -e  "\e[32m# Done. Original data are kept in \e[0m${file_search_pattern}.$bak.gz\e[32m ...\e[0m" # final line break
-echo -e  "\e[32m# Each RDF file is prepared for validation and could be imported from this point on.\e[0m" # final line break
-echo -e  "\e[32m# Check also if the RDF-head is equal to the extracted ones with \e[0m${this_file%.*}_rdfRDF_headers_extracted.rdf\e[32m ...\e[0m" # final line break
-echo -e  "\e[32m# You can use command pr to print the RDF headers side by side:\e[0m" # final line break
 
-for this_file in `ls $file_search_pattern | sort --version-sort`; do exclamation='!';
-  echo     "#   f='${this_file}'; sed --quiet -r '/<rdf:RDF/{ :n_anchor;N;/<rdf:RDF[^>]*>/${exclamation}b n_anchor; s@[ \t\s]+(xmlns:)@\n  \1@g; s@\n\n@\n@g; p}' \"\${f}\" | pr --page-width 140 --merge --omit-header \${f%.*}_rdfRDF_headers_extracted.rdf -"; # final line break
+
+echo "# -----------------------"
+if [[ $(echo "$file_search_pattern" | grep ".\bgz$") ]]; then
+echo -e  "# \e[32mDone. Original data are kept in \e[0m${file_search_pattern}\e[32m ...\e[0m" # final line break
+else
+echo -e  "# \e[32mDone. Original data are kept in \e[0m${file_search_pattern}.gz\e[32m ...\e[0m" # final line break
+fi
+
+echo -e  "# \e[32mEach RDF file should be prepared for validation and could then be imported from this point on.\e[0m" # final line break
+echo -e  "# \e[32mCheck also if the RDF-head is equal to the extracted ones, e.g. in \e[0m${this_file_headers_extracted}\e[32m ...\e[0m" # final line break
+echo -e  "# \e[32mYou can use command pr to print the RDF headers side by side:\e[0m" # final line break
+fi # $DO_PRINT_ONLY_RDF_COMPARISON
+
+# file_search_pattern='Thread-*x500000-coldb.mnhn.fr_202203[0-9][0-9]-[0-9][0-9][0-9][0-9].rdf'
+# TODO check correct functioning
+
+# this_file_search_pattern=$([ $(echo "$file_search_pattern" | grep ".\bgz$") ] \
+#   && echo "${file_search_pattern}" \
+#   || echo "${file_search_pattern}.gz")
+
+
+n=`find "${this_wd}" -maxdepth 1 -type f -iname "${file_search_pattern##*/}" | wc -l `
+i=1
+logfile_rdf_headers=fixRDF_before_validateRDFs_compare-headers.sh.log
+
+echo '' > fixRDF_before_validateRDFs_compare-headers.sh.log
+for this_file in `ls ${file_search_pattern} | sort --version-sort `; do exclamation='!';
+
+  this_file_modified_is_gz=0
+  this_file_is_gz=$([ $(echo "$this_file" | grep ".\bgz$") ] && echo 1  || echo 0 )
+  
+  if [[ $this_file_is_gz -gt 0 ]];then
+    # echo " DEBUG $this_file is gz …"
+    this_file_modified="${this_file%.*.gz}_modified.rdf";
+    this_file_headers_extracted="${this_file%.*.gz}_rdfRDF_headers_extracted.rdf"
+  else
+    # echo "# DEBUG $this_file is not gz …"
+    this_file_modified="${this_file%.*}_modified.rdf";
+    this_file_headers_extracted="${this_file%.*}_rdfRDF_headers_extracted.rdf"
+  fi
+  
+  if [[ -e "${this_file_modified}.gz" ]]; then this_file_modified_is_gz=1; fi
+  
+  echo    "# -----------------------";
+  printf  "# \e[32mCompare RDF headers %03d of %03d based on \e[3m%s\e[0m …\e[0m\n" $i $n "${this_file##*/}";
+  echo -e "# ----------------------- ";
+
+  echo    "# -----------------------" >> $logfile_rdf_headers;
+  printf  "# Compare RDF headers %03d of %03d based on %s …\n" $i $n "${this_file##*/}" >> $logfile_rdf_headers;
+  echo    "# -----------------------" >> $logfile_rdf_headers;
+  i=$((i + 1))
+  
+  if ! [[ -e "$this_file_headers_extracted" ]]; then
+    echo -e "#    \e[31mError:\e[0m \e[3m${this_file_headers_extracted}\e[0m not found (skipping) …"
+    continue;
+  fi
+  
+  if ! [[ -e "$this_file_modified" ]]; then
+    if ! [[ -e "${this_file_modified}.gz" ]]; then 
+    echo -e "#    \e[31mError:\e[0m \e[3m${this_file_modified}\e[0m or \e[3m${this_file_modified}.gz\e[0m not found (skipping) …"
+    echo -e "#    Error: ${this_file_modified} or ${this_file_modified}.gz not found (skipping) …"  >> $logfile_rdf_headers
+    continue;
+    fi
+  fi
+  
+  echo -e "# \e[32mFor checking unzippd modified files\e[0m …"
+  echo -e "# For checking unzippd modified files …" >> $logfile_rdf_headers
+  echo -e "  \e[34msed\e[0m --quiet --regexp-extended \e[33m'/<rdf:RDF/{ 
+    :rdf_anchor;N;
+    /<rdf:RDF[^>]*>/${exclamation}b rdf_anchor; 
+    s@[ \\\t\s]+(xmlns:)@\\\n  \1@g; s@\\\n\\\n@\\\n@g; p;
+  }'\e[0m '${this_file_modified}' \\
+  | \e[34mpr\e[0m --page-width 140 --merge --omit-header \\
+  '${this_file_headers_extracted}' -"; # final line break
+  
+  echo -e "  sed --quiet --regexp-extended '/<rdf:RDF/{ 
+    :rdf_anchor;N;
+    /<rdf:RDF[^>]*>/${exclamation}b rdf_anchor; 
+    s@[ \\\t\s]+(xmlns:)@\\\n  \1@g; s@\\\n\\\n@\\\n@g; p;
+  }' '${this_file_modified}' \\
+  | pr --page-width 140 --merge --omit-header \\
+  '${this_file_headers_extracted}' -" >> $logfile_rdf_headers  ; # final line break
+
+  echo -e "# \e[32mFor checking zipped modified files\e[0m …"
+  echo -e "# For checking zipped modified files …"  >> $logfile_rdf_headers
+  echo -e "  \e[34mzcat\e[0m ${this_file_modified}.gz | \e[34msed\e[0m --quiet --regexp-extended \e[33m'/<rdf:RDF/{ 
+    :rdf_anchor;N;
+    /<rdf:RDF[^>]*>/${exclamation}b rdf_anchor; 
+    s@[ \\\t\s]+(xmlns:)@\\\n  \1@g; s@\\\n\\\n@\\\n@g; p;
+  }'\e[0m \\
+  | \e[34mpr\e[0m --page-width 140 --merge --omit-header \\
+  '${this_file_headers_extracted}' -"; # final line break
+  
+  echo -e " zcat ${this_file_modified}.gz | sed --quiet --regexp-extended '/<rdf:RDF/{ 
+    :rdf_anchor;N;
+    /<rdf:RDF[^>]*>/${exclamation}b rdf_anchor; 
+    s@[ \\\t\s]+(xmlns:)@\\\n  \1@g; s@\\\n\\\n@\\\n@g; p;
+  }' \\
+  | pr --page-width 140 --merge --omit-header \\
+  '${this_file_headers_extracted}' -" >> $logfile_rdf_headers  ; # final line break
+  echo -e "# ----------------------- \e[32mLogged also into \e[3m$logfile_rdf_headers\e[0m …\e[0m";
 done
+
+# gzip all *_modified.rdf
+for this_file in `ls ${file_search_pattern} | sort --version-sort `;do
+  this_file_is_gz=$([ $(echo "$this_file" | grep ".\bgz$") ]  && echo 1  || echo 0 )
+  
+  this_file_modified=`[[ $this_file_is_gz -gt 0 ]] \
+    && echo "${this_file%.*.gz}_modified.rdf" \
+    || echo "${this_file%.*}_modified.rdf"`
+  this_file_modified_gz="${this_file_modified}.gz"
+  
+  if [[ -e "$this_file_modified" ]];then 
+    if [[ -e "${this_file_modified_gz}" ]];then 
+      echo -e "# \e[32mInfo:\e[0m remove old $this_file_modified_gz and replace it …"
+      rm "$this_file_modified_gz"
+    fi
+    printf "# File "; gzip --verbose "$this_file_modified"
+  else
+    echo -e "# \e[34mWarning:\e[0m expected $this_file_modified but it was not found (skipping)"
+    continue
+  fi
+done
+
+datetime_end=`date --rfc-3339 'seconds'` ;
+echo $( date --date="$datetime_start" '+# Time Started: %Y-%m-%d %H:%M:%S%:z' )
+echo $( date --date="$datetime_end"   '+# Time Ended:   %Y-%m-%d %H:%M:%S%:z' )
+
