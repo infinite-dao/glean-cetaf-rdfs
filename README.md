@@ -284,4 +284,8 @@ docker exec -it fuseki-app bash
   ./import_rdf2trig.gz4docker-fuseki-app.sh -w '/import-data/rdf/tmpimport-nhm' -s 'NHM_import_*.trig' -d 'data.nhm.ac.uk'
 ```
 
-[^TriG] _Bizer, C. and Cyganiak, R._ 2014. ‘RDF 1.1 TriG — RDF Dataset Language. W3C Recommendation 25 February 2014’. Edited by Gavin Carothers and Andy Seaborne. https://www.w3.org/TR/trig/.
+<hr/>
+Footnotes:
+
+[^TriG]:
+  _Bizer, C. and Cyganiak, R._ 2014. ‘RDF 1.1 TriG — RDF Dataset Language. W3C Recommendation 25 February 2014’. Edited by Gavin Carothers and Andy Seaborne. https://www.w3.org/TR/trig/.
