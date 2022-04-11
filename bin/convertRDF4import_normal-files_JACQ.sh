@@ -71,7 +71,7 @@ get_timediff_for_njobs_new () {
       -t|--test)
         if ! command -v datediff &> /dev/null &&  ! command -v dateutils.ddiff &> /dev/null
         then
-          echo -e "\e[31m# Error: Neither command datediff or dateutils.ddiff could not be found. Please install package dateutils.\e[0m"
+          echo -e "# \e[31mError: Neither command datediff or dateutils.ddiff could not be found. Please install package dateutils.\e[0m"
           exit
         else
           return 0 # return [Zahl] und verlasse gesamte Funktion get_timediff_for_njobs_new
@@ -153,9 +153,9 @@ function usage() {
 function processinfo () {
 # # # #
 if [[ $debug_mode -gt 0  ]];then
-echo -e  "############  Parse and normalize RDF to TriG (\e[31mdebug mode\e[0m) ####"
+echo -e  "############  JACQ: Parse and normalize RDF to TriG (\e[31mdebug mode\e[0m) ####"
 else
-echo -e  "############  Parse and normalize RDF to TriG #################"
+echo -e  "############  JACQ: Parse and normalize RDF to TriG #################"
 fi
 
 echo -e  "# \e[32mRecommendations\e[0m before running this script …"
@@ -218,11 +218,11 @@ case $yno in
 echo -e "# \e[32mContinue ...\e[0m"
   ;;
   [nN]|[nN][oO]|[nN][eE][iI][nN])
-echo -e "\e[31m# Stop\e[0m";
+echo -e "# \e[31mStop\e[0m";
     exit 1
   ;;
   *)
-echo -e "\e[31m# Invalid or no input (stop)\e[0m"
+echo -e "# \e[31mInvalid or no input (stop)\e[0m"
     exit 1
   ;;
 esac
@@ -290,14 +290,13 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
   # add datatype to <dwc:decimalLatitude> or <dwc:decimalLatitude>
   # <http://lagu.jacq.org/object/AA-00001> <http://rs.tdwg.org/dwc/terms/decimalLongitude> "-88.98333" .
   # <http://lagu.jacq.org/object/AA-00001> <http://rs.tdwg.org/dwc/terms/decimalLatitude> "13.5"^^<http://www.w3.org/2001/XMLSchema#decimal> .
-    s@(<http://rs.tdwg.org/dwc/terms/(decimalLongitude|decimalLatitude)>)( "[^"]*")( \.)@\1\3^^<http://www.w3.org/2001/XMLSchema#decimal>\4@;
+    s@(<http://rs.tdwg.org/dwc/terms/(decimalLongitude|decimalLatitude)>)( "[^"]+")( \.)@\1\3^^<http://www.w3.org/2001/XMLSchema#decimal>\4@;
   # <http://www.w3.org/2003/01/geo/wgs84_pos#lat> "The WGS84 latitude of a SpatialThing (decimal degrees)." 
   # <http://www.w3.org/2003/01/geo/wgs84_pos#long> "The WGS84 longitude of a SpatialThing (decimal degrees)."  
-    s@(<http://www.w3.org/2003/01/geo/wgs84_pos#(lat|long)>)( "[^"]*")( \.)@\1\3^^<http://www.w3.org/2001/XMLSchema#decimal>\4@;
+    s@(<http://www.w3.org/2003/01/geo/wgs84_pos#(lat|long)>)( "[^"]+")( \.)@\1\3^^<http://www.w3.org/2001/XMLSchema#decimal>\4@;
 ' > "${import_ttl_normalized}"
 
-  echo -e  "# \e[32m      round numbers to 5 digits ...\e[0m"
-  # grep --include=\*.xml -rol -E "itudeDecimal>-?[0-9]+\.[0-9]{6,}<" . | while read filename ; do perl -pe 's/(?<=itudeDecimal>)-?[0-9]+\.[0-9]{6,}(?=<)/sprintf("%.5f",$&)/ge' "$filename"; done
+  echo -e  "# \e[32m      round geographic numbers to 5 digits (about 1m accuracy) ...\e[0m"
   grep --only-matching --files-with-matches --extended-regexp "(decimal(Latitude|Longitude)>|wgs84_pos#(lat|long)>) \"-?[0-9]+\.[0-9]{6,}\"" "${import_ttl_normalized}" \
   | while read this_filename ; do perl -i -pe '
   s/(?<=decimalLatitude> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge; 
@@ -308,7 +307,7 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
   
 # plus trig format
   echo -e  "# \e[32m(3)   create formatted TriG                  ${import_ttl_normalized}.trig ...\e[0m" ;
-  $apache_jena_bin/turtle --validate "${import_ttl_normalized}" > "${log_turtle2trig_warnEtError}"
+  $apache_jena_bin/turtle --validate "${import_ttl_normalized}" > "${log_turtle2trig_warnEtError}" 2>&1
   $apache_jena_bin/turtle --quiet --output=trig --formatted=trig "${import_ttl_normalized}" > "${import_ttl_normalized}.trig"
 
   echo -e  "# \e[32m(4)   add/check ROR ID (... bak.jacq.org, brnu.jacq.org aso.)\e[0m" ;
@@ -782,11 +781,11 @@ echo -e $( date --date="$datetime_start" '+# \e[32mTime Started:\e[0m %Y-%m-%d %
 echo -e $( date --date="$datetime_end"   '+# \e[32mTime Ended:\e[0m   %Y-%m-%d %H:%M:%S%:z' )
 
 echo  -e "# \e[32mCheck compressed logs by, e.g. ...\e[0m"
-echo  -e "# \e[32m   zgrep --color=always --ignore-case 'error\|warning' *.log.gz\e[0m"
-echo  -e "# \e[32m   zgrep --ignore-case 'error\|warning' *.log.gz | sed --regexp-extended 's@file:///(.+)/(\./Thread)@\2@;s@^Thread-[^:]*:@@;'\e[0m"
-echo  -e "# \e[32m   zcat *${file_search_pattern}*.log* | grep --color=always --ignore-case 'error\|warning' \e[0m"
+echo  -e "# \e[32m   zgrep --color=always --ignore-case 'error\|warn' *.log.gz\e[0m"
+echo  -e "# \e[32m   zgrep --ignore-case 'error\|warn' *.log.gz | sed --regexp-extended 's@file:///(.+)/(\./Thread)@\2@;s@^Thread-[^:]*:@@;'\e[0m"
+echo  -e "# \e[32m   zcat *${file_search_pattern}*.log* | grep --color=always --ignore-case 'error\|warn' \e[0m"
 if [[ `ls  *${file_search_pattern}*.log* 2> /dev/null | wc -l` -gt 0 ]];then
-echo  -e "\e[31m#    `ls  *${file_search_pattern}*.log* 2> /dev/null | wc -l` log files found with warnings or errors\e[0m"
+echo  -e "# \e[31m   `ls  *${file_search_pattern}*.log* 2> /dev/null | wc -l` log files found with warnings or errors\e[0m"
 else
 echo  -e "# \e[32m   No log files generated (i.e. no errors, warnings)\e[0m"
 fi
