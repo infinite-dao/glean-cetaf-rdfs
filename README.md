@@ -287,5 +287,5 @@ docker exec -it fuseki-app bash
 <hr/>
 Footnotes:
 
-[^TriG]:
+[^Trig]:
   _Bizer, C. and Cyganiak, R._ 2014. ‘RDF 1.1 TriG — RDF Dataset Language. W3C Recommendation 25 February 2014’. Edited by Gavin Carothers and Andy Seaborne. https://www.w3.org/TR/trig/.
