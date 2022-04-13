@@ -255,7 +255,7 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
     this_bak_extension=".bak_illegal_iri"
     printf   "\e[31m# (0) Fix illegal IRI characters in %s URLs (backup original RDF in %s${this_bak_extension}.gz)...\n\e[0m" $n_of_illegal_iri_character_in_urls "${rdfFilePath}";
     if [[ -e "${rdfFilePath}${this_bak_extension}" ]] || [[ -e "${rdfFilePath}${this_bak_extension}.gz" ]];then
-      printf   "\e[31m# (0)   Warning: keep existing back up file untouched (%s${this_bak_extension})...\n\e[0m" "${rdfFilePath}";
+      printf   "\e[31m# (0)   Info: still in DEVELOPMENT so back up existing file (%s${this_bak_extension})...\n\e[0m" "${rdfFilePath}";
       this_bak_extension=""
     fi
     sed --regexp-extended -i${this_bak_extension} '
@@ -297,14 +297,24 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
     s@(<http://www.w3.org/2003/01/geo/wgs84_pos#(lat|long)>)( "[^"]+")( \.)@\1\3^^<http://www.w3.org/2001/XMLSchema#decimal>\4@;
 ' > "${import_ttl_normalized}"
 
-  echo -e  "# \e[32m      round geographic numbers to 5 digits (about 1m accuracy) ...\e[0m"
-  grep --only-matching --files-with-matches --extended-regexp "(decimal(Latitude|Longitude)>|wgs84_pos#(lat|long)>) \"-?[0-9]+\.[0-9]{6,}\"" "${import_ttl_normalized}" \
-  | while read this_filename ; do perl -i -pe '
-  s/(?<=decimalLatitude> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge; 
-  s/(?<=decimalLongitude> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge; 
-  s/(?<=wgs84_pos#lat> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge; 
-  s/(?<=wgs84_pos#long> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge;' \
-  "$this_filename"; done
+  # check for decimal numbers to round
+  echo -en "# \e[32m      check for geographic digits at 5 digits (about 1m accuracy) ...\e[0m"
+  
+  this_files_long_decimal_numbers=""
+  this_files_long_decimal_numbers=` grep --max-count=1 --only-matching --files-with-matches --extended-regexp "(decimal(Latitude|Longitude)>|wgs84_pos#(lat|long)>) \"-?[0-9]+\.[0-9]{6,}\"" "${import_ttl_normalized}"`
+  
+  if ! [[ -z ${this_files_long_decimal_numbers//[\t ]/} ]];then
+  echo -en "# \e[32mproceed and round numbers ...\e[0m\n"
+    grep --max-count=1 --only-matching --files-with-matches --extended-regexp "(decimal(Latitude|Longitude)>|wgs84_pos#(lat|long)>) \"-?[0-9]+\.[0-9]{6,}\"" "${import_ttl_normalized}" \
+    | while read this_filename ; do perl -i -pe '
+    s/(?<=decimalLatitude> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge; 
+    s/(?<=decimalLongitude> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge; 
+    s/(?<=wgs84_pos#lat> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge; 
+    s/(?<=wgs84_pos#long> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge;' \
+    "$this_filename"; done
+  else
+  echo -en "# \e[32mno number match found\e[0m\n"  
+  fi
 
 # plus trig format
   echo -e  "# \e[32m(3)   create formatted TriG                  ${import_ttl_normalized}.trig ...\e[0m" ;
