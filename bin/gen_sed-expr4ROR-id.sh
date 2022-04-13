@@ -1,16 +1,20 @@
 #!/bin/bash
+# TODO generate vor paris pattern ^<https?:\/\/coldb.mnhn.fr\/catalognumber\/mnhn\/[a-z]+\/[^<>]+
 # generate sed search pattern for trig formatted RDF
 # See also
 # - https://ror.org
 # - https://www.worldcat.org/identities/
 # - http://viaf.org
 
-
+# [ "${SED_EXPRESSION_MATCH_CETAFID["coldb.mnhn.fr/cudairneg"]+irgendwas}" ] && echo "exists" || echo "existiert nicht"
+# [ "${SED_EXPRESSION_MATCH_CETAFID["coldb.mnhn.fr/catalognumber/mnhn/"]+irgendwas}" ] && echo "exists" || echo "existiert nicht"
+    
 declare -A ROR_OR_INSTITUTION # associative array
+declare -A SED_EXPRESSION_MATCH_CETAFID # associative array
+
 # ROR_OR_INSTITUTION["domain-cetaf-ID-fixed-pattern-path-without-ID"]="URL-ROR-ID", e.g. 
 ROR_OR_INSTITUTION["coldb.mnhn.fr/catalognumber/mnhn/"]="https://ror.org/03wkt5x30"
-
-# ROR_OR_INSTITUTION["coldb.mnhn.fr/catalognumber/mnhn/"]="https://ror.org/03wkt5x30"
+  SED_EXPRESSION_MATCH_CETAFID["coldb.mnhn.fr/catalognumber/mnhn/"]="^<https?:\/\/coldb.mnhn.fr\/catalognumber\/mnhn\/[a-z]+\/[^<>]+>"
 # ROR_OR_INSTITUTION["data.biodiversitydata.nl/naturalis/specimen/"]="https://ror.org/0566bfb96"
 # ROR_OR_INSTITUTION["data.nhm.ac.uk/object/"]="https://ror.org/039zvsn29"
 # ROR_OR_INSTITUTION["data.rbge.org.uk/herb/"]="https://ror.org/0349vqz63"
@@ -95,7 +99,14 @@ for null_index in "${!ROR_OR_INSTITUTION_DOMAIN_sorted[@]}";do
   echo "#   https://wu.jacq.org/WU-MYC "
   echo "#   https://wu.jacq.org/WU "
   fi
+  
+  # fix sed search match for some institution IDs
+  if [ -v 'SED_EXPRESSION_MATCH_CETAFID[$domain_part]' ];then
+  echo "/${SED_EXPRESSION_MATCH_CETAFID[$domain_part]}/ {"
+  else
   echo "/^<https?:\/\/"${domain_part_with_slash//\//\\/}"[^<>/]+>/ {"
+  fi
+
   echo "  :label_uri-entry_"${domain_part//\//SLASH}
   echo "  N                                     # append lines via \n into patternspace"
   echo "  / \.$/!b label_uri-entry_"${domain_part//\//SLASH}" # go back if last char is not a dot"
@@ -103,17 +114,17 @@ for null_index in "${!ROR_OR_INSTITUTION_DOMAIN_sorted[@]}";do
   echo "  # skip adding ROR_OR_INSTITUTION ID, add publisher"
   else
   echo "  # add ROR_OR_INSTITUTION ID eventually to the final dot, and remove possible duplicates
-     s@(\\s+[.])\$@ ;\\n        <http://rs.tdwg.org/dwc/terms/institutionID>  <${ROR_OR_INSTITUTION[$domain_part]}>\\1@;
-     s@<http://rs.tdwg.org/dwc/terms/institutionID>  <${ROR_OR_INSTITUTION[$domain_part]}>\\s+[;]\\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  ${ROR_OR_INSTITUTION[$domain_part]} .)@\\1\\2@; "
+     s@(\s+[.])\$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  <${ROR_OR_INSTITUTION[$domain_part]}>\1@;
+     s@<http://rs.tdwg.org/dwc/terms/institutionID>  <${ROR_OR_INSTITUTION[$domain_part]}>\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  ${ROR_OR_INSTITUTION[$domain_part]} .)@\1\2@; "
   fi # institutionID
   echo "  # add dcterms:isPartOf, dcterms:hasPart, dcterms:conformsTo"
-  echo "  s@(\\s+[.])\$@ ;\\n        <http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_(CSPP)>\\1@;"
+  echo "  s@(\s+[.])\$@ ;\n        <http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_(CSPP)>\1@;"
   if [[ $domain_part =~ .fi$ ]];then
-  echo "  s@(\\s+[.])\$@ ;\\n        <http://purl.org/dc/terms/isPartOf>  <http://gbif.fi>\\1@;"
+  echo "  s@(\s+[.])\$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://gbif.fi>\1@;"
   fi
   if [[ $domain_part =~ jacq.org ]];then
-  echo "  s@(\\s+[.])\$@ ;\\n        <http://purl.org/dc/terms/isPartOf>  <http://jacq.org>\\1@;"
-  echo "  s@(\\s+[.])\$@ ;\\n        <http://purl.org/dc/terms/isPartOf>  <${domain_only_http}>\\1@;"
+  echo "  s@(\s+[.])\$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://jacq.org>\1@;"
+  echo "  s@(\s+[.])\$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <${domain_only_http}>\1@;"
   fi
   if [[ $domain_part =~ lagu.jacq.org ]];then
   echo "  # add dcterms:publisher"
@@ -131,9 +142,14 @@ for null_index in "${!ROR_OR_INSTITUTION_DOMAIN_sorted[@]}";do
   echo "  s@(\s+[.])\$@ ;\n        <http://purl.org/dc/terms/publisher>  <http://www.rbge.org.uk>\1@;"
   echo "  s@(<http://purl.org/dc/terms/publisher>  <http://www.rbge.org.uk>\s+[;]\n +)(<.+)(<http://purl.org/dc/terms/publisher>  <http://www.rbge.org.uk> .)@\2\3@;"
   fi
-  
-  echo "  s@(\\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\\n +<.+[.])\$@\\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\\1\\2@;"
-  echo "  s@(\\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\\n +<.+[.])\$@\\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\\1\\2@;"
+
+  if [[ $domain_part =~ coldb.mnhn.fr ]];then
+  echo "  # add isPartOf for sub collections mnhn/pc/ mnhn/zo/ and so on"
+  echo "  s@^<(https?://coldb.mnhn.fr/catalognumber/mnhn/[^<>/]+/)([^<>]+)>(.+)(\s+[.])$@<\1\2>\3 ;\n        <http://purl.org/dc/terms/isPartOf>  <\1>\4@;"
+  fi
+
+  echo "  s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])\$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;"
+  echo "  s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\n +<.+[.])\$@\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\1\2@;"
   echo "} ## end ROR_OR_INSTITUTION $domain_part"
 done
 
