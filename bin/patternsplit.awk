@@ -8,6 +8,8 @@
 #     awk -v fileprefix="SNSB_1_" -f ~/bin/patternsplit.awk Threads_import_1_20201116.rdf._normalized.ttl.one_lines_filtered.trig
 #     awk -v fileprefix="JACQ_1_" -f ~/sandbox/import/bin/patternsplit.awk Thread-1_jacq.org_20211117-1006.rdf._normalized.ttl.trig
 #     awk -v fileprefix="cetaf_ids_all-records-splitted_" -v headerprefix="PREFIX dwc: <http://rs.tdwg.org/dwc/terms/>" -f ~/sandbox/import/bin/patternsplit.awk cetaf_ids_all-records_www.mnhn.fr.dwc-institutionID.sparql
+#     zcat Thread-10_xx-data.rbge.org.uk_20220302-1115.rdf._normalized.ttl.trig.gz | \
+#        awk -v fileprefix="Edinburgh_20220228ff_" -v compress_files=1 -f /opt/jena-fuseki/import-sandbox/bin/patternsplit.awk -
 ##################################################
 #   
 BEGIN {
@@ -32,20 +34,28 @@ BEGIN {
     
     max_strlen=50000000                                       # can be modified 50000000: about 48MB uncompressed
     
-    printf "# Split file based on search pattern (see code) and max %d string length each to %s01, %s02 etc. ...\n", max_strlen, fileprefix, fileprefix;
+    printf "# Split file based on search pattern (see code) and max %d string length each\n#   to %s01,\n#   to %s02 aso. ...\n", max_strlen, fileprefix, fileprefix;
     printf "#   Write: %s%02d%s ...\n", this_fileprefix,fileno,this_fileext;
 }
 {
     current_strlength += length()
 }
-##################################################
-# check or modify search pattern between /.../
-##################################################
-# current_strlength > max_strlen && /<http:\/\/rs.tdwg.org\/dwc\/terms\/InstitutionCode> "Botanic Garden Meise"/ {
-# current_strlength > max_strlen && /<http:\/\/services.snsb.info\// {
-# current_strlength > max_strlen && /<https?:\/\/data.nhm.ac.uk\/object\/[^>]+\.rdf>/ {
-current_strlength > max_strlen && /<https?:\/\/.*jacq.org\/data\/rdf\/[^>]+>/ {
+################################################################
+# Search pattern where to split the file, check or modify 
+# search pattern between /.../ to meet the right splitting point
+################################################################
+# current_strlength > max_strlen && /^<http:\/\/rs.tdwg.org\/dwc\/terms\/InstitutionCode> "Botanic Garden Meise"/ {
+# current_strlength > max_strlen && /^<http:\/\/services.snsb.info\// {
+# # # # # NHM London
+# current_strlength > max_strlen && /^<https?:\/\/data.nhm.ac.uk\/object\/[^>]+\.rdf>/ {
+# # # # # JACQ
+# current_strlength > max_strlen && /^<https?:\/\/.*jacq.org\/data\/rdf\/[^>]+>/ {
+# # # # # RBGE Kew
+# current_strlength > max_strlen && /^<https?:\/\/data.rbge.org.uk\/herb\/[^>]+>/ {
+# # # # # MNHN Paris
 # current_strlength > max_strlen && /INSERT DATA .* <http:\/\/coldb.mnhn.fr\/catalognumber\/mnhn\// {
+current_strlength > max_strlen && /^<https?:\/\/coldb.mnhn.fr\/catalognumber\/mnhn\/[a-z]+\// {
+  
     this_outputfile = sprintf ("%s%02d%s", this_fileprefix,fileno,this_fileext);
     close(this_outputfile) # old file
     fileno++
@@ -59,8 +69,8 @@ current_strlength > max_strlen && /<https?:\/\/.*jacq.org\/data\/rdf\/[^>]+>/ {
 }
 END {
   if (int(this_compress_files) > 0) { 
-    print "# compress files to .gz"
     this_outputfile_pattern = sprintf ("%s%s%s", this_fileprefix, "*",this_fileext);
-    system ("gzip --verbose " this_outputfile_pattern)
+    print "#   Compressing files: \033[34mgzip\033[0m --quiet --force … " this_outputfile_pattern
+    system ("gzip --quiet --force " this_outputfile_pattern)
   } 
 }
