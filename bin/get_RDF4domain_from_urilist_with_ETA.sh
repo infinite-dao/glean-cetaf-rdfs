@@ -141,6 +141,10 @@ echo -ne "# Do you want to proceed with downloading?\n# [\e[32myes\e[0m or \e[31
 
 }
 
+if [[ ${#} -eq 0 ]]; then
+    usage; exit 0;
+fi
+
 # read command line options (those with a colon require a mandatory option argument)
 while getopts "d:h:j:u:lrt" o; do
     case $o in
@@ -200,8 +204,8 @@ else
   fi
 fi
 
-get_info_http_return_codes() {
-  # usage: get_info_http_return_codes 'output log from wget or curl something containing HTTP return codes'
+get_info_and_http_return_codes() {
+  # usage: get_info_and_http_return_codes 'output log from wget or curl something containing HTTP return codes'
   # dependency: awk
   # dependency: grep
   # dependency: wget
@@ -222,24 +226,26 @@ get_info_http_return_codes() {
   
   if [[ -z ${this_return_codes// /} ]]; then
     this_error_messages=$(echo "$this_wget_log" | sed --silent '/^ERROR/{N;s@\n@ @;p}')
-    echo "$this_wget_log" | sed --silent "1 { s@\$@ Codes: unknown. ${this_error_messages}@;p}"
+    # echo "$this_wget_log" | sed --silent "1 { s@\$@ Codes: unknown. ${this_error_messages}@;p}"
+    echo "$this_wget_log" | sed --silent --regexp-extended "/--[0-9]+-[0-9]+-[0-9]+ .+https?:/{ s@\$@ Codes: unknown. ${this_error_messages}@; p; q;}"
   else
-    echo "$this_wget_log" | sed --silent "1 { s@\$@ Codes: ${this_return_codes}@;p}"
+    # echo "$this_wget_log" | sed --silent "1 { s@\$@ Codes: ${this_return_codes}@;p}"
+    echo "$this_wget_log" | sed --silent --regexp-extended "/--[0-9]+-[0-9]+-[0-9]+ .+https?:/{ s@\$@ Codes: ${this_return_codes}@; p; q;}"
   fi
 }
-export -f get_info_http_return_codes # export needed otherwise /usr/bin/bash: get_timediff_for_njobs_new: command not found
+export -f get_info_and_http_return_codes # export needed otherwise /usr/bin/bash: get_timediff_for_njobs_new: command not found
 
 get_timediff_for_njobs_new () {
-# Description: calculate estimated time to finish n jobs (here, it only prints the estimate and $njobs_done_so_far is commented out)
-# # # # # 
-# Usage:
-# get_timediff_for_njobs_new --test # to check for dependencies (datediff)
-# get_timediff_for_njobs_new begintime nowtime ntotaljobs njobscurrentlydone
-# get_timediff_for_njobs_new "2021-12-06 16:47:29" "2021-12-09 13:38:08" 696926 611613
-# # # # # # # # # # # # # # # # # # 
-# echo '('`date +"%s.%N"` ' * 1000)/1' | bc # get milliseconds
-# echo '('`date +"%s.%N"` ' * 1000000)/1' | bc # get nanoseconds
-# echo $( date --rfc-3339 'ns' ) | ( read -rsd '' x; echo ${x@Q} ) # escaped
+  # Description: calculate estimated time to finish n jobs (here, it only prints the estimate and $njobs_done_so_far is commented out)
+  # # # # # 
+  # Usage:
+  # get_timediff_for_njobs_new --test # to check for dependencies (datediff)
+  # get_timediff_for_njobs_new begintime nowtime ntotaljobs njobscurrentlydone
+  # get_timediff_for_njobs_new "2021-12-06 16:47:29" "2021-12-09 13:38:08" 696926 611613
+  # # # # # # # # # # # # # # # # # # 
+  # echo '('`date +"%s.%N"` ' * 1000)/1' | bc # get milliseconds
+  # echo '('`date +"%s.%N"` ' * 1000000)/1' | bc # get nanoseconds
+  # echo $( date --rfc-3339 'ns' ) | ( read -rsd '' x; echo ${x@Q} ) # escaped
     
   local this_command_timediff
   
@@ -305,19 +311,19 @@ get_timediff_for_njobs_new --test
 
 
 getrdf_with_urlstatus_check() {
-# Description: function for use with command `parallel` to get the URL status code (200 OK, 404 NOT FOUND etc.)
-# # # # # 
-# Usage: (it has 7 or 8 arguments)
-# Usage: getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} uri domainname $time_now $time_started [PROGRESS_LOGFILE]
-# # # # # 
-# dependency: get_info_http_return_codes
-# dependency: get_timediff_for_njobs
-# dependency: parallel
-# dependency: wget
-# dependency: sed
-# dependency: dateutils (diff)
-# # # # # 
-# echo "# DEBUG ${FUNCNAME[0]}, line ${LINENO}, arguments: $@"
+  # Description: function for use with command `parallel` to get the URL status code (200 OK, 404 NOT FOUND etc.)
+  # # # # # 
+  # Usage: (it has 7 or 8 arguments)
+  # Usage: getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} uri domainname $time_now $time_started [PROGRESS_LOGFILE]
+  # # # # # 
+  # dependency: get_info_and_http_return_codes
+  # dependency: get_timediff_for_njobs
+  # dependency: parallel
+  # dependency: wget
+  # dependency: sed
+  # dependency: dateutils (diff)
+  # # # # # 
+  # echo "# DEBUG ${FUNCNAME[0]}, line ${LINENO}, arguments: $@"
 
   local this_job_number=$1   # {%}
   local this_job_counter=$2  # {#}
@@ -347,26 +353,26 @@ getrdf_with_urlstatus_check() {
     echo "this_zeropadded_job_number: $this_zeropadded_job_number" >> "$DEBUGLOGFILE"
   fi
   this_loginfo=$(printf '%s file job %02d (step %06d of %06d, %s)' Thread-${this_zeropadded_job_number}_${this_domainname}_${this_datetime_now}.rdf "${this_job_number}" "${this_job_counter}" "${this_jobs_total}" "${this_estimated_todo}")
-#   echo $(date --date="2021-12-06 16:47:29" '+%s')
-  # uri='https://data.nhm.ac.uk/object/a9f64c90-1703-4397-8a31-7a877e3e7d44'
-  # -----------------
-  # getting response-code before is slow; better let wget go ahead and evaluate the log after download
-  # this_return_codes=$(wget --spider --server-response $this_uri 2>&1 | grep "HTTP/" | awk 'BEGIN{ ORS=";"; }{ if ($2 >= 200 && $2 < 400) {print "OK:",$2} else {print "ERROR:",$2}}')
-  # https://data.nhm.ac.uk/object/a9f64c90-1703-4397-8a31-7a877e3e7d44;OK: 303;OK: 200;
-  # https://data.nhm.ac.uk/object/a9f64c90-1703-4397-8a31-7a877e3e7d44-not-existing;ERROR: 404;
-  # -----------------
-  # using wget including download RDF
-  # wget_log=$( { wget --header='Accept: application/rdf+xml' --max-redirect 4 --content-on-error -O - "http://data.nhm.ac.uk/object/4c19e397-de11-47ea-a775-5ae2869edb5d" >> "Thread-test.rdf" ; } 2>&1  )
-  # this_return_codes=$(echo "$wget_log" | grep "HTTP request sent, awaiting response..." | awk 'BEGIN{ FS="\\.\\.\\. ";ORS=";"; }{ if ($2 >= 200 && $2 < 400) {print "OK:",$2} else {print "ERROR:",$2}}')
-  # echo "$wget_log" | sed --silent "1 { s@\$@ Codes: ${this_return_codes}@;p}"
-  # --2020-11-11 12:34:26--  http://data.nhm.ac.uk/object/4c19e397-de11-47ea-a775-5ae2869edb5d Codes: OK: 302 Redirect;OK: 303 SEE OTHER;OK: 200 OK;
-  # -----------------
-  # wget_log=$( { wget --header='Accept: application/rdf+xml' --max-redirect 4 -O - "$this_uri" >> "Thread-${this_zeropadded_job_number}_${this_domainname}_${this_datetime_now}.rdf"; } 2>&1  )
+  #   echo $(date --date="2021-12-06 16:47:29" '+%s')
+    # uri='https://data.nhm.ac.uk/object/a9f64c90-1703-4397-8a31-7a877e3e7d44'
+    # -----------------
+    # getting response-code before is slow; better let wget go ahead and evaluate the log after download
+    # this_return_codes=$(wget --spider --server-response $this_uri 2>&1 | grep "HTTP/" | awk 'BEGIN{ ORS=";"; }{ if ($2 >= 200 && $2 < 400) {print "OK:",$2} else {print "ERROR:",$2}}')
+    # https://data.nhm.ac.uk/object/a9f64c90-1703-4397-8a31-7a877e3e7d44;OK: 303;OK: 200;
+    # https://data.nhm.ac.uk/object/a9f64c90-1703-4397-8a31-7a877e3e7d44-not-existing;ERROR: 404;
+    # -----------------
+    # using wget including download RDF
+    # wget_log=$( { wget --header='Accept: application/rdf+xml' --max-redirect 4 --content-on-error -O - "http://data.nhm.ac.uk/object/4c19e397-de11-47ea-a775-5ae2869edb5d" >> "Thread-test.rdf" ; } 2>&1  )
+    # this_return_codes=$(echo "$wget_log" | grep "HTTP request sent, awaiting response..." | awk 'BEGIN{ FS="\\.\\.\\. ";ORS=";"; }{ if ($2 >= 200 && $2 < 400) {print "OK:",$2} else {print "ERROR:",$2}}')
+    # echo "$wget_log" | sed --silent "1 { s@\$@ Codes: ${this_return_codes}@;p}"
+    # --2020-11-11 12:34:26--  http://data.nhm.ac.uk/object/4c19e397-de11-47ea-a775-5ae2869edb5d Codes: OK: 302 Redirect;OK: 303 SEE OTHER;OK: 200 OK;
+    # -----------------
+    # wget_log=$( { wget --header='Accept: application/rdf+xml' --max-redirect 4 -O - "$this_uri" >> "Thread-${this_zeropadded_job_number}_${this_domainname}_${this_datetime_now}.rdf"; } 2>&1  )
   wget_log=$( { wget --header='Accept: application/rdf+xml' --no-check-certificate --max-redirect 4 -O - "$this_uri" >> "Thread-${this_zeropadded_job_number}_${this_domainname}_${this_datetime_now}.rdf"; } 2>&1  )
 
   echo "$wget_log" >> "Thread-${this_zeropadded_job_number}_${this_domainname}_${this_datetime_now}.log"
 
-  download_info="${this_loginfo} "`get_info_http_return_codes "$wget_log"`
+  download_info="${this_loginfo} "`get_info_and_http_return_codes "$wget_log"`
   
   if   [[ -z ${this_progress_logfile// /} ]] ; then
     echo "${download_info}"
@@ -459,7 +465,7 @@ else   # PROGRESS_LOGFILE and log into file
   # take start time
   if   [[ -z ${test_mode// /} ]] ; then
     # echo "# DEBUG script line ${LINENO}: PROGRESS_LOGFILE not zero; test mode zero"
-    echo -e "# Running $TOTAL_JOBS jobs. See progress log files:\n  tail ${PROGRESS_LOGFILE} # logging all progress or\n  tail ${PROGRESS_LOGFILE%.*}_error.log # loggin errors only: 404 500 etc." 
+    echo -e "# Running $TOTAL_JOBS jobs. See progress log files:\n  tail ${PROGRESS_LOGFILE}       # logging all progress or\n  tail ${PROGRESS_LOGFILE%.*}_error.log # loggin errors only: 404 500 etc." 
     echo -e "# ------------------------------" 1>&2; 
     echo    "# To interrupt all the downloads in progress you have to:" 1>&2; 
     echo -e "#   (1) kill process ID (PID) of \e[34m${0##*/}\e[0m, find it by:" 1>&2; 
@@ -478,7 +484,7 @@ else   # PROGRESS_LOGFILE and log into file
     fi
   else
     # echo "# DEBUG script line ${LINENO}: PROGRESS_LOGFILE not zero; test mode not zero"
-    echo -e "# Running in TEST MODE ($TOTAL_JOBS jobs). See progress log files:\n  tail ${PROGRESS_LOGFILE} # logging all progress or\n  tail ${PROGRESS_LOGFILE%.*}_error.log # loggin errors only: 404 500 etc." 
+    echo -e "# Running in TEST MODE ($TOTAL_JOBS jobs). See progress log files:\n  tail ${PROGRESS_LOGFILE}       # logging all progress or\n  tail ${PROGRESS_LOGFILE%.*}_error.log # loggin errors only: 404 500 etc." 
     echo -e "# ------------------------------" 1>&2; 
     echo    "# To interrupt all the downloads in progress you have to:" 1>&2; 
     echo -e "#   (1) kill process ID (PID) of \e[34m${0##*/}\e[0m, find it by:" 1>&2; 
