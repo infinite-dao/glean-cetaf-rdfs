@@ -451,9 +451,12 @@ if   [[ -z ${PROGRESS_LOGFILE// /} ]] ; then
   #   echo "# Started: $datetime_start" 
   #   echo "# Ended:   $datetime_end"   
   
-  $exec_datediff "$datetime_start" "$datetime_end" -f "# Done. $TOTAL_JOBS jobs took %dd %Hh:%Mm:%Ss" 
-  echo "# compress all files Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.rdf …"
+  $exec_datediff "$datetime_start" "$datetime_end" -f "# Done. $TOTAL_JOBS jobs took %dd %Hh:%Mm:%Ss using $N_JOBS parallel connections" 
+  echo -e "# Hint: use \e[1;34mzgrep\e[0m or \e[1;34mzcat\e[0m … | \e[1;34mtail\e[0m    to search or list file content on gz text files" 
+  echo    "# Compress all files Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.rdf …"
   gzip --verbose $(echo "Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.rdf")
+  echo    "# Compress all files Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.log …"
+  gzip --verbose $(echo "Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.log")
 
 else   # PROGRESS_LOGFILE and log into file
   # echo "# DEBUG script line ${LINENO}: PROGRESS_LOGFILE not zero"
@@ -509,10 +512,11 @@ else   # PROGRESS_LOGFILE and log into file
   echo $( date --date="$datetime_end"   '+# Ended:   %Y-%m-%d %H:%M:%S%:z' ) >> "${PROGRESS_LOGFILE}"
   # echo "# Started: $datetime_start" >> "${PROGRESS_LOGFILE}"
   # echo "# Ended:   $datetime_end"   >> "${PROGRESS_LOGFILE}"
-  $exec_datediff "$datetime_start" "$datetime_end" -f "# Done. $TOTAL_JOBS jobs took %dd %Hh:%Mm:%Ss" >> "${PROGRESS_LOGFILE}"
-  echo "# compress all files Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.rdf …" >> "${PROGRESS_LOGFILE}"
+  $exec_datediff "$datetime_start" "$datetime_end" -f "# Done. $TOTAL_JOBS jobs took %dd %Hh:%Mm:%Ss using $N_JOBS parallel connections" >> "${PROGRESS_LOGFILE}"
+  echo -e "# Hint: use zgrep or zcat … | tail   to search or list file content on gz text files"  >> "${PROGRESS_LOGFILE}"
+  echo    "# compress all files Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.rdf …" >> "${PROGRESS_LOGFILE}"
   gzip --verbose $(echo "Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.rdf") &>> "${PROGRESS_LOGFILE}"
-  echo "# compress all files Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.log …" >> "${PROGRESS_LOGFILE}"
+  echo    "# compress all files Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.log …" >> "${PROGRESS_LOGFILE}"
   gzip --verbose $(echo "Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.log") &>> "${PROGRESS_LOGFILE}"
   # unix_seconds_end=$(date +"%s")
   # echo `date -u -d "0 ${unix_seconds_end} sec -  ${unix_seconds_start} sec - $(date -u -d "$datetime_start - 1 day" +"%j") days" +"Done. $TOTAL_JOBS jobs took %j days (minus 1 day) %Hh%Mm%Ss"` >> "${PROGRESS_LOGFILE}"
