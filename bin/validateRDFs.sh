@@ -55,7 +55,7 @@ this_wd="$PWD"
 n=`find "${this_wd}" -maxdepth 1 -type f -iname "${file_search_pattern##*/}" | sort --version-sort | wc -l `
 
 function file_search_pattern_default () {
-  printf "Threads_import_*_%s.rdf" $(date '+%Y%m%d')
+  printf "Thread-[0-9]*-*%s*_modified.rdf.gz" $(date '+%Y%m%d')
 }
 export file_search_pattern_default
 
@@ -68,12 +68,12 @@ function usage() {
   echo -e "############ \e[32mValidate RDF\e[0m (using apache jena binary) #################" 1>&2; 
   echo -e "# This script uses \e[34m${apache_jena_bin}/rdfxml\e[0m --validate RDF_file.rdf" 1>&2; 
   echo -e "# " 1>&2; 
-  echo -e "# Usage: \e[34m${0##*/}\e[0m " 1>&2; 
+  echo -e "# Usage: \e[34m${0##*/}\e[0m [-s 'Thread-*_modified.rdf.gz' ] [-l 'validate_RDF_specific-file-case.log' ]" 1>&2; 
   echo    "#   -h  ...................................... show this help usage" 1>&2; 
-  echo -e "#   -s  \e[32m'Thread*file-search-pattern*.rdf'\e[0m .... optional specific search pattern" 1>&2; 
+  echo -e "#   -s  \e[32m'Thread*file-search-pattern*.rdf'\e[0m ...... optional specific search pattern" 1>&2; 
   echo -e "#       Note: the pattern set by the script now, is \e[32m'${file_search_pattern}'\e[0m (i.e. ${n} files)" 1>&2; 
   echo -e "#       you must use quotes around '*pattern*' (default: '$(file_search_pattern_default)')" 1>&2; 
-  echo -e "#   -l  \e[32m'validate_RDF_specific-case.log'\e[0m ..... optional a specific log file to write to in this directory" 1>&2; 
+  echo -e "#   -l  \e[32m'validate_RDF_specific-file-case.log'\e[0m .. optional a specific log file to write to in this directory" 1>&2; 
   echo -e "#       (default: '\e[32m$(default_log_file)\e[0m')" 1>&2; 
   exit 1; 
 }
@@ -103,27 +103,28 @@ export processinfo
 # set (i)ndex and (n)umber of files alltogether
 
 # s: → option s needs an argument
-while getopts hl:s: options; do
+while getopts "hl:s:" options; do
     case "${options}" in
         h)
-            usage; exit 0;
+            usage;
             ;;
         l)
             this_logfile="${OPTARG}"
-            if [[ $this_logfile =~ ^- ]];then
-              echo -e "\e[33mError:\e[0m option -l requires an argument, please specify e.g. \e[3m-l 'special-logfile.log'\e[0m or let it run without -l option (default: '\e[32m$(default_log_file)\e[0m')."; exit 1;
+            if [[ $this_logfile =~ ^- ]];then # the next option was given without this option having an argument
+              echo -e "\e[33mOption Error:\e[0m option -l requires an argument, please specify e.g. \e[3m-l 'special-logfile.log'\e[0m or let it run without -l option (default: '\e[32m$(default_log_file)\e[0m')."; exit 1;
             fi
             logfile=$( [[ -z ${this_logfile// /} ]] && echo "$(default_log_file)" || echo "$this_logfile" );
             ;;
         s)
-            this_file_search_pattern=${OPTARG} # TODO problems when file_search_pattern is not wrapped by quotes
-            if [[ $this_file_search_pattern =~ ^- ]];then
-              echo -e "\e[33mError:\e[0m option -s requires an argument, please specify e.g. \e[3m-s 'Thread*file-search-pattern*.rdf.gz'\e[0m or let it run without -s option (default: '\e[32m$(file_search_pattern_default)\e[0m')."; exit 1;
+            # TODO problems when file_search_pattern is not wrapped by quotes
+            this_file_search_pattern=${OPTARG} 
+            if [[ $this_file_search_pattern =~ ^- ]];then # the next option was given without this option having an argument
+              echo -e "\e[33mOption Error:\e[0m option -s requires an argument, please specify e.g. \e[3m-s 'Thread*file-search-pattern*.rdf.gz'\e[0m or let it run without -s option (default: '\e[32m$(file_search_pattern_default)\e[0m')."; exit 1;
             fi
             file_search_pattern=$( [[ -z ${this_file_search_pattern// /} ]] && echo "$(file_search_pattern_default)" || echo "$this_file_search_pattern" );
             ;;
         *)
-            usage
+            usage;
             ;;
     esac
 done
