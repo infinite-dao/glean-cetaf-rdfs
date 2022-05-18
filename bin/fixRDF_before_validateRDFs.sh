@@ -1,5 +1,5 @@
 #!/bin/bash
-# Usage: fix misstakes in RDF in files
+# Usage: clean up RDF in files and fix some misstakes, make each RDF to be technically correct to have it ready for jena-apache’s rdfxml --validate
 #   fixRDF_before_validateRDFs.sh -h # get help; see also function usage()
 # dependency: sed
 # dependency: file
@@ -10,14 +10,13 @@ file_search_pattern="Test_sed*.rdf"
 file_search_pattern="Threads_import_*_20201116.rdf"
 file_search_pattern="Thread-*_jacq.org_20211108-1309.rdf"
 
-bak="bak_"$(date '+%Y%m%d_%H%M') # deprecated: use _modified.rdf as a copy of original file
 n=0
 DO_PRINT_ONLY_RDF_COMPARISON=0
 
 function file_search_pattern_default () {
-  file_search_pattern_default=`printf "Thread-[0-9][0-9]_*_%s-[0-9][0-9][0-9][0-9].rdf" $(date '+%Y%m%d')`
+  printf "Thread-[0-9][0-9]_*_%s-[0-9][0-9][0-9][0-9].rdf" $(date '+%Y%m%d')
 }
-file_search_pattern_default
+export file_search_pattern_default
 
 get_timediff_for_njobs_new () {
 # Description: calculate estimated time to finish n jobs (here, it only prints the estimate and $njobs_done_so_far is commented out)
@@ -106,7 +105,7 @@ function usage() {
   echo -e "#   -s  \e[32m'Thread*file-search-pattern*.rdf'\e[0m .... optional specific search pattern" 1>&2; 
   echo -e "#       Note: better use quotes for pattern with asterisk '*pattern*'" 1>&2; 
   echo -e "#       and use a narrow search pattern that really matches the RDF \e[1msource files only\e[0m" 1>&2; 
-  echo -e "#       (default: '\e[32m${file_search_pattern_default}\e[0m')" 1>&2; 
+  echo -e "#       (default: '\e[32m$(file_search_pattern_default)\e[0m')" 1>&2; 
   echo    "# -----------------------------------------------------------------"
   echo -e "# Eventually the processed files \e[32m…\e[34m_modified\e[32m.rdf\e[0m are get zip-ed to save space." 1>&2; 
   exit 1; 
@@ -143,15 +142,22 @@ fi
 this_wd="$PWD"
 cd "$this_pwd"
 
+if [[ ${#} -eq 0 ]]; then
+    usage; exit 0;
+fi
 
-while getopts ":s:hp" o; do
+while getopts "s:hp" o; do
     case "${o}" in
         h)
             usage; exit 0;
             ;;
         s)
-            file_search_pattern="${OPTARG}"
-            if  [[ -z ${file_search_pattern// /} ]] ; then file_search_pattern_default; file_search_pattern="$file_search_pattern_default" ; fi
+            # TODO problems when file_search_pattern is not wrapped by quotes
+            this_file_search_pattern=${OPTARG} 
+            if [[ $this_file_search_pattern =~ ^- ]];then # the next option was given without this option having an argument
+              echo -e "\e[33mOption Error:\e[0m option -s requires an argument, please specify e.g. \e[3m-s 'Thread*file-search-pattern*.rdf.gz'\e[0m or let it run without -s option (default: '\e[32m$(file_search_pattern_default)\e[0m')."; exit 1;
+            fi
+            file_search_pattern=$( [[ -z ${this_file_search_pattern// /} ]] && echo "$(file_search_pattern_default)" || echo "$this_file_search_pattern" );
             ;;
         p)
             DO_PRINT_ONLY_RDF_COMPARISON=1
@@ -267,7 +273,9 @@ printf "# \e[32mProcess %03d of %03d in \e[3m%s\e[32m …\e[0m\n" $i $n "${this_
       :label_DOCTYPE; N;  s@\n@@;   /<!DOCTYPE rdf:RDF .+\]>/!t label_DOCTYPE;  
       s@(<!DOCTYPE .+\]>)@<!-- DOCTYPE rdf:RDF REPLACED -->@
   }
-  0,/<rdf:RDF / !{    /<rdf:RDF /{    :label_rdfRDF; N;  /<rdf:RDF[^>]+[^]]>/!b label_rdfRDF;         s@<rdf:RDF[^>]*[^]]>@<!-- rdf:RDF REPLACED -->@g;    } }
+  
+  # note that <rdf:RDF[\n or \s+] …>
+  0,/<rdf:RDF/ !{    /<rdf:RDF/{    :label_rdfRDF; N;  /<rdf:RDF[^>]+[^]]>/!b label_rdfRDF;         s@<rdf:RDF[^>]*[^]]>@<!-- rdf:RDF REPLACED -->@g;    } }
   # replace all <rdf:RDF…> but the first
   
   0,/<\?xml /!{
@@ -343,7 +351,8 @@ i=1
 logfile_rdf_headers=fixRDF_before_validateRDFs_compare-headers.sh.log
 
 echo '' > fixRDF_before_validateRDFs_compare-headers.sh.log
-for this_file in `ls ${file_search_pattern} | sort --version-sort `; do exclamation='!';
+for this_file in `ls ${file_search_pattern} | sort --version-sort `; do 
+  exclamation='!';
 
   this_file_modified_is_gz=0
   this_file_is_gz=$([ $(echo "$this_file" | grep ".\bgz$") ] && echo 1  || echo 0 )
