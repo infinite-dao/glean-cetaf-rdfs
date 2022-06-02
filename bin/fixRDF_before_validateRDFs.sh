@@ -76,7 +76,7 @@ get_timediff_for_njobs_new () {
   # echo -e "\033[2m# DEBUG Test mode: all together $this_n_jobs_all ; counter $this_i_job_counter\033[0m"
   if [[ $this_n_jobs_all -eq $this_i_job_counter ]];then # done
     this_unixnanoseconds_todo=0
-    # njobs_done_so_far=`$this_command_timediff "@$this_unixnanoseconds_start_timestamp" "@$this_unixnanoseconds_now" -f "all $this_i_job_counter done, duration %dd %Hh:%Mm:%Ss"`
+    # njobs_done_so_far=`$this_command_timediff "@$this_unixnanoseconds_start_timestamp" "@$this_unixnanoseconds_now" -f "all $this_i_job_counter done, duration %dd %0Hh:%0Mm:%0Ss"`
     this_msg_estimated_sofar="nothing left to do"
   else
     # this_unixnanoseconds_todo=$(( $this_timediff_unixnanoseconds * $this_n_jobs_todo / $this_i_job_counter ))
@@ -260,33 +260,57 @@ printf "# \e[32mProcess %03d of %03d in \e[3m%s\e[32m …\e[0m\n" $i $n "${this_
   \$a\>\n<\!-- *Initially* extracted RDF-headers from\n     ${this_file} -->" \
     > "${this_file_headers_extracted}"
   
-  echo -e "#    \e[32mfix RDF \e[0m(xml-head, xml-stylesheet, rdf:RDF, illegal characters in URIs, '--' in comments etc.) ... " 
-  sed --regexp-extended --in-place '
-  0,/<\?xml /{
+  if [[ $(grep --max-count=1 '<!DOCTYPE html' "${this_file_modified}") ]]; then
+    echo -e "#    \e[32mfix RDF \e[0m(separate DOCTYPE html) ... " 
+    sed --regexp-extended --in-place '/<!DOCTYPE html/,/<\/html>/ {
+      /<!DOCTYPE html/ {s@<!DOCTYPE html@\n&@; }
+      /<\/html>/ {s@<\/html>@\n&\n<!-- DOCTYPE html replaced -->\n@; }
+    }; ' "${this_file_modified}"
+    echo -e "#    \e[32mfix RDF \e[0m(delete DOCTYPE html things) ... " 
+    sed --regexp-extended --in-place ' /<!DOCTYPE html/,/<\/html>/{d; }  ' "${this_file_modified}" #
+  fi
+  
+  echo -e "#    \e[32mfix RDF \e[0m(xml-head; xml-stylesheet; DOCTYPE rdf:RDF; illegal characters in URIs; '--' in comments etc.) ... " 
+    sed --regexp-extended --in-place '
+  s@</rdf:RDF> *<\?xml[^>]+\?>@<!-- rdf-closing and xml replaced -->@;
+  
+  0,/<\?xml/{
     /<!--/,/<\?xml/{
-     N; s@(<!--.+-->\n?)(<\?xml [^>]+\?>)@\2\1@; 
+     N; s@(<!--.+-->\n?)(<\?xml[\s\n][^>]+\?>)@\2\1@; 
     }
   };
   # move comments that may be there before first starting <?xml…>
   
-  /<!DOCTYPE rdf:RDF +\[/ {     
-      :label_DOCTYPE; N;  s@\n@@;   /<!DOCTYPE rdf:RDF .+\]>/!t label_DOCTYPE;  
-      s@(<!DOCTYPE .+\]>)@<!-- DOCTYPE rdf:RDF REPLACED -->@
+  /<!DOCTYPE rdf:RDF/,/\[/ {     
+      :label_DOCTYPE; N;   /<!DOCTYPE rdf:RDF.+\]>/!b label_DOCTYPE;  
+      s@(<!DOCTYPE rdf:RDF.+\]>)@<!-- DOCTYPE rdf:RDF REPLACED -->@
   }
+  # replace all DOCTYPE rdf
   
-  # note that <rdf:RDF[\n or \s+] …>
-  0,/<rdf:RDF/ !{    /<rdf:RDF/{    :label_rdfRDF; N;  /<rdf:RDF[^>]+[^]]>/!b label_rdfRDF;         s@<rdf:RDF[^>]*[^]]>@<!-- rdf:RDF REPLACED -->@g;    } }
+  0,/<rdf:RDF/!{
+    /<rdf:RDF/,/>/ { # Note: it can have newline <rdf:RDF[\n or \s+] …>
+      :label_rdfRDF_in_multiline; N;  /<rdf:RDF[^>]+[^]]>/!b label_rdfRDF_in_multiline;
+      s@<rdf:RDF[^>]+[^]]>@<!-- rdf:RDF REPLACED -->@g;
+    }
+  }
   # replace all <rdf:RDF…> but the first
-  
-  0,/<\?xml /!{
-    # TODO xml
-    s@(<\?xml [^>]+\?>)@<!-- xml replaced -->@g 
+  0,/<\?xml/!{
+    /<\?xml/,/\?>/ {
+      # TODO check on xml with <!xml[newline] (N; causes rdf:RDF not to replace)
+      # :label_xml_declaration_not_single_line; N; /\?>/!b label_xml_declaration_not_single_line;
+      s@(<\?xml[^>]+\?>)@<!-- xml replaced -->@g 
+    }
   };
   # replace all <?xml…> but the first
   
-  s@(<\?xml-stylesheet [^>]+\?>)@<!-- xml-stylesheet replaced -->@
-  # /<\?xml-stylesheet /,/\?>/{ };
-  # replace stylesheet
+  
+  /<\?xml-stylesheet/,/\?>/ {
+    :label_xmlstylesheet_declaration_not_single_line; N; /\?>/!b label_xmlstylesheet_declaration_not_single_line;
+    s@(<\?xml-stylesheet[^>]+\?>)@<!-- xml-stylesheet replaced -->@g 
+  }
+  # s@(<\?xml-stylesheet [^>]+\?>)@<!-- xml-stylesheet replaced -->@
+  # TODO check proper replacement /<\?xml-stylesheet /,/\?>/{ };
+  # replace all stylesheet
   
   s@</rdf:RDF>@@; $ a\ </rdf:RDF>
   # replace all </rdf:RDF…> but append at the very last line
@@ -298,7 +322,7 @@ printf "# \e[32mProcess %03d of %03d in \e[3m%s\e[32m …\e[0m\n" $i $n "${this_
   }
   # replace all double minus -- in comments
   
-  /"https?:\/\/[^"]+[][ `\\]+[^"]*"/ { # replace characters that are not allowed in URL
+  /"https?:\/\/[^"]+[][\s`\\]+[^"]*"/ { # replace characters that are not allowed in URL
       :label.urispace; s@"(https?://[^" ]+)\s@"\1%20@; tlabel.urispace;
       :label.uriaccentgrave; s@"(https?://[^"`]+)`@"\1%60@; tlabel.uriaccentgrave;
       :label.backslash; s@"(https?://[^"\\]+)\\@"\1%5C@; tlabel.backslash;
