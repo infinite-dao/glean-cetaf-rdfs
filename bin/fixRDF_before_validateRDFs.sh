@@ -259,7 +259,9 @@ printf "# \e[32mProcess %03d of %03d in \e[3m%s\e[32m …\e[0m\n" $i $n "${this_
   | sed "1i\<rdf:RDF
   \$a\>\n<\!-- *Initially* extracted RDF-headers from\n     ${this_file} -->" \
     > "${this_file_headers_extracted}"
-  
+
+  # # # # # # # # 
+  # Start modifications
   if [[ $(grep --max-count=1 '<!DOCTYPE html' "${this_file_modified}") ]]; then
     echo -e "#    \e[32mfix RDF \e[0m(separate DOCTYPE html) ... " 
     sed --regexp-extended --in-place '/<!DOCTYPE html/,/<\/html>/ {
@@ -267,11 +269,59 @@ printf "# \e[32mProcess %03d of %03d in \e[3m%s\e[32m …\e[0m\n" $i $n "${this_
       /<\/html>/ {s@<\/html>@\n&\n<!-- DOCTYPE html replaced -->\n@; }
     }; ' "${this_file_modified}"
     echo -e "#    \e[32mfix RDF \e[0m(delete DOCTYPE html things) ... " 
-    sed --regexp-extended --in-place ' /<!DOCTYPE html/,/<\/html>/{d; }  ' "${this_file_modified}" #
+    sed --regexp-extended --in-place ' /<!DOCTYPE html/,/<\/html>/{ /<\/html>/!d; s@</html>@<!-- DOCTYPE html replaced -->@; }  ' "${this_file_modified}" #
+  fi
+
+  n_of_illegal_iri_character_in_urls=`grep --ignore-case '"https\?://[^"]\+[ \^\`\\]\+[^"]*"' "${this_file_modified}" | wc -l`
+  if [[ $n_of_illegal_iri_character_in_urls -gt 0 ]];then
+    printf   "\e[32m#    fix \e[31millegal or bad IRI characters\e[32m in %s URLs within \"http...double quotes\"...\e[0m\n" $n_of_illegal_iri_character_in_urls;
+    sed --regexp-extended --in-place '
+    # fix some characters that should be encoded (see https://www.ietf.org/rfc/rfc3986.txt)
+    /"https?:\/\/[^"]+[][ \^`\\]+[^"]*"/ { # replace characters that are not allowed in URL
+      :label.circumflex;          s@"(https?://[^"\^]+)\^@"\1%5E@; tlabel.circumflex;
+      :label.urispace;            s@"(https?://[^" ]+)\s@"\1%20@;  tlabel.urispace;
+      :label.uriaccentgrave;      s@"(https?://[^"`]+)`@"\1%60@;   tlabel.uriaccentgrave;
+      :label.backslash;           s@"(https?://[^"\\]+)\\@"\1%5C@; tlabel.backslash;
+      :label.leftsquaredbracket;  s@"(https?://[^"\[]+)\[@"\1%5B@; tlabel.leftsquaredbracket;
+      :label.rightsquaredbracket; s@"(https?://[^"\[]+)\]@"\1%5D@; tlabel.rightsquaredbracket;
+    }
+ ' "${this_file_modified}"
   fi
   
-  echo -e "#    \e[32mfix RDF \e[0m(xml-head; xml-stylesheet; DOCTYPE rdf:RDF; illegal characters in URIs; '--' in comments etc.) ... " 
+  n_of_comments_with_double_minus=`grep --ignore-case '<!--.*[^<][^!]--[^>].*-->' "${this_file_modified}" | wc -l`
+  if [[ $n_of_comments_with_double_minus -gt 0 ]];then
+    printf   "\e[32m#    fix \e[31mcomments with double minus not permitted\e[32m in %s URLs ...\e[0m\n" $n_of_comments_with_double_minus;
     sed --regexp-extended --in-place '
+    /<!--.*[^<][^!]--[^>].*-->/ {# rdfparse Fatal Error:  (line 75 column 113): The string "--" is not permitted within comments.
+      :label.uri_doubleminus_in_comment; s@\s(https?://.+)--([^>]* -->)@ \1%2D%2D\2@; tlabel.uri_doubleminus_in_comment; # if (s)ubstitution successful (t)ested, go back to label cycle
+    }
+ ' "${this_file_modified}"
+  fi
+
+  if [[ $(grep --max-count=1 'rdf:resource="[^"]\+$' "${this_file_modified}" ) ]];then
+    printf   "\e[32m#    fix \e[31mline break in IRI\e[32m within «\e[3mrdf:resource=\"http...line break\"\e[32m ...\n\e[0m";
+    sed --regexp-extended --in-place '/rdf:resource="[^"]+$/,/"/{N; s@\s*\n\s*@@; }' "${this_file_modified}"
+  fi
+  
+  echo -e "#    \e[32mfix common errors \e[0m(also check decimalLatitude decimalLongitude data type) ... " 
+  sed --regexp-extended --in-place '
+  s@(<)([[:alpha:]]+:)(decimalLongitude|decimalLatitude)(>)([^<>]*)(</\2\3>)@\1\2\3 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"\4\5\6@g;
+  # add datatype to <dcterms:decimalLatitude> or <dcterms:decimalLatitude>
+
+  s@(rdf:resource|rdf:about)="(https?://[^"]+)\2"@\1="\2"@;
+  s@<(dwc:materialSampleID)>(https?://[^<>]+)\2</\1>@<\1>\2</\1>@;
+  # remove double http…http… (some JACQ had such data)
+  
+  s@& @\&amp; @g;
+  s@&([^ ;]+) @\&amp;\1 @g
+  # fix non-encoded & to &amp;
+  
+  s@https://([^/ ]+):443/@https://\1/@g;
+  # fix https :443 => default HTTPS port should be ommited (tells apache/bin/turtle --validate)  
+  ' "${this_file_modified}"
+  
+  echo -e "#    \e[32mfix RDF \e[0m(tag ranges: XML-head; XML-stylesheet; DOCTYPE rdf:RDF aso.) ... " 
+  sed --regexp-extended --in-place '
   s@</rdf:RDF> *<\?xml[^>]+\?>@<!-- rdf-closing and xml replaced -->@;
   
   0,/<\?xml/{
@@ -314,37 +364,8 @@ printf "# \e[32mProcess %03d of %03d in \e[3m%s\e[32m …\e[0m\n" $i $n "${this_
   
   s@</rdf:RDF>@@; $ a\ </rdf:RDF>
   # replace all </rdf:RDF…> but append at the very last line
-  
-  # TODO check comment in comment substitution
-  /<!--.*[^<][^!]--[^>].*-->/ { 
-    # rdfparse Fatal Error:  (line 75 column 113): The string "--" is not permitted within comments.
-    :label.uriminus_in_comment; s@\s(https?://.+)--([^>]* -->)@ \1%2D%2D\2@; tlabel.uriminus_in_comment;
-  }
-  # replace all double minus -- in comments
-  
-  /"https?:\/\/[^"]+[][\s`\\]+[^"]*"/ { # replace characters that are not allowed in URL
-      :label.urispace; s@"(https?://[^" ]+)\s@"\1%20@; tlabel.urispace;
-      :label.uriaccentgrave; s@"(https?://[^"`]+)`@"\1%60@; tlabel.uriaccentgrave;
-      :label.backslash; s@"(https?://[^"\\]+)\\@"\1%5C@; tlabel.backslash;
-      :label.leftsquaredbracket; s@"(https?://[^"\[]+)\[@"\1%5B@; tlabel.leftsquaredbracket;
-      :label.rightsquaredbracket; s@"(https?://[^"\[]+)\]@"\1%5D@; tlabel.rightsquaredbracket;
-  }
-  # fix some characters that should be encoded (see https://www.ietf.org/rfc/rfc3986.txt)
-  
-  s@(<)([[:alpha:]]+:)(decimalLongitude|decimalLatitude)(>)([^<>]*)(</\2\3>)@\1\2\3 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"\4\5\6@g;
-  # add datatype to <dcterms:decimalLatitude> or <dcterms:decimalLatitude>
 
-  s@(rdf:resource|rdf:about)="(https?://[^"]+)\2"@\1="\2"@
-  s@<(dwc:materialSampleID)>(https?://[^<>]+)\2</\1>@<\1>\2</\1>@
-  # remove double http…http… (some JACQ had such data)
-  
-  s@& @\&amp; @g;
-  s@&([^ ;]+) @\&amp;\1 @g
-  # fix non-encoded & to &amp;
-  
-  s@https://data.rbge.org.uk:443/@https://data.rbge.org.uk/@g;
-  # fix https :443 => default HTTPS port should be ommited (tells apache/bin/turtle --validate)
-
+  # TODO check why regex patterns after this point fail sometimes, e.g. default port replacement
   ' "${this_file_modified}" #
   i=$((i + 1))
 done
