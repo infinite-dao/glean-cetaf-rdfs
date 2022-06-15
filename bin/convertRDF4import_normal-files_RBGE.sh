@@ -1,6 +1,6 @@
 #!/bin/bash
 ###########################
-# Usage: convert RDF files to normalised zipped files and check for adding ror.org IDs or dcterms:isPartOf etc. or remove technical stuff
+# Usage: convert RDF files to normalised zipped files and check for adding ror.org IDs or dcterms:isPartOf etc. or remove technical stuff. It is expected to run these commands on a modified copy of the original RDF-file and have the original RDF-file untouched, so this programm is not intended to create backups.
 # # # # # # # # # # # # # #
 # dependencies $apache_jena_bin, e.g. in home directory (~/apache-jena-4.2.0/bin) or (/opt/jena-fuseki/import-sandbox/bin) with programs: turtle rdfparse
 # dependencies gzip, sed, cat, perl, datediff
@@ -108,7 +108,7 @@ get_timediff_for_njobs_new () {
   # echo -e "\033[2m# DEBUG Test mode: all together $this_n_jobs_all ; counter $this_i_job_counter\033[0m"
   if [[ $this_n_jobs_all -eq $this_i_job_counter ]];then # done
     this_unixseconds_todo=0
-    # njobs_done_so_far=`$this_command_timediff "@$this_unixnanoseconds_start_timestamp" "@$this_unixnanoseconds_now" -f "all $this_i_job_counter done, duration %dd %Hh:%Mm:%Ss"`
+    # njobs_done_so_far=`$this_command_timediff "@$this_unixnanoseconds_start_timestamp" "@$this_unixnanoseconds_now" -f "all $this_i_job_counter done, duration %dd %0Hh:%0Mm:%0Ss"`
     this_msg_estimated_sofar="nothing left to do"
   else
     # this_unixseconds_todo=$(( $this_timediff_unixnanoseconds * $this_n_jobs_todo / $this_i_job_counter ))
@@ -150,9 +150,9 @@ function usage() {
 function processinfo () {
 # # # #
 if [[ $debug_mode -gt 0  ]];then
-echo -e  "############  RBGE: Parse and normalize RDF to TriG (\e[31mdebug mode\e[0m) ####"
+echo -e  "############  RBG Edinburgh (RBGE): Parse and normalize RDF to TriG (\e[31mdebug mode\e[0m) ####"
 else
-echo -e  "############  RBGE: Parse and normalize RDF to TriG #################"
+echo -e  "############  RBG Edinburgh (RBGE): Parse and normalize RDF to TriG #################"
 fi
 
 echo -e  "# \e[32mRecommendations\e[0m before running this script …"
@@ -185,6 +185,10 @@ echo -ne "# [\e[32myes\e[0m or \e[31mno\e[0m (default: no)]: \e[0m"
 ############################
 this_pwd=`echo $PWD`
 cd "$this_pwd"
+
+if [[ ${#} -eq 0 ]]; then
+    usage; exit 0;
+fi
 
 while getopts ":s:h" o; do
     case "${o}" in
@@ -247,28 +251,30 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
 # parse
   #   sed --regexp-extended  '  /"https?:\/\/[^"]+[ `]+[^"]*"/ {:label.urispace; s@"(https?://[^" ]+)\s@"\1%20@; tlabel.urispace; :label.uriaccentgrave; s@"(https?://[^"`]+)`@"\1%60@; tlabel.uriaccentgrave; } ' test-space-in-URIs.rdf > test-space-in-URIs_replaced.rdf
 
-  n_of_illegal_iri_character_in_urls=`grep -i '"https\?://[^"]\+[ \`\\]\+[^"]*"\|<!--.*[^<][^!]--[^>].*-->' "${rdfFilePath}" | wc -l`
+  n_of_illegal_iri_character_in_urls=`grep --ignore-case '"https\?://[^"]\+[ \^\`\\]\+[^"]*"' "${rdfFilePath}" | wc -l`
   if [[ $n_of_illegal_iri_character_in_urls -gt 0 ]];then
-    this_bak_extension=".bak_illegal_iri"
-    printf   "\e[31m# (0) Fix illegal IRI characters in %s URLs (backup original RDF in %s${this_bak_extension}.gz)...\n\e[0m" $n_of_illegal_iri_character_in_urls "${rdfFilePath}";
-    if [[ -e "${rdfFilePath}${this_bak_extension}" ]] || [[ -e "${rdfFilePath}${this_bak_extension}.gz" ]];then
-      printf   "\e[31m# (0)   Info: still in DEVELOPMENT so back up existing file (%s${this_bak_extension})...\n\e[0m" "${rdfFilePath}";
-      this_bak_extension=""
-    fi
-    sed --regexp-extended -i${this_bak_extension} '
-    /<!--.*[^<][^!]--[^>].*-->/ {# rdfparse Fatal Error:  (line 75 column 113): The string "--" is not permitted within comments.
-      :label.uri_doubleminus_in_comment; s@\s(https?://.+)--([^>]* -->)@ \1%2D%2D\2@; tlabel.uri_doubleminus_in_comment; # if (s)ubstitution successful (t)ested, go back to label cycle
-    }
-      # fix some characters that should be encoded (see https://www.ietf.org/rfc/rfc3986.txt)
-    /"https?:\/\/[^"]+[][ `\\]+[^"]*"/ { # replace characters that are not allowed in URL
-      :label.urispace; s@"(https?://[^" ]+)\s@"\1%20@; tlabel.urispace;
-      :label.uriaccentgrave; s@"(https?://[^"`]+)`@"\1%60@; tlabel.uriaccentgrave;
-      :label.backslash; s@"(https?://[^"\\]+)\\@"\1%5C@; tlabel.backslash;
-      :label.leftsquaredbracket; s@"(https?://[^"\[]+)\[@"\1%5B@; tlabel.leftsquaredbracket;
+    printf   "\e[31m# (0) Fix illegal IRI characters in %s URLs within \"http...double quotes\" ...\e[0m\n" $n_of_illegal_iri_character_in_urls;
+    sed --regexp-extended --in-place '
+    # fix some characters that should be encoded (see https://www.ietf.org/rfc/rfc3986.txt)
+    /"https?:\/\/[^"]+[][ \^`\\]+[^"]*"/ { # replace characters that are not allowed in URL
+      :label.circumflex;          s@"(https?://[^"\^]+)\^@"\1%5E@; tlabel.circumflex;
+      :label.urispace;            s@"(https?://[^" ]+)\s@"\1%20@;  tlabel.urispace;
+      :label.uriaccentgrave;      s@"(https?://[^"`]+)`@"\1%60@;   tlabel.uriaccentgrave;
+      :label.backslash;           s@"(https?://[^"\\]+)\\@"\1%5C@; tlabel.backslash;
+      :label.leftsquaredbracket;  s@"(https?://[^"\[]+)\[@"\1%5B@; tlabel.leftsquaredbracket;
       :label.rightsquaredbracket; s@"(https?://[^"\[]+)\]@"\1%5D@; tlabel.rightsquaredbracket;
     }
  ' "${rdfFilePath}"
-    if ! [[ -z ${this_bak_extension} ]];then gzip --quiet "${rdfFilePath}${this_bak_extension}"; fi
+  fi
+  
+  n_of_comments_with_double_minus=`grep --ignore-case '<!--.*[^<][^!]--[^>].*-->' "${rdfFilePath}" | wc -l`
+  if [[ $n_of_comments_with_double_minus -gt 0 ]];then
+    printf   "\e[31m# (0) Fix comments with double minus not permitted\e[32m in %s URLs ...\e[0m\n" $n_of_illegal_iri_character_in_urls;
+    sed --regexp-extended --in-place '
+    /<!--.*[^<][^!]--[^>].*-->/ {# rdfparse Fatal Error:  (line 75 column 113): The string "--" is not permitted within comments.
+      :label.uri_doubleminus_in_comment; s@\s(https?://.+)--([^>]* -->)@ \1%2D%2D\2@; tlabel.uri_doubleminus_in_comment; # if (s)ubstitution successful (t)ested, go back to label cycle
+    }
+ ' "${rdfFilePath}"
   fi
 
   printf   "# \e[32m(1) Parse (%04d of %04d) to                  %s (N-triple statements) ...\n\e[0m"  $i $n "${import_ttl}" ;
@@ -396,13 +402,13 @@ echo -e $( date --date="$datetime_start" '+# \e[32mTime Started:\e[0m %Y-%m-%d %
 echo -e $( date --date="$datetime_end"   '+# \e[32mTime Ended:\e[0m   %Y-%m-%d %H:%M:%S%:z' )
 
 echo  -e "# \e[32mCheck compressed logs by, e.g. ...\e[0m"
-echo  -e "# \e[32m   zgrep --color=always --ignore-case 'error\|warn' *.log.gz\e[0m"
-echo  -e "# \e[32m   zgrep --ignore-case 'error\|warn' *.log.gz | sed --regexp-extended 's@file:///(.+)/(\./Thread)@\2@;s@^Thread-[^:]*:@@;'\e[0m"
-echo  -e "# \e[32m   zcat *${file_search_pattern}*.log* | grep --color=always --ignore-case 'error\|warn' \e[0m"
-if [[ `ls  *${file_search_pattern}*.log* 2> /dev/null | wc -l` -gt 0 ]];then
-echo  -e "# \e[31m   `ls  *${file_search_pattern}*.log* 2> /dev/null | wc -l` log files found with warnings or errors\e[0m"
+echo  -e "# \e[32m   zgrep --color=always --ignore-case 'error\|warn' *modified*.log.gz\e[0m"
+echo  -e "# \e[32m   zgrep --ignore-case 'error\|warn' *modified*.log.gz | sed --regexp-extended 's@file:///(.+)/(\./Thread)@\2@;s@^Thread-[^:]*:@@;'\e[0m"
+echo  -e "# \e[32m   zcat *${file_search_pattern/%.gz/}*warn-or-error.log* | grep --color=always --ignore-case 'error\|warn' \e[0m"
+if [[ `ls  *${file_search_pattern/%.gz/}*warn-or-error.log* 2> /dev/null | wc -l` -gt 0 ]];then
+echo  -e "# \e[31m   `ls  *${file_search_pattern/%.gz/}*warn-or-error.log* 2> /dev/null | wc -l` log files found with warnings or errors\e[0m"
 else
-echo  -e "# \e[32m   No log files generated (i.e. no errors, warnings)\e[0m"
+echo  -e "# \e[32m   No log files generated (i.e. it seems no errors, warnings)\e[0m"
 fi
 echo  -e "# \e[32mNow you can import the normalised *.trig or *.ttl files to Apache Jena\e[0m"
 echo  -e "\e[32m#########################################\e[0m"
