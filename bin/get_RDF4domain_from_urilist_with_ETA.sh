@@ -192,15 +192,15 @@ shift $((OPTIND-1))
 
 if [[ -z ${randomize_urilist// /} ]] ; then
   if   [[ -z ${test_mode// /} ]] ; then
-    TOTAL_JOBS=`cat "$URI_LIST_FILE" | sed --regexp-extended '/^[\s\t]*https?:/!d' | wc -l`
+    TOTAL_JOBS=`cat "$URI_LIST_FILE" | sed --regexp-extended '/^[[:space:]]*https?:/!d' | wc -l`
   else
-    TOTAL_JOBS=`head -n200 "$URI_LIST_FILE" | sed --regexp-extended '/^[\s\t]*https?:/!d' | wc -l`
+    TOTAL_JOBS=`head -n200 "$URI_LIST_FILE" | sed --regexp-extended '/^[[:space:]]*https?:/!d' | wc -l`
   fi
 else
   if   [[ -z ${test_mode// /} ]] ; then
-    TOTAL_JOBS=`cat "$URI_LIST_FILE" | shuf | sed --regexp-extended '/^[\s\t]*https?:/!d' | wc -l`
+    TOTAL_JOBS=`cat "$URI_LIST_FILE" | shuf | sed --regexp-extended '/^[[:space:]]*https?:/!d' | wc -l`
   else
-    TOTAL_JOBS=`head -n200 "$URI_LIST_FILE" | shuf | sed --regexp-extended '/^[\s\t]*https?:/!d' | wc -l`
+    TOTAL_JOBS=`head -n200 "$URI_LIST_FILE" | shuf | sed --regexp-extended '/^[[:space:]]*https?:/!d' | wc -l`
   fi
 fi
 
