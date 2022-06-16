@@ -78,7 +78,11 @@ cd /opt/jena-fuseki/import-sandbox/rdf/JACQ
 #   https://dr.jacq.org/DR001583
 #   https://dr.jacq.org/DR001584
 #   https://dr.jacq.org/DR001585
+# OR it can have comments too after space or tab character:
+#   https://dr.jacq.org/DR001584 [space-character] any other information, column, comment or anything
+#   https://dr.jacq.org/DR001585 [tabulator-character] any other information, column, comment or anything
 # aso.
+
 # run background job to get RDF
 /opt/jena-fuseki/import-sandbox/bin/get_RDF4domain_from_urilist_with_ETA.sh \
   -u list-of-JACQ-URIs_20220112.txt \
