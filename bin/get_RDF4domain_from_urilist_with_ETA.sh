@@ -417,26 +417,26 @@ if   [[ -z ${PROGRESS_LOGFILE// /} ]] ; then
     # echo "# DEBUG script line ${LINENO}: randomize_urilist: zero … "
     if   [[ -z ${test_mode// /} ]] ; then
       # echo "# DEBUG script line ${LINENO}: randomize_urilist: zero; test mode"
-      cat "$URI_LIST_FILE" | sed --regexp-extended 's@\r@@g;/^[\s\t]*https?:/!d;s@.*(https?://[^\s\t]+).*@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW_YmdHM}" "${datetime_start_quoted}"
+      cat "$URI_LIST_FILE" | sed --regexp-extended 's@\r@@g; /^https?:/!d; s@^(https?://[^[:space:]]+).*$@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW_YmdHM}" "${datetime_start_quoted}"
       # extract only the (https?://…)
     else
       # echo "# DEBUG script line ${LINENO}: randomize_urilist: zero; no test mode"
       echo "# Running in test mode ($TOTAL_JOBS jobs)" 
       # head -n200 "$URI_LIST_FILE" | sed --regexp-extended '/^https?:/!d;s@\r@@g' | parallel -j$N_JOBS echo {%} {#} ${TOTAL_JOBS} {}
-      head -n200 "$URI_LIST_FILE" | sed --regexp-extended 's@\r@@g;/^[\s\t]*https?:/!d;s@.*(https?://[^\s\t]+).*@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW_YmdHM}" "${datetime_start_quoted}"
+      head -n200 "$URI_LIST_FILE" | sed --regexp-extended 's@\r@@g; /^https?:/!d; s@^(https?://[^[:space:]]+).*$@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW_YmdHM}" "${datetime_start_quoted}"
       # extract only the (https?://…)
     fi
   else
     # echo "# DEBUG script line ${LINENO}: randomize_urilist: not zero …"
     if   [[ -z ${test_mode// /} ]] ; then
       # echo "# DEBUG script line ${LINENO}: randomize_urilist: not zero; test mode"
-      cat "$URI_LIST_FILE" | shuf | sed --regexp-extended 's@\r@@g;/^[\s\t]*https?:/!d;s@.*(https?://[^\s\t]+).*@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW_YmdHM}" "${datetime_start_quoted}"
+      cat "$URI_LIST_FILE" | shuf | sed --regexp-extended 's@\r@@g; /^https?:/!d; s@^(https?://[^[:space:]]+).*$@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW_YmdHM}" "${datetime_start_quoted}"
       # extract only the (https?://…)
     else
       # echo "# DEBUG script line ${LINENO}: randomize_urilist: not zero; no test mode"
       echo "# Running in test mode ($TOTAL_JOBS jobs)" 
       # head -n200 "$URI_LIST_FILE" | sed --regexp-extended '/^https?:/!d;s@\r@@g' | parallel -j$N_JOBS echo {%} {#} ${TOTAL_JOBS} {}
-      head -n200 "$URI_LIST_FILE" | shuf | sed --regexp-extended 's@\r@@g;/^[\s\t]*https?:/!d;s@.*(https?://[^\s\t]+).*@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW_YmdHM}" "${datetime_start_quoted}"
+      head -n200 "$URI_LIST_FILE" | shuf | sed --regexp-extended 's@\r@@g; /^https?:/!d; s@^(https?://[^[:space:]]+).*$@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW_YmdHM}" "${datetime_start_quoted}"
       # extract only the (https?://…)
     fi
   fi
@@ -451,7 +451,7 @@ if   [[ -z ${PROGRESS_LOGFILE// /} ]] ; then
   #   echo "# Started: $datetime_start" 
   #   echo "# Ended:   $datetime_end"   
   
-  $exec_datediff "$datetime_start" "$datetime_end" -f "# Done. $TOTAL_JOBS jobs took %dd %Hh:%Mm:%Ss using $N_JOBS parallel connections" 
+  $exec_datediff "$datetime_start" "$datetime_end" -f "# Done. $TOTAL_JOBS jobs took %dd  %0Hh:%0Mm:%0Ss using $N_JOBS parallel connections" 
   echo -e "# Hint: use \e[1;34mzgrep\e[0m or \e[1;34mzcat\e[0m … | \e[1;34mtail\e[0m    to search or list file content on gz text files" 
   echo    "# Compress all files Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.rdf …"
   gzip --verbose $(echo "Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.rdf")
@@ -480,10 +480,10 @@ else   # PROGRESS_LOGFILE and log into file
     echo " yes"             &>> "${PROGRESS_LOGFILE}"
     if [[ -z ${randomize_urilist// /} ]] ; then
       # echo "# DEBUG script line ${LINENO}: PROGRESS_LOGFILE not zero; test mode zero; randomize_urilist zero"
-      cat "$URI_LIST_FILE" | sed --regexp-extended '/^https?:/!d;s@\r@@g;s@.*(https?://[^ ]+).*@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW_YmdHM}" "${datetime_start_quoted}" "${PROGRESS_LOGFILE}"
+      cat "$URI_LIST_FILE" | sed --regexp-extended 's@\r@@g; /^https?:/!d; s@^(https?://[^[:space:]]+).*$@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW_YmdHM}" "${datetime_start_quoted}" "${PROGRESS_LOGFILE}"
     else
       # echo "# DEBUG script line ${LINENO}: PROGRESS_LOGFILE not zero; test mode zero; randomize_urilist not zero"
-      cat "$URI_LIST_FILE" | shuf | sed --regexp-extended '/^https?:/!d;s@\r@@g;s@.*(https?://[^ ]+).*@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW_YmdHM}" "${datetime_start_quoted}" "${PROGRESS_LOGFILE}"
+      cat "$URI_LIST_FILE" | shuf | sed --regexp-extended 's@\r@@g; /^https?:/!d; s@^(https?://[^[:space:]]+).*$@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW_YmdHM}" "${datetime_start_quoted}" "${PROGRESS_LOGFILE}"
     fi
   else
     # echo "# DEBUG script line ${LINENO}: PROGRESS_LOGFILE not zero; test mode not zero"
@@ -498,10 +498,10 @@ else   # PROGRESS_LOGFILE and log into file
     echo " yes"             &>> "${PROGRESS_LOGFILE}"
     if [[ -z ${randomize_urilist// /} ]] ; then
       # echo "# DEBUG script line ${LINENO}: PROGRESS_LOGFILE not zero; test mode not zero; randomize_urilist zero"
-      head -n200 "$URI_LIST_FILE" | sed --regexp-extended '/^https?:/!d;s@\r@@g;s@.*(https?://[^ ]+).*@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW_YmdHM}" "${datetime_start_quoted}" "${PROGRESS_LOGFILE}"
+      head -n200 "$URI_LIST_FILE" | sed --regexp-extended 's@\r@@g; /^https?:/!d; s@^(https?://[^[:space:]]+).*$@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW_YmdHM}" "${datetime_start_quoted}" "${PROGRESS_LOGFILE}"
     else
       # echo "# DEBUG script line ${LINENO}: PROGRESS_LOGFILE not zero; test mode not zero; randomize_urilist not zero"
-      head -n200 "$URI_LIST_FILE" | shuf | sed --regexp-extended '/^https?:/!d;s@\r@@g;s@.*(https?://[^ ]+).*@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW_YmdHM}" "${datetime_start_quoted}" "${PROGRESS_LOGFILE}"
+      head -n200 "$URI_LIST_FILE" | shuf | sed --regexp-extended 's@\r@@g; /^https?:/!d; s@^(https?://[^[:space:]]+).*$@\1@' | parallel -j$N_JOBS getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} {} "${DOMAINNAME}" "${DATETIME_NOW_YmdHM}" "${datetime_start_quoted}" "${PROGRESS_LOGFILE}"
     fi
   fi
   # date --date="2022-01-13 13:22:54.219314212+01:00" '+%Y%m%d-%H%M%S'
@@ -512,7 +512,7 @@ else   # PROGRESS_LOGFILE and log into file
   echo $( date --date="$datetime_end"   '+# Ended:   %Y-%m-%d %H:%M:%S%:z' ) >> "${PROGRESS_LOGFILE}"
   # echo "# Started: $datetime_start" >> "${PROGRESS_LOGFILE}"
   # echo "# Ended:   $datetime_end"   >> "${PROGRESS_LOGFILE}"
-  $exec_datediff "$datetime_start" "$datetime_end" -f "# Done. $TOTAL_JOBS jobs took %dd %Hh:%Mm:%Ss using $N_JOBS parallel connections" >> "${PROGRESS_LOGFILE}"
+  $exec_datediff "$datetime_start" "$datetime_end" -f "# Done. $TOTAL_JOBS jobs took %dd  %0Hh:%0Mm:%0Ss using $N_JOBS parallel connections" >> "${PROGRESS_LOGFILE}"
   echo -e "# Hint: use zgrep or zcat … | tail   to search or list file content on gz text files"  >> "${PROGRESS_LOGFILE}"
   echo    "# compress all files Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.rdf …" >> "${PROGRESS_LOGFILE}"
   gzip --verbose $(echo "Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.rdf") &>> "${PROGRESS_LOGFILE}"
