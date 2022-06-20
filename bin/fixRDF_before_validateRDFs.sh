@@ -10,8 +10,10 @@ file_search_pattern="Test_sed*.rdf"
 file_search_pattern="Threads_import_*_20201116.rdf"
 file_search_pattern="Thread-*_jacq.org_20211108-1309.rdf"
 
+INSTRUCT_TO_PRINT_ONLY_RDF_COMPARISON=0
+
 n=0
-DO_PRINT_ONLY_RDF_COMPARISON=0
+
 
 function file_search_pattern_default () {
   printf "Thread-[0-9][0-9]_*_%s-[0-9][0-9][0-9][0-9].rdf" $(date '+%Y%m%d')
@@ -112,7 +114,7 @@ function usage() {
 }
 
 function processinfo () {
-if [[ $DO_PRINT_ONLY_RDF_COMPARISON -gt 0 ]];then
+if [[ $INSTRUCT_TO_PRINT_ONLY_RDF_COMPARISON -gt 0 ]];then
   echo     "################ Fix RDF before validateRDF.sh (print rdf header comparison) #####################"
   echo -e  "# Print only rdf header comparison"
   echo -e  "# Read directory:  \e[32m${this_wd}\e[0m ..."
@@ -160,7 +162,7 @@ while getopts "s:hp" o; do
             file_search_pattern=$( [[ -z ${this_file_search_pattern// /} ]] && echo "$(file_search_pattern_default)" || echo "$this_file_search_pattern" );
             ;;
         p)
-            DO_PRINT_ONLY_RDF_COMPARISON=1
+            INSTRUCT_TO_PRINT_ONLY_RDF_COMPARISON=1
             ;;
         *)
             usage; exit 0;
@@ -197,7 +199,7 @@ datetime_start=`date --rfc-3339 'ns'` ; # unix_seconds_start=$(date +"%s")
 datetime_start_quoted=`date --rfc-3339 'ns' | ( read -rsd '' x; echo ${x@Q} )`; # unix_seconds_start=$(date +"%s")
 
 # check all RDFs
-if [[ $DO_PRINT_ONLY_RDF_COMPARISON -eq 0 ]];then
+if [[ $INSTRUCT_TO_PRINT_ONLY_RDF_COMPARISON -eq 0 ]];then
 for this_file in `ls $file_search_pattern | sort --version-sort`; do
 printf "# \e[32mProcess %03d of %03d in \e[3m%s\e[32m …\e[0m\n" $i $n "${this_file##*/}";
   
@@ -250,12 +252,12 @@ printf "# \e[32mProcess %03d of %03d in \e[3m%s\e[32m …\e[0m\n" $i $n "${this_
     s@\bxmlns:@\n  xmlns:@g; 
     s@>@@; 
     /\n  xmlns:/!d; 
-    /^[\s\t\n]*$/d; 
+    /^[[:space:]\n]*$/d; 
     p; 
   }' \
   "$this_file_modified" \
   | sort --unique \
-  | sed --regexp-extended --quiet  '/^[\t ]+$/d;/^$/d;p;' \
+  | sed --regexp-extended --quiet  '/^[[:space:]]+$/d;/^$/d;p;' \
   | sed "1i\<rdf:RDF
   \$a\>\n<\!-- *Initially* extracted RDF-headers from\n     ${this_file} -->" \
     > "${this_file_headers_extracted}"
@@ -303,21 +305,23 @@ printf "# \e[32mProcess %03d of %03d in \e[3m%s\e[32m …\e[0m\n" $i $n "${this_
     sed --regexp-extended --in-place '/rdf:resource="[^"]+$/,/"/{N; s@\s*\n\s*@@; }' "${this_file_modified}"
   fi
   
-  echo -e "#    \e[32mfix common errors \e[0m(also check decimalLatitude decimalLongitude data type) ... " 
-  sed --regexp-extended --in-place '
-  s@(<)([[:alpha:]]+:)(decimalLongitude|decimalLatitude)(>)([^<>]*)(</\2\3>)@\1\2\3 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"\4\5\6@g;
-  # add datatype to <dcterms:decimalLatitude> or <dcterms:decimalLatitude>
 
-  s@(rdf:resource|rdf:about)="(https?://[^"]+)\2"@\1="\2"@;
-  s@<(dwc:materialSampleID)>(https?://[^<>]+)\2</\1>@<\1>\2</\1>@;
-  # remove double http…http… (some JACQ had such data)
+  echo -e "#    \e[32mfix common errors \e[0m(also check or fix decimalLatitude decimalLongitude data type) ... " 
+  sed --regexp-extended --in-place '
+    s@(<)([[:alpha:]]+:)(decimalLongitude|decimalLatitude)(>)([^<>,]*),([^<>,]*)(</\2\3>)@\1\2\3 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"\4\5.\6\7@g;
+    s@(<)([[:alpha:]]+:)(decimalLongitude|decimalLatitude)(>)([^<>,]*)(</\2\3>)@\1\2\3 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"\4\5\6@g;
+    # add datatype to <dcterms:decimalLatitude> or <dcterms:decimalLatitude>
   
-  s@& @\&amp; @g;
-  s@&([^ ;]+) @\&amp;\1 @g
-  # fix non-encoded & to &amp;
-  
-  s@https://([^/ ]+):443/@https://\1/@g;
-  # fix https :443 => default HTTPS port should be ommited (tells apache/bin/turtle --validate)  
+    s@(rdf:resource|rdf:about)=\"(https?://[^"]+)\2"@\1="\2"@;
+    s@<(dwc:materialSampleID)>(https?://[^<>]+)\2</\1>@<\1>\2</\1>@;
+    # remove double http…http… (some JACQ had such data)
+    
+    s@& @\&amp; @g;
+    s@&([^ ;]+) @\&amp;\1 @g
+    # fix non-encoded & to &amp;
+    
+    s@https://([^/ ]+):443/@https://\1/@g;
+    # fix https :443 => default HTTPS port should be ommited (tells apache/bin/turtle --validate)  
   ' "${this_file_modified}"
   
   echo -e "#    \e[32mfix RDF \e[0m(tag ranges: XML-head; XML-stylesheet; DOCTYPE rdf:RDF aso.) ... " 
@@ -326,7 +330,7 @@ printf "# \e[32mProcess %03d of %03d in \e[3m%s\e[32m …\e[0m\n" $i $n "${this_
   
   0,/<\?xml/{
     /<!--/,/<\?xml/{
-     N; s@(<!--.+-->\n?)(<\?xml[\s\n][^>]+\?>)@\2\1@; 
+     N; s@(<!--.+-->\n?)(<\?xml[[:space:]\n][^>]+\?>)@\2\1@; 
     }
   };
   # move comments that may be there before first starting <?xml…>
@@ -338,7 +342,7 @@ printf "# \e[32mProcess %03d of %03d in \e[3m%s\e[32m …\e[0m\n" $i $n "${this_
   # replace all DOCTYPE rdf
   
   0,/<rdf:RDF/!{
-    /<rdf:RDF/,/>/ { # Note: it can have newline <rdf:RDF[\n or \s+] …>
+    /<rdf:RDF/,/>/ { # Note: it can have newline <rdf:RDF[\n or [:space:]+] …>
       :label_rdfRDF_in_multiline; N;  /<rdf:RDF[^>]+[^]]>/!b label_rdfRDF_in_multiline;
       s@<rdf:RDF[^>]+[^]]>@<!-- rdf:RDF REPLACED -->@g;
     }
@@ -381,7 +385,7 @@ fi
 echo -e  "# \e[32mEach RDF file should be prepared for validation and could then be imported from this point on.\e[0m" # final line break
 echo -e  "# \e[32mCheck also if the RDF-head is equal to the extracted ones, e.g. in \e[0m${this_file_headers_extracted}\e[32m ...\e[0m" # final line break
 echo -e  "# \e[32mYou can use command pr to print the RDF headers side by side:\e[0m" # final line break
-fi # $DO_PRINT_ONLY_RDF_COMPARISON
+fi # $INSTRUCT_TO_PRINT_ONLY_RDF_COMPARISON
 
 # file_search_pattern='Thread-*x500000-coldb.mnhn.fr_202203[0-9][0-9]-[0-9][0-9][0-9][0-9].rdf'
 # TODO check correct functioning
@@ -441,7 +445,7 @@ for this_file in `ls ${file_search_pattern} | sort --version-sort `; do
   echo -e "  \e[34msed\e[0m --quiet --regexp-extended \e[33m'/<rdf:RDF/{ 
     :rdf_anchor;N;
     /<rdf:RDF[^>]*>/${exclamation}b rdf_anchor; 
-    s@[ \\\t\s]+(xmlns:)@\\\n  \1@g; s@\\\n\\\n@\\\n@g; p;
+    s@[ \\[:space:]]+(xmlns:)@\\\n  \1@g; s@\\\n\\\n@\\\n@g; p;
   }'\e[0m '${this_file_modified}' \\
   | \e[34mpr\e[0m --page-width 140 --merge --omit-header \\
   '${this_file_headers_extracted}' -"; # final line break
@@ -449,7 +453,7 @@ for this_file in `ls ${file_search_pattern} | sort --version-sort `; do
   echo -e "  sed --quiet --regexp-extended '/<rdf:RDF/{ 
     :rdf_anchor;N;
     /<rdf:RDF[^>]*>/${exclamation}b rdf_anchor; 
-    s@[ \\\t\s]+(xmlns:)@\\\n  \1@g; s@\\\n\\\n@\\\n@g; p;
+    s@[ \\[:space:]]+(xmlns:)@\\\n  \1@g; s@\\\n\\\n@\\\n@g; p;
   }' '${this_file_modified}' \\
   | pr --page-width 140 --merge --omit-header \\
   '${this_file_headers_extracted}' -" >> $logfile_rdf_headers  ; # final line break
@@ -459,7 +463,7 @@ for this_file in `ls ${file_search_pattern} | sort --version-sort `; do
   echo -e "  \e[34mzcat\e[0m ${this_file_modified}.gz | \e[34msed\e[0m --quiet --regexp-extended \e[33m'/<rdf:RDF/{ 
     :rdf_anchor;N;
     /<rdf:RDF[^>]*>/${exclamation}b rdf_anchor; 
-    s@[ \\\t\s]+(xmlns:)@\\\n  \1@g; s@\\\n\\\n@\\\n@g; p;
+    s@[ \\[:space:]]+(xmlns:)@\\\n  \1@g; s@\\\n\\\n@\\\n@g; p;
   }'\e[0m \\
   | \e[34mpr\e[0m --page-width 140 --merge --omit-header \\
   '${this_file_headers_extracted}' -"; # final line break
@@ -467,7 +471,7 @@ for this_file in `ls ${file_search_pattern} | sort --version-sort `; do
   echo -e " zcat ${this_file_modified}.gz | sed --quiet --regexp-extended '/<rdf:RDF/{ 
     :rdf_anchor;N;
     /<rdf:RDF[^>]*>/${exclamation}b rdf_anchor; 
-    s@[ \\\t\s]+(xmlns:)@\\\n  \1@g; s@\\\n\\\n@\\\n@g; p;
+    s@[ \\[:space:]]+(xmlns:)@\\\n  \1@g; s@\\\n\\\n@\\\n@g; p;
   }' \\
   | pr --page-width 140 --merge --omit-header \\
   '${this_file_headers_extracted}' -" >> $logfile_rdf_headers  ; # final line break
