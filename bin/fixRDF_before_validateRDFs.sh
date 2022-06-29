@@ -295,14 +295,14 @@ printf "# \e[32mProcess %03d of %03d in \e[3m%s\e[32m …\e[0m\n" $i $n "${this_
     printf   "\e[32m#    fix \e[31mcomments with double minus not permitted\e[32m in %s URLs ...\e[0m\n" $n_of_comments_with_double_minus;
     sed --regexp-extended --in-place '
     /<!--.*[^<][^!]--[^>].*-->/ {# rdfparse Fatal Error:  (line 75 column 113): The string "--" is not permitted within comments.
-      :label.uri_doubleminus_in_comment; s@\s(https?://.+)--([^>]* -->)@ \1%2D%2D\2@; tlabel.uri_doubleminus_in_comment; # if (s)ubstitution successful (t)ested, go back to label cycle
+      :label.uri_doubleminus_in_comment; s@[[:space:]](https?://.+)--([^>]* -->)@ \1%2D%2D\2@; tlabel.uri_doubleminus_in_comment; # if (s)ubstitution successful (t)ested, go back to label cycle
     }
  ' "${this_file_modified}"
   fi
 
   if [[ $(grep --max-count=1 'rdf:resource="[^"]\+$' "${this_file_modified}" ) ]];then
     printf   "\e[32m#    fix \e[31mline break in IRI\e[32m within «\e[3mrdf:resource=\"http...line break\"\e[32m ...\n\e[0m";
-    sed --regexp-extended --in-place '/rdf:resource="[^"]+$/,/"/{N; s@\s*\n\s*@@; }' "${this_file_modified}"
+    sed --regexp-extended --in-place '/rdf:resource="[^"]+$/,/"/{N; s@[[:space:]]*\n[[:space:]]*@@; }' "${this_file_modified}"
   fi
   
 
@@ -445,7 +445,7 @@ for this_file in `ls ${file_search_pattern} | sort --version-sort `; do
   echo -e "  \e[34msed\e[0m --quiet --regexp-extended \e[33m'/<rdf:RDF/{ 
     :rdf_anchor;N;
     /<rdf:RDF[^>]*>/${exclamation}b rdf_anchor; 
-    s@[ \\[:space:]]+(xmlns:)@\\\n  \1@g; s@\\\n\\\n@\\\n@g; p;
+    s@[[:space:]]+(xmlns:)@\\\n  \1@g; s@\\\n\\\n@\\\n@g; p;
   }'\e[0m '${this_file_modified}' \\
   | \e[34mpr\e[0m --page-width 140 --merge --omit-header \\
   '${this_file_headers_extracted}' -"; # final line break
@@ -453,7 +453,7 @@ for this_file in `ls ${file_search_pattern} | sort --version-sort `; do
   echo -e "  sed --quiet --regexp-extended '/<rdf:RDF/{ 
     :rdf_anchor;N;
     /<rdf:RDF[^>]*>/${exclamation}b rdf_anchor; 
-    s@[ \\[:space:]]+(xmlns:)@\\\n  \1@g; s@\\\n\\\n@\\\n@g; p;
+    s@[[:space:]]+(xmlns:)@\\\n  \1@g; s@\\\n\\\n@\\\n@g; p;
   }' '${this_file_modified}' \\
   | pr --page-width 140 --merge --omit-header \\
   '${this_file_headers_extracted}' -" >> $logfile_rdf_headers  ; # final line break
@@ -463,7 +463,7 @@ for this_file in `ls ${file_search_pattern} | sort --version-sort `; do
   echo -e "  \e[34mzcat\e[0m ${this_file_modified}.gz | \e[34msed\e[0m --quiet --regexp-extended \e[33m'/<rdf:RDF/{ 
     :rdf_anchor;N;
     /<rdf:RDF[^>]*>/${exclamation}b rdf_anchor; 
-    s@[ \\[:space:]]+(xmlns:)@\\\n  \1@g; s@\\\n\\\n@\\\n@g; p;
+    s@[[:space:]]+(xmlns:)@\\\n  \1@g; s@\\\n\\\n@\\\n@g; p;
   }'\e[0m \\
   | \e[34mpr\e[0m --page-width 140 --merge --omit-header \\
   '${this_file_headers_extracted}' -"; # final line break
@@ -471,7 +471,7 @@ for this_file in `ls ${file_search_pattern} | sort --version-sort `; do
   echo -e " zcat ${this_file_modified}.gz | sed --quiet --regexp-extended '/<rdf:RDF/{ 
     :rdf_anchor;N;
     /<rdf:RDF[^>]*>/${exclamation}b rdf_anchor; 
-    s@[ \\[:space:]]+(xmlns:)@\\\n  \1@g; s@\\\n\\\n@\\\n@g; p;
+    s@[[:space:]]+(xmlns:)@\\\n  \1@g; s@\\\n\\\n@\\\n@g; p;
   }' \\
   | pr --page-width 140 --merge --omit-header \\
   '${this_file_headers_extracted}' -" >> $logfile_rdf_headers  ; # final line break
