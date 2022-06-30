@@ -41,7 +41,7 @@ get_timediff_for_njobs_new () {
       -t|--test)
         if ! command -v datediff &> /dev/null &&  ! command -v dateutils.ddiff &> /dev/null
         then
-          echo -e "\e[31m# Error: Neither command datediff or dateutils.ddiff could not be found. Please install package dateutils.\e[0m"
+          echo -e "# \e[31mError: Neither command datediff or dateutils.ddiff could not be found. Please install package dateutils.\e[0m"
           exit
         else
           return 0 # return [Zahl] und verlasse gesamte Funktion get_timediff_for_njobs_new
@@ -66,7 +66,7 @@ get_timediff_for_njobs_new () {
   # START estimate time to do 
   local this_unixnanoseconds_start_timestamp=$(date --date="$1" '+%s.%N')
   local this_unixnanoseconds_now=$(date --date="$2" '+%s.%N')
-  local this_unixnanoseconds_todo=0
+  local this_unixseconds_todo=0
   local this_n_jobs_all=$(expr $3 + 0)
   local this_i_job_counter=$(expr $4 + 0)
   # echo "scale=10; 1642073008.587244684 - 1642028400.000000000" | bc -l
@@ -77,15 +77,25 @@ get_timediff_for_njobs_new () {
 
   # echo -e "\033[2m# DEBUG Test mode: all together $this_n_jobs_all ; counter $this_i_job_counter\033[0m"
   if [[ $this_n_jobs_all -eq $this_i_job_counter ]];then # done
-    this_unixnanoseconds_todo=0
+    this_unixseconds_todo=0
     # njobs_done_so_far=`$this_command_timediff "@$this_unixnanoseconds_start_timestamp" "@$this_unixnanoseconds_now" -f "all $this_i_job_counter done, duration %dd %0Hh:%0Mm:%0Ss"`
     this_msg_estimated_sofar="nothing left to do"
   else
-    # this_unixnanoseconds_todo=$(( $this_timediff_unixnanoseconds * $this_n_jobs_todo / $this_i_job_counter ))
-    # this_unixnanoseconds_todo=$(( $this_timediff_unixnanoseconds * $this_n_jobs_todo / $this_i_job_counter ))
-    this_unixnanoseconds_todo=`echo "scale=0; $this_timediff_unixnanoseconds * $this_n_jobs_todo / $this_i_job_counter" | bc -l`
+    # this_unixseconds_todo=$(( $this_timediff_unixnanoseconds * $this_n_jobs_todo / $this_i_job_counter ))
+    # this_unixseconds_todo=$(( $this_timediff_unixnanoseconds * $this_n_jobs_todo / $this_i_job_counter ))
+    this_unixseconds_todo=`echo "scale=0; $this_timediff_unixnanoseconds * $this_n_jobs_todo / $this_i_job_counter" | bc -l`
+    
     # njobs_done_so_far=`$this_command_timediff "@$this_unixnanoseconds_start_timestamp" "@$this_unixnanoseconds_now" -f "$this_i_job_counter done so far %dday(s) %Hh:%Mmin:%Ssec"`
-    this_msg_estimated_sofar=`$this_command_timediff "@0" "@$this_unixnanoseconds_todo" -f "Still $this_n_jobs_todo job to do, estimated end %dday(s) %Hh:%Mmin:%Ssec"`
+    if [[ $this_unixseconds_todo -ge $(( 60 * 60 * 24 * 2 )) ]];then
+      this_msg_estimated_sofar=`$this_command_timediff "@0" "@$this_unixseconds_todo" -f "Still $this_n_jobs_todo jobs to do, estimated end %ddays %Hh:%Mmin:%Ssec"`
+    elif [[ $this_unixseconds_todo -ge $(( 60 * 60 * 24 )) ]];then
+      this_msg_estimated_sofar=`$this_command_timediff "@0" "@$this_unixseconds_todo" -f "Still $this_n_jobs_todo jobs to do, estimated end %dday %Hh:%Mmin:%Ssec"`
+    elif [[ $this_unixseconds_todo -ge $(( 60 * 60 * 1 )) ]];then
+      this_msg_estimated_sofar=`$this_command_timediff "@0" "@$this_unixseconds_todo" -f "Still $this_n_jobs_todo jobs to do, estimated end %Hh:%Mmin:%Ssec"`
+    elif [[ $this_unixseconds_todo -lt $(( 60 * 60 * 1 )) ]];then
+      this_msg_estimated_sofar=`$this_command_timediff "@0" "@$this_unixseconds_todo" -f "Still $this_n_jobs_todo jobs to do, estimated end %Mmin:%Ssec"`
+    fi
+    
   fi
   #echo "from $this_n_jobs_all, $njobs_done_so_far; $this_msg_estimated_sofar"
   echo "$this_msg_estimated_sofar"
