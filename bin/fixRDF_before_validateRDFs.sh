@@ -86,14 +86,15 @@ get_timediff_for_njobs_new () {
     this_unixseconds_todo=`echo "scale=0; $this_timediff_unixnanoseconds * $this_n_jobs_todo / $this_i_job_counter" | bc -l`
     
     # njobs_done_so_far=`$this_command_timediff "@$this_unixnanoseconds_start_timestamp" "@$this_unixnanoseconds_now" -f "$this_i_job_counter done so far %dday(s) %Hh:%Mmin:%Ssec"`
+    job_singular_or_plural=$([ $this_n_jobs_todo -gt 1 ]  && echo jobs  || echo job )
     if [[ $this_unixseconds_todo -ge $(( 60 * 60 * 24 * 2 )) ]];then
-      this_msg_estimated_sofar=`$this_command_timediff "@0" "@$this_unixseconds_todo" -f "Still $this_n_jobs_todo jobs to do, estimated end %ddays %Hh:%Mmin:%Ssec"`
+      this_msg_estimated_sofar=`$this_command_timediff "@0" "@$this_unixseconds_todo" -f "Still $this_n_jobs_todo $job_singular_or_plural to do, estimated end %ddays %Hh:%Mmin:%Ssec"`
     elif [[ $this_unixseconds_todo -ge $(( 60 * 60 * 24 )) ]];then
-      this_msg_estimated_sofar=`$this_command_timediff "@0" "@$this_unixseconds_todo" -f "Still $this_n_jobs_todo jobs to do, estimated end %dday %Hh:%Mmin:%Ssec"`
+      this_msg_estimated_sofar=`$this_command_timediff "@0" "@$this_unixseconds_todo" -f "Still $this_n_jobs_todo $job_singular_or_plural to do, estimated end %dday %Hh:%Mmin:%Ssec"`
     elif [[ $this_unixseconds_todo -ge $(( 60 * 60 * 1 )) ]];then
-      this_msg_estimated_sofar=`$this_command_timediff "@0" "@$this_unixseconds_todo" -f "Still $this_n_jobs_todo jobs to do, estimated end %Hh:%Mmin:%Ssec"`
+      this_msg_estimated_sofar=`$this_command_timediff "@0" "@$this_unixseconds_todo" -f "Still $this_n_jobs_todo $job_singular_or_plural to do, estimated end %Hh:%Mmin:%Ssec"`
     elif [[ $this_unixseconds_todo -lt $(( 60 * 60 * 1 )) ]];then
-      this_msg_estimated_sofar=`$this_command_timediff "@0" "@$this_unixseconds_todo" -f "Still $this_n_jobs_todo jobs to do, estimated end %Mmin:%Ssec"`
+      this_msg_estimated_sofar=`$this_command_timediff "@0" "@$this_unixseconds_todo" -f "Still $this_n_jobs_todo $job_singular_or_plural to do, estimated end %Mmin:%Ssec"`
     fi
     
   fi
@@ -108,7 +109,7 @@ function usage() {
   echo    "################ Fix RDF before validateRDF.sh #####################"
   echo -e "# Clean up and fix each of previousely merged RDFs from a download" 1>&2; 
   echo -e "# stack to be each valid RDF files. The file’s search patterns and" 1>&2; 
-  echo -e "# fixing etc. is considered in development stage, so checking its" 1>&2; 
+  echo -e "# fixing aso. is considered in development stage, so checking its" 1>&2; 
   echo -e "# right functioning is still of essence." 1>&2; 
   echo    "# -----------------------------------------------------------------"
   echo -e "# Usage: \e[32m${0##*/}\e[0m [-s 'Thread*file-search-pattern*.rdf']" 1>&2; 
@@ -258,9 +259,10 @@ printf "# \e[32mProcess %03d of %03d in \e[3m%s\e[32m …\e[0m\n" $i $n "${this_
   # TODO check correct functioning
   sed --regexp-extended --quiet \
   '/<rdf:RDF/,/>/{ 
-    s@<rdf:RDF +@@; 
-    s@\bxmlns:@\n  xmlns:@g; 
-    s@>@@; 
+    s@[[:space:]]*<rdf:RDF[[:space:]]+@@; 
+    s@\bxmlns:@\n  xmlns:@g;
+    s@(\n  xmlns:[^[:space:]]+)[[:space:]]+@\1@g; # trim trailing space
+    s@[[:space:]]*>[[:space:]]*@@; 
     /\n  xmlns:/!d; 
     /^[[:space:]\n]*$/d; 
     p; 
