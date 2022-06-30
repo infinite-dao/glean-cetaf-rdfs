@@ -51,7 +51,9 @@ file_search_pattern="Thread*coldb.mnhn.fr*_1000001-1200003_2020-09-08*.rdf"
 file_search_pattern="Threads_import_*_20201116.rdf"
 file_search_pattern="Thread-*_jacq.org_20211108-1309.rdf"
 ###########################
-this_wd="$PWD"
+this_wd="$PWD";
+cd "$this_wd"; 
+
 n=`find "${this_wd}" -maxdepth 1 -type f -iname "${file_search_pattern##*/}" | sort --version-sort | wc -l `
 
 function file_search_pattern_default () {
@@ -159,11 +161,12 @@ esac
 echo "" > "$logfile" # empty log file
 
 # check all RDFs
-for this_file in `find "${this_wd}" -maxdepth 1 -type f -iname "${file_search_pattern##*/}" | sort --version-sort`; do
+cd "${this_wd}"
+for this_file in `find . -maxdepth 1 -type f -iname "${file_search_pattern##*/}" | sort --version-sort`; do
   printf "# \e[32mProcess %03d of %03d\e[0m in %s\n" $i $n "${this_file##*/}"; 
   # this_file_is_gz=$([ $(echo "$this_file" | grep ".\bgz$") ] && echo 1  || echo 0 )
   # rdfxml can handle *.gz
-  [ -f "$this_file" ] && echo -en "\n${this_file##*/} :: " >> "$logfile" && ${apache_jena_bin}/rdfxml --validate "$this_file" >> "$logfile" 2>&1
+  [ -f "$this_file" ] && echo -en "\nValidate ${this_file##*/} :: " >> "$logfile" && ${apache_jena_bin}/rdfxml --validate "$this_file" 2>&1 | tee --append "$logfile" 
   ! [ -f "$this_file" ] && echo -en "\nWarning ${this_file##*/} not found " >> "$logfile"
 
   i=$((i + 1 ))
@@ -172,10 +175,19 @@ echo "" >> "$logfile" # final line break
 
 echo -e  "# \e[32mDone\e[0m. Check log file ${logfile} ..."
 echo -e  "\e[34mcat\e[0m ${logfile} \e[2m# read the entire file\e[0m"
-n_warn_or_errors=`grep --ignore-case  'warn\|error' ${logfile} | wc -l`
-if [[ $n_warn_or_errors -gt 0 ]];then
-printf   "# \e[33m%d warnings or errors\e[0m found using the following command\n" $n_warn_or_errors
+n_warnings=`grep --ignore-case --count '\bwarn\b' ${logfile}`
+n_errors=`grep --ignore-case --count '\berror\b' ${logfile}`
+
+if [[ $(( $n_warnings + $n_errors + 0)) -eq 0 ]];then
+printf   "# \e[32mNo warnings or errors found, using the following command\e[0m\n" 
+echo -e  "\e[34mgrep\e[0m --ignore-case --context=1 'warn\\|error' ${logfile} \e[2m# search for “warn” or “error”\e[0m"
 else
-printf   "# \e[32mNo or %d warnings or errors found, using the following command\e[0m\n" $n_warn_or_errors
+  if [[ $n_warnings -gt 0 ]];then
+printf   "# \e[33m%d warnings\e[0m found using the following command\n" $n_warnings
+echo -e  "\e[34mgrep\e[0m --ignore-case --context=1 '\\\bwarn\\\b' ${logfile} \e[2m# search for “warn(ings)” \e[0m"
+  fi
+  if [[ $n_errors -gt 0 ]];then
+printf   "# \e[33m%d errors\e[0m found using the following command\n" $n_errors
+echo -e  "\e[34mgrep\e[0m --ignore-case --context=1 '\\\berror\\\b' ${logfile} \e[2m# search for “error(s)” \e[0m"
+  fi
 fi
-echo -e  "\e[34mgrep\e[0m --ignore-case --context=1 'warn\|error' ${logfile} \e[2m# search for “warn” or “error”\e[0m"
