@@ -13,15 +13,18 @@ declare -A ROR_OR_INSTITUTION # associative array
 declare -A SED_EXPRESSION_MATCH_CETAFID # associative array
 
 # ROR_OR_INSTITUTION["domain-cetaf-ID-fixed-pattern-path-without-ID"]="URL-ROR-ID", e.g. 
-ROR_OR_INSTITUTION["coldb.mnhn.fr/catalognumber/mnhn/"]="https://ror.org/03wkt5x30"
-  SED_EXPRESSION_MATCH_CETAFID["coldb.mnhn.fr/catalognumber/mnhn/"]="^<https?:\/\/coldb.mnhn.fr\/catalognumber\/mnhn\/[a-z]+\/[^<>]+>"
+# ROR_OR_INSTITUTION["coldb.mnhn.fr/catalognumber/mnhn/"]="https://ror.org/03wkt5x30"
+#   SED_EXPRESSION_MATCH_CETAFID["coldb.mnhn.fr/catalognumber/mnhn/"]="^<https?:\/\/coldb.mnhn.fr\/catalognumber\/mnhn\/[a-z]+\/[^<>]+>"
 # ROR_OR_INSTITUTION["data.biodiversitydata.nl/naturalis/specimen/"]="https://ror.org/0566bfb96"
 # ROR_OR_INSTITUTION["data.nhm.ac.uk/object/"]="https://ror.org/039zvsn29"
 # ROR_OR_INSTITUTION["data.rbge.org.uk/herb/"]="https://ror.org/0349vqz63"
 # ROR_OR_INSTITUTION["herbarium.bgbm.org/object/"]="https://ror.org/00bv4cx53"
 # ROR_OR_INSTITUTION["specimens.kew.org/herbarium/"]="https://ror.org/00ynnr806"
-# ROR_OR_INSTITUTION["www.botanicalcollections.be/specimen/"]="https://ror.org/01h1jbk91"
+ROR_OR_INSTITUTION["www.botanicalcollections.be/specimen/"]="https://ror.org/01h1jbk91"
 # ROR_OR_INSTITUTION["id.herb.oulu.fi"]="https://ror.org/03yj89h83"
+# ROR_OR_INSTITUTION["id.smns-bw.org"]="https://ror.org/05k35b119"
+#   SED_EXPRESSION_MATCH_CETAFID["id.smns-bw.org"]="^<https?:\/\/id.smns-bw.org\/smns\/collection\/[0-9]+\/[^<>]+>"
+        #   https://id.smns-bw.org/smns/collection/275270/772621/279650
 
 # # # # # # Finland
 # ROR_OR_INSTITUTION["id.luomus.fi"]="https://ror.org/undefined4id.luomus.fi"
@@ -89,12 +92,14 @@ i=1
 # } # JACQ without object
 for null_index in "${!ROR_OR_INSTITUTION_DOMAIN_sorted[@]}";do
   # for domain_part in "${!ROR_OR_INSTITUTION[@]}"; do 
-  domain_part=${ROR_OR_INSTITUTION_DOMAIN_sorted[$null_index]}
-
+  domain_part=${ROR_OR_INSTITUTION_DOMAIN_sorted[$null_index]};
   domain_only_http=`echo ${domain_part} | sed -r 's@^([^/]+)/?.*$@http://\1@'`
+  
+  this_institution_id=${ROR_OR_INSTITUTION[$domain_part]};
+  
   [[ "${domain_part}" != */ ]] && domain_part_with_slash="${domain_part}/" || domain_part_with_slash="${domain_part}"
   
-  echo "# ## ROR_OR_INSTITUTION of" $domain_part --- ${ROR_OR_INSTITUTION[$domain_part]}; 
+  echo "# ## ROR_OR_INSTITUTION of" $domain_part --- ${this_institution_id}; 
   if [[ $domain_part =~ wu.jacq.org ]];then
   echo "#   https://wu.jacq.org/WU-MYC "
   echo "#   https://wu.jacq.org/WU "
@@ -114,8 +119,8 @@ for null_index in "${!ROR_OR_INSTITUTION_DOMAIN_sorted[@]}";do
   echo "  # skip adding ROR_OR_INSTITUTION ID, add publisher"
   else
   echo "  # add ROR_OR_INSTITUTION ID eventually to the final dot, and remove possible duplicates
-     s@(\s+[.])\$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  <${ROR_OR_INSTITUTION[$domain_part]}>\1@;
-     s@<http://rs.tdwg.org/dwc/terms/institutionID>  <${ROR_OR_INSTITUTION[$domain_part]}>\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  ${ROR_OR_INSTITUTION[$domain_part]} .)@\1\2@; "
+     s@(\s+[.])\$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  <${this_institution_id}>\1@;
+     s@<http://rs.tdwg.org/dwc/terms/institutionID>  <${this_institution_id}>\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  ${this_institution_id} .)@\1\2@; "
   fi # institutionID
   echo "  # add dcterms:isPartOf, dcterms:hasPart, dcterms:conformsTo"
   echo "  s@(\s+[.])\$@ ;\n        <http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_(CSPP)>\1@;"
@@ -164,8 +169,8 @@ done
 #   echo "  { SELECT  ?cetaf_id_exaple ?p ?title_example ?ror_id";
 #   echo "    WHERE";
 #   echo "    { ?cetaf_id_exaple  ?p  ?title_example;";
-#   echo "          # ROR_OR_INSTITUTION of" $domain_part --- ${ROR_OR_INSTITUTION[$domain_part]}; 
-#   echo "          dwc:institutionID <"${ROR_OR_INSTITUTION[$domain_part]}">;";
+#   echo "          # ROR_OR_INSTITUTION of" $domain_part --- ${this_institution_id}; 
+#   echo "          dwc:institutionID <"${this_institution_id}">;";
 #   echo "          dcterms:title ?title_example;";
 #   echo "          dwc:institutionID ?ror_id;";
 #   echo "    }";
