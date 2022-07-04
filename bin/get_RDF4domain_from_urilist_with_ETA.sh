@@ -236,11 +236,11 @@ get_info_and_http_return_codes() {
 export -f get_info_and_http_return_codes # export needed otherwise /usr/bin/bash: get_timediff_for_njobs_new: command not found
 
 get_timediff_for_njobs_new () {
-  # Description: calculate estimated time to finish n jobs (here, it only prints the estimate and $njobs_done_so_far is commented out)
+  # Description: calculate estimated time to finish n jobs and the estimated total time
   # # # # # 
   # Usage:
   # get_timediff_for_njobs_new --test # to check for dependencies (datediff)
-  # get_timediff_for_njobs_new begintime nowtime ntotaljobs njobscurrentlydone
+  # get_timediff_for_njobs_new begintime nowtime ntotaljobs njobsnowdone
   # get_timediff_for_njobs_new "2021-12-06 16:47:29" "2021-12-09 13:38:08" 696926 611613
   # # # # # # # # # # # # # # # # # # 
   # echo '('`date +"%s.%N"` ' * 1000)/1' | bc # get milliseconds
@@ -249,17 +249,31 @@ get_timediff_for_njobs_new () {
     
   local this_command_timediff
   
-  # read if test mode
+  # read if test mode to check commands
   while [[ "$#" -gt 0 ]]
   do
     case $1 in
       -t|--test)
+        doexit=0
         if ! command -v datediff &> /dev/null &&  ! command -v dateutils.ddiff &> /dev/null
         then
-          echo -e "\e[31m# Error: Neither command datediff or dateutils.ddiff could not be found. Please install package dateutils.\e[0m"
-          exit
+          echo -e "# \e[31mError: Neither command datediff or dateutils.ddiff could not be found. Please install package dateutils.\e[0m"
+          doexit=1
+        fi
+        if ! command -v sed &> /dev/null 
+        then
+          echo -e "# \e[31mError: command sed (stream editor) could not be found. Please install package sed.\e[0m"
+          doexit=1
+        fi
+        if ! command -v bc &> /dev/null 
+        then
+          echo -e "# \e[31mError: command bc (arbitrary precision calculator) could not be found. Please install package bc.\e[0m"
+          doexit=1
+        fi
+        if [[ $doexit -gt 1 ]];then
+          exit;
         else
-          return 0 # return [Zahl] und verlasse gesamte Funktion get_timediff_for_njobs_new
+          return 0 # (return 0 seems success?) and exit function
         fi
       ;;
       *)
@@ -279,9 +293,13 @@ get_timediff_for_njobs_new () {
   fi
 
   # START estimate time to do 
-  local this_unixnanoseconds_start_timestamp=$(date --date="$1" '+%s.%N')
-  local this_unixnanoseconds_now=$(date --date="$2" '+%s.%N')
-  local this_unixnanoseconds_todo=0
+  # convert also "2022-06-30_14h56m10s" to "2022-06-30 14:56:10"
+  this_given_start_time=$( echo $1 | sed -r 's@([[:digit:]]{4}-[[:digit:]]{2}-[[:digit:]]{2})[_[:space:]-]([[:digit:]]{2})h([[:digit:]]{2})m([[:digit:]]{2})s@\1 \2:\3:4@' )
+  this_given_now_time=$(   echo $2 | sed -r 's@([[:digit:]]{4}-[[:digit:]]{2}-[[:digit:]]{2})[_[:space:]-]([[:digit:]]{2})h([[:digit:]]{2})m([[:digit:]]{2})s@\1 \2:\3:4@' )
+  
+  local this_unixnanoseconds_start_timestamp=$(date --date="$this_given_start_time" '+%s.%N')
+  local this_unixnanoseconds_now=$(date --date="$this_given_now_time" '+%s.%N')
+  local this_unixseconds_todo=0
   local this_n_jobs_all=$(expr $3 + 0)
   local this_i_job_counter=$(expr $4 + 0)
   # echo "scale=10; 1642073008.587244684 - 1642028400.000000000" | bc -l
@@ -292,18 +310,41 @@ get_timediff_for_njobs_new () {
 
   # echo -e "\033[2m# DEBUG Test mode: all together $this_n_jobs_all ; counter $this_i_job_counter\033[0m"
   if [[ $this_n_jobs_all -eq $this_i_job_counter ]];then # done
-    this_unixnanoseconds_todo=0
-    # njobs_done_so_far=`$this_command_timediff "@$this_unixnanoseconds_start_timestamp" "@$this_unixnanoseconds_now" -f "all $this_i_job_counter done, duration %dd %Hh:%Mm:%Ss"`
+    this_unixseconds_todo=0
+    # njobs_done_so_far=`$this_command_timediff "@$this_unixnanoseconds_start_timestamp" "@$this_unixnanoseconds_now" -f "all $this_i_job_counter done, duration %dd %0Hh:%0Mm:%0Ss"`
     this_msg_estimated_sofar="nothing left to do"
   else
-    # this_unixnanoseconds_todo=$(( $this_timediff_unixnanoseconds * $this_n_jobs_todo / $this_i_job_counter ))
-    # this_unixnanoseconds_todo=$(( $this_timediff_unixnanoseconds * $this_n_jobs_todo / $this_i_job_counter ))
-    this_unixnanoseconds_todo=`echo "scale=0; $this_timediff_unixnanoseconds * $this_n_jobs_todo / $this_i_job_counter" | bc -l`
-    # njobs_done_so_far=`$this_command_timediff "@$this_unixnanoseconds_start_timestamp" "@$this_unixnanoseconds_now" -f "$this_i_job_counter done so far %dday(s) %Hh:%Mmin:%Ssec"`
-    this_msg_estimated_sofar=`$this_command_timediff "@0" "@$this_unixnanoseconds_todo" -f "$this_n_jobs_todo to do, estimated end %dday(s) %Hh:%Mmin:%Ssec"`
+    # this_unixseconds_todo=$(( $this_timediff_unixnanoseconds * $this_n_jobs_todo / $this_i_job_counter ))
+    # this_unixseconds_todo=$(( $this_timediff_unixnanoseconds * $this_n_jobs_todo / $this_i_job_counter ))
+    this_unixseconds_todo=`echo "scale=0; $this_timediff_unixnanoseconds * $this_n_jobs_todo / $this_i_job_counter" | bc -l`
+    
+    job_singular_or_plural=$([ $this_n_jobs_todo -gt 1 ]  && echo jobs  || echo job )
+    if [[ $this_unixseconds_todo -ge $(( 60 * 60 * 24 * 2 )) ]];then
+      this_msg_estimated_sofar=`$this_command_timediff "@0" "@$this_unixseconds_todo" -f "Still $this_n_jobs_todo $job_singular_or_plural to do, estimated end %0ddays %0Hh:%0Mmin:%0Ssec"`
+    elif [[ $this_unixseconds_todo -ge $(( 60 * 60 * 24 )) ]];then
+      this_msg_estimated_sofar=`$this_command_timediff "@0" "@$this_unixseconds_todo" -f "Still $this_n_jobs_todo $job_singular_or_plural to do, estimated end %0dday %0Hh:%0Mmin:%0Ssec"`
+    elif [[ $this_unixseconds_todo -ge $(( 60 * 60 * 1 )) ]];then
+      this_msg_estimated_sofar=`$this_command_timediff "@0" "@$this_unixseconds_todo" -f "Still $this_n_jobs_todo $job_singular_or_plural to do, estimated end %0Hh:%0Mmin:%0Ssec"`
+    elif [[ $this_unixseconds_todo -lt $(( 60 * 60 * 1 )) ]];then
+      this_msg_estimated_sofar=`$this_command_timediff "@0" "@$this_unixseconds_todo" -f "Still $this_n_jobs_todo $job_singular_or_plural to do, estimated end %0Mmin:%0Ssec"`
+    fi
   fi
+  
+  this_unixseconds_done=`printf "%.0f" $(echo "scale=0; $this_unixnanoseconds_now - $this_unixnanoseconds_start_timestamp" | bc -l)`
+  this_unixseconds_total=`printf "%.0f" $(echo "scale=0; $this_unixseconds_done + $this_unixseconds_todo" | bc -l)`  
+  if [[ $this_unixseconds_total -ge $(( 60 * 60 * 24 * 2 )) ]];then
+    this_msg_time_total=`$this_command_timediff "@0" "@$this_unixseconds_total" -f "total time: %0ddays %0Hh:%0Mmin:%0Ssec"`
+  elif [[ $this_unixseconds_total -ge $(( 60 * 60 * 24 )) ]];then
+    this_msg_time_total=`$this_command_timediff "@0" "@$this_unixseconds_total" -f "total time: %0dday %0Hh:%0Mmin:%0Ssec"`
+  elif [[ $this_unixseconds_total -ge $(( 60 * 60 * 1 )) ]];then
+    this_msg_time_total=`$this_command_timediff "@0" "@$this_unixseconds_total" -f "total time: %0Hh:%0Mmin:%0Ssec"`
+  elif [[ $this_unixseconds_total -lt $(( 60 * 60 * 1 )) ]];then
+    this_msg_time_total=`$this_command_timediff "@0" "@$this_unixseconds_total" -f "total time: %0Mmin:%0Ssec"`
+  fi
+  if ! [[ $this_unixseconds_todo -eq 0 ]];then this_msg_time_total="estimated $this_msg_time_total"; fi
+  
   #echo "from $this_n_jobs_all, $njobs_done_so_far; $this_msg_estimated_sofar"
-  echo "$this_msg_estimated_sofar"
+  echo "${this_msg_estimated_sofar} (${this_msg_time_total})"
   # END estimate time to do 
 }
 export -f get_timediff_for_njobs_new # export needed otherwise /usr/bin/bash: get_timediff_for_njobs_new: command not found
@@ -311,7 +352,7 @@ get_timediff_for_njobs_new --test
 
 
 getrdf_with_urlstatus_check() {
-  # Description: function for use with command `parallel` to get the URL status code (200 OK, 404 NOT FOUND etc.)
+  # Description: function for use with command `parallel` to get the URL status code (200 OK, 404 NOT FOUND aso.)
   # # # # # 
   # Usage: (it has 7 or 8 arguments)
   # Usage: getrdf_with_urlstatus_check {%} {#} ${TOTAL_JOBS} uri domainname $time_now $time_started [PROGRESS_LOGFILE]
@@ -468,7 +509,7 @@ else   # PROGRESS_LOGFILE and log into file
   # take start time
   if   [[ -z ${test_mode// /} ]] ; then
     # echo "# DEBUG script line ${LINENO}: PROGRESS_LOGFILE not zero; test mode zero"
-    echo -e "# Running $TOTAL_JOBS jobs. See progress log files:\n  tail ${PROGRESS_LOGFILE}       # logging all progress or\n  tail ${PROGRESS_LOGFILE%.*}_error.log # loggin errors only: 404 500 etc." 
+    echo -e "# Running $TOTAL_JOBS jobs. See progress log files:\n  tail ${PROGRESS_LOGFILE}       # logging all progress or\n  tail ${PROGRESS_LOGFILE%.*}_error.log # loggin errors only: 404 500 aso." 
     echo -e "# ------------------------------" 1>&2; 
     echo    "# To interrupt all the downloads in progress you have to:" 1>&2; 
     echo -e "#   (1) kill process ID (PID) of \e[34m${0##*/}\e[0m, find it by:" 1>&2; 
@@ -487,7 +528,7 @@ else   # PROGRESS_LOGFILE and log into file
     fi
   else
     # echo "# DEBUG script line ${LINENO}: PROGRESS_LOGFILE not zero; test mode not zero"
-    echo -e "# Running in TEST MODE ($TOTAL_JOBS jobs). See progress log files:\n  tail ${PROGRESS_LOGFILE}       # logging all progress or\n  tail ${PROGRESS_LOGFILE%.*}_error.log # loggin errors only: 404 500 etc." 
+    echo -e "# Running in TEST MODE ($TOTAL_JOBS jobs). See progress log files:\n  tail ${PROGRESS_LOGFILE}       # logging all progress or\n  tail ${PROGRESS_LOGFILE%.*}_error.log # loggin errors only: 404 500 aso." 
     echo -e "# ------------------------------" 1>&2; 
     echo    "# To interrupt all the downloads in progress you have to:" 1>&2; 
     echo -e "#   (1) kill process ID (PID) of \e[34m${0##*/}\e[0m, find it by:" 1>&2; 
