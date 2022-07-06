@@ -20,11 +20,16 @@ declare -A SED_EXPRESSION_MATCH_CETAFID # associative array
 # ROR_OR_INSTITUTION["data.rbge.org.uk/herb/"]="https://ror.org/0349vqz63"
 # ROR_OR_INSTITUTION["herbarium.bgbm.org/object/"]="https://ror.org/00bv4cx53"
 # ROR_OR_INSTITUTION["specimens.kew.org/herbarium/"]="https://ror.org/00ynnr806"
-ROR_OR_INSTITUTION["www.botanicalcollections.be/specimen/"]="https://ror.org/01h1jbk91"
+# ROR_OR_INSTITUTION["www.botanicalcollections.be/specimen/"]="https://ror.org/01h1jbk91"
 # ROR_OR_INSTITUTION["id.herb.oulu.fi"]="https://ror.org/03yj89h83"
 # ROR_OR_INSTITUTION["id.smns-bw.org"]="https://ror.org/05k35b119"
 #   SED_EXPRESSION_MATCH_CETAFID["id.smns-bw.org"]="^<https?:\/\/id.smns-bw.org\/smns\/collection\/[0-9]+\/[^<>]+>"
         #   https://id.smns-bw.org/smns/collection/275270/772621/279650
+
+ROR_OR_INSTITUTION["id.snsb.info/snsb/collection/"]="https://ror.org/05th1v540"
+ROR_OR_INSTITUTION["id.snsb.info/snsb/collection_monitoring/"]="https://ror.org/05th1v540"
+  SED_EXPRESSION_MATCH_CETAFID["id.snsb.info/snsb/collection/"]="^<https?:\/\/id.snsb.info\/snsb\/collection\/[0-9]+\/[^<>]+>"
+  SED_EXPRESSION_MATCH_CETAFID["id.snsb.info/snsb/collection_monitoring/"]="^<https?:\/\/id.snsb.info\/snsb\/collection_monitoring\/[0-9]+\/[^<>]+>"
 
 # # # # # # Finland
 # ROR_OR_INSTITUTION["id.luomus.fi"]="https://ror.org/undefined4id.luomus.fi"
