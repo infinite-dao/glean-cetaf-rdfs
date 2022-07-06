@@ -40,10 +40,22 @@ More technically:
    Thread-02…normalized.ttl.trig via s-put (SOH - SPARQL over HTTP)
 ```
 
+## Advise to Manage Data
+
+Managing later many data sets at once and keep track of them in the triple store, we can help it by organizing our URI lists and data to belong to URLs which we name later to a named GRAPH-URL, e.g.:
+
+- http://coldb.mnhn.fr/catalognumber/mnhn/p/ (Paris plants data set)
+- http://coldb.mnhn.fr/catalognumber/mnhn/pc/ (Paris cryptogams data set)
+- http://herbarium.bgbm.org/object/ (BGBM, Berlin all the data)
+- in general, skip the ID-part from the CETAF-ID from the GUID delivered to GBIF occurrences, i.e. `http:// + URL-path-GUID`
+- aso.
+
+In that way we can query specific GRAPHs and delete, add or overwrite GRAPHs more easily.
+
 ## Dependencies
 
 BASH
-- cat, dateutils (for date diff), date, find, gawk, grep, gunzip, gzip, parallel, sed, sort, uniq, wget
+- cat, dateutils (for date diff), date, bc, find, gawk, grep, gunzip, gzip, parallel, sed, sort, uniq, wget
 - scripts, and recommended steps up and until import:
   1. [`./get_RDF4domain_from_urilist_with_ETA.sh`](./bin/get_RDF4domain_from_urilist_with_ETA.sh)
   2. [`./fixRDF_before_validateRDFs.sh`](./bin/fixRDF_before_validateRDFs.sh)
@@ -67,6 +79,7 @@ SPARQL endpoint
 
 In this example we organize all the data (the `/rdf`), and binaries (`./bin`) in `/opt/jena-fuseki/import-sandbox/` that can be read by all necessary users.
 
+
 ``` bash
 /opt/jena-fuseki/import-sandbox/bin/get_RDF4domain_from_urilist_with_ETA.sh -h # show help
 
@@ -85,13 +98,13 @@ cd /opt/jena-fuseki/import-sandbox/rdf/JACQ
 
 # run background job to get RDF
 /opt/jena-fuseki/import-sandbox/bin/get_RDF4domain_from_urilist_with_ETA.sh \
-  -u list-of-JACQ-URIs_20220112.txt \
+  -u urilist_dr.jacq.org_20220112.txt \
   -j 10 -l \
-  -d xx-jacq.org &
+  -d dr.jacq.org &
   # -u …… → a simple CSV list to read from the URIs
   # -j 10 → 10 jobs in parallel
   # -l    → log progress into log file (no console prompt before starting)
-  # -d …… → is the label for the “domain“: “xx-jacq.org” to name log files and data files
+  # -d …… → is the label for the “domain“: “dr.jacq.org” to name log files and data files
 ```
 
 ### Split Huge URI Lists
@@ -148,12 +161,21 @@ cd /opt/jena-fuseki/import-sandbox/rdf/Paris
 #       ps -fp $( pgrep -d, --full parallel )
 ```
 
+
+To run multiple urilist one after another, you can write a small script looping through different lists and let it run in the background, for instance:
+
+```bash
+cd /opt/jena-fuseki/import-sandbox/rdf/Finland
+/opt/jena-fuseki/import-sandbox/bin/run-Finland-all-urilists.sh > run-Finland-all-urilists_$(date '+%Y%m%d-%Hh%Mm%Ss').log 2>&1 & 
+  # [1] 1916 (this is the Process ID (could be stopped by "kill 1916"))
+```
+
+
 ### Check Download Errors
 
 Usually `get_RDF4domain_from_urilist_with_ETA.sh` will output an error log file containing URIs with any return code error 400 … 500
 
 ``` bash
-
 # check for errors
 sed --quiet --regexp-extended 's/^.*(ERROR:.*)/\1/p' Thread-X_data.nhm.ac.uk_20201111-1335.log \
   | sort | uniq  --count | sed 's@^@# @'
@@ -166,7 +188,29 @@ sed --quiet --regexp-extended 's/^.*(ERROR:.*)/\1/p' Thread-X_data.nhm.ac.uk_202
 sed --quiet --regexp-extended 's@.*(https?://[^ ]+).*(ERROR:.*(INTERNAL SERVER ERROR|No data received).*)@\1 # \2@p' \
   Thread-X_data.nhm.ac.uk_20201111-1335.log \
   > data.nhm.ac.uk_occurrenceID_failedFrom_20201111-1335.txt
+
+# get and count error codes of harvested Finland data (here using zipped *.log.gz)
+for this_uri_log_file in Thread-XX*.log.gz;do 
+  zcat "$this_uri_log_file" \
+  | sed --silent --regexp-extended '/https?:\/\/[^\/]+\//{s@.+(https?://[^/]+/)[^ ]+ +(Codes:.+)@\1CETAF-ID... \2@p};' \
+  | sort | uniq -c| sed -r "s@^@# @; s@([[:digit:]]+) (http)@\1 (${this_uri_log_file}) \2@;"
+done
+  #       3 (Thread-XX_id.herb.oulu.fi_20220621-0656.log.gz) http://id.herb.oulu.fi/CETAF-ID... Codes: ERROR: 404 ;
+  #   66019 (Thread-XX_id.herb.oulu.fi_20220621-0656.log.gz) http://id.herb.oulu.fi/CETAF-ID... Codes: OK: 303 ;OK: 200 ;
+  #  250000 (Thread-XX_id.luomus.fi_20220616-1704.log.gz) http://id.luomus.fi/CETAF-ID... Codes: OK: 303 ;OK: 200 ;
+  #  250000 (Thread-XX_id.luomus.fi_20220617-1523.log.gz) http://id.luomus.fi/CETAF-ID... Codes: OK: 303 ;OK: 200 ;
+  #    1176 (Thread-XX_id.luomus.fi_20220618-1248.log.gz) http://id.luomus.fi/CETAF-ID... Codes: ERROR: 404 ;
+  #  137221 (Thread-XX_id.luomus.fi_20220618-1248.log.gz) http://id.luomus.fi/CETAF-ID... Codes: OK: 303 ;OK: 200 ;
+  #       6 (Thread-XX_tun.fi_20220619-0018.log.gz) http://tun.fi/CETAF-ID... Codes: ERROR: 404 ;
+  #       4 (Thread-XX_tun.fi_20220619-0018.log.gz) http://tun.fi/CETAF-ID... Codes: OK: 303 ;ERROR: 502 Proxy Error;
+  #  249990 (Thread-XX_tun.fi_20220619-0018.log.gz) http://tun.fi/CETAF-ID... Codes: OK: 303 ;OK: 200 ;
+  #       1 (Thread-XX_tun.fi_20220620-0116.log.gz) http://tun.fi/CETAF-ID... Codes: OK: 303 ;ERROR: No data received.;OK: 200 ;
+  #  249961 (Thread-XX_tun.fi_20220620-0116.log.gz) http://tun.fi/CETAF-ID... Codes: OK: 303 ;OK: 200 ;
+  #      38 (Thread-XX_tun.fi_20220620-0116.log.gz) http://tun.fi/CETAF-ID... Codes: unknown. 
+  #   29039 (Thread-XX_tun.fi_20220621-0415.log.gz) http://tun.fi/CETAF-ID... Codes: OK: 303 ;OK: 200 ;
 ```
+
+### Manage or Merging Data
 
 If you want to condense and merge downloaded files into a less number of files, you can use the following parallel merging
 
@@ -207,36 +251,41 @@ Proceed with:
 
 **2. Compare RDF headers**
 
-It will printout and log for checking RDF headers manually, compare the prefixes side by side: from the initial RDF and after processing, e.g. the following sample output:
+`fixRDF_before_validateRDFs_modified.sh` will printout and log for checking RDF headers manually, to compare the prefixes side by side: from the initial RDF and after processing.
+
+This step could possibly be skipped as the script will merge all found RDF headers of one amassed harvest file, however if you want to compare them, the output can be look like:
+
 ```bash
 # -----------------------
-# Compare RDF headers 001 of 260 based on Thread-01_01x500000-coldb.mnhn.fr_20220317-2156.rdf.gz …
+# Compare RDF headers 070 of 070 based on Thread-10_tun.fi_20220621-0415.rdf.gz …
 # -----------------------
-# For checking zipped modified files …
- zcat Thread-01_01x500000-coldb.mnhn.fr_20220317-2156_modified.rdf.gz | sed --quiet --regexp-extended '/<rdf:RDF/{ 
+# For checking unzippd modified files …
+  sed --quiet --regexp-extended '/<rdf:RDF/{ 
     :rdf_anchor;N;
     /<rdf:RDF[^>]*>/!b rdf_anchor; 
-    s@[ \t\s]+(xmlns:)@\n  \1@g; s@\n\n@\n@g; p;
+    s@[[:space:]]+(xmlns:)@\n  \1@g; s@\n\n@\n@g; p;
+  }' 'Thread-10_tun.fi_20220621-0415_modified.rdf' \
+  | pr --page-width 140 --merge --omit-header \
+  'Thread-10_tun.fi_20220621-0415_rdfRDF_headers_extracted.rdf' -
+# For checking zipped modified files …
+ zcat Thread-10_tun.fi_20220621-0415_modified.rdf.gz | sed --quiet --regexp-extended '/<rdf:RDF/{ 
+    :rdf_anchor;N;
+    /<rdf:RDF[^>]*>/!b rdf_anchor; 
+    s@[[:space:]]+(xmlns:)@\n  \1@g; s@\n\n@\n@g; p;
   }' \
   | pr --page-width 140 --merge --omit-header \
-  'Thread-01_01x500000-coldb.mnhn.fr_20220317-2156_rdfRDF_headers_extracted.rdf' -
-# left: initially extracted  … right: after processing
+  'Thread-10_tun.fi_20220621-0415_rdfRDF_headers_extracted.rdf' -
 # <rdf:RDF                                                              <rdf:RDF
-#   xmlns:dc="http://purl.org/dc/terms/"                                  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-#   xmlns:dwcc="http://rs.tdwg.org/dwc/curatorial/"                       xmlns:rdfs="http://www.w3.org/TR/2014/REC-rdf-schema-20140225/"
-#   xmlns:dwc="http://rs.tdwg.org/dwc/terms/"                             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-#   xmlns:foaf="http://xmlns.com/foaf/spec/"                              xmlns:tap="http://rs.tdwg.org/tapir/1.0"
-#   xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#"                  xmlns:xs="http://www.w3.org/2001/XMLSchema"
-#   xmlns:hyam="http://hyam.net/tapir2sw#"                                xmlns:hyam="http://hyam.net/tapir2sw#"
-#   xmlns:ma="https://www.w3.org/ns/ma-ont#"                              xmlns:dwc="http://rs.tdwg.org/dwc/terms/"
-#   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"               xmlns:dwcc="http://rs.tdwg.org/dwc/curatorial/"
-#   xmlns:rdfs="http://www.w3.org/TR/2014/REC-rdf-schema-20140225/"       xmlns:dc="http://purl.org/dc/terms/"
-#   xmlns:tap="http://rs.tdwg.org/tapir/1.0"                              xmlns:foaf="http://xmlns.com/foaf/spec/"
-#   xmlns:xs="http://www.w3.org/2001/XMLSchema"                           xmlns:ma="https://www.w3.org/ns/ma-ont#"
-#   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"                 xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#">
+#   xmlns:dc="http://purl.org/dc/terms/"                                  xmlns:dc="http://purl.org/dc/terms/"
+#   xmlns:dwc="http://rs.tdwg.org/dwc/terms/"                             xmlns:dwc="http://rs.tdwg.org/dwc/terms/"
+#   xmlns:dwciri="http://rs.tdwg.org/dwc/iri/"                            xmlns:dwciri="http://rs.tdwg.org/dwc/iri/"
+#   xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#"                  xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#"
+#   xmlns:owl="http://www.w3.org/2002/07/owl"                             xmlns:owl="http://www.w3.org/2002/07/owl"
+#   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"               xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+#   xmlns:rdfschema="http://www.w3.org/TR/2014/REC-rdf-schema-20140225/   xmlns:rdfschema="http://www.w3.org/TR/2014/REC-rdf-schema-20140225/
 # >                                                                     
 # <!-- *Initially* extracted RDF-headers from                           
-#      Thread-01_01x500000-coldb.mnhn.fr_20220317-2156.rdf.gz -->       
+#      Thread-10_tun.fi_20220621-0415.rdf.gz -->                          
 ```
 
 **3. add missing RDF prefixes** — may be necessary depending on the data; must be done by hand.
@@ -264,8 +313,9 @@ Normalize data is done with `convertRDF4import_normal-files_……….sh` to pre
 
 ## (5) Import Data Into the Triple Store
 
-Data are imported into the RDF store via **S**PARQL **O**ver **H**TTP (SOH: https://jena.apache.org/documentation/fuseki2/soh.html) using `s-post` in the end.
+Data are imported into the RDF store via **S**PARQL **O**ver **H**TTP (SOH: https://jena.apache.org/documentation/fuseki2/soh.html) using `s-post` in the end. It is important to know that data imports do not overwrite, so if you update data (and perhaps there is a smarter update procedure (?using named graphs?) but) you have to delete previous data sets in apache jena fuseki by hand doing SPARQL update using DELETE query.
 
+TODO describe examples to delete
 
 ### TODO Prepare file sizes
 
