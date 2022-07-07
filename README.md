@@ -1,3 +1,5 @@
+<!-- TODO describe for GRAPH usage -->
+
 # glean-cetaf-rdfs (BASH)
 
 Collect and glean RDF data in parallel of stable identifiers of the Consortium of European Taxonomic Facilities (CETAF, ☞&nbsp;[cetaf.org](https://cetaf.org)) and prepare them for import into a SPARQL endpoint. For the documentation of CETAF identifiers read in&#8239;…
@@ -246,14 +248,37 @@ Proceed with:
 ``` bash
 /opt/jena-fuseki/import-sandbox/bin/fixRDF_before_validateRDFs_modified.sh -h # show help
 
-/opt/jena-fuseki/import-sandbox/bin/fixRDF_before_validateRDFs_modified.sh -s 'Thread-*x500000-coldb.mnhn.fr_202203[0-9][0-9]-[0-9][0-9][0-9][0-9].rdf.gz'
+/opt/jena-fuseki/import-sandbox/bin/fixRDF_before_validateRDFs_modified.sh -s \
+  'Thread-*x500000-coldb.mnhn.fr_202203[0-9][0-9]-[0-9][0-9][0-9][0-9].rdf.gz'
+
+# Or run multiple files in the background (log terminal output to log file)
+cd /opt/jena-fuseki/import-sandbox/rdf/Finland
+  file_pattern='Thread-*2022*-[0-9][0-9][0-9][0-9].rdf.gz'
+  this_datetime=$(date '+%Y%m%d-%Hh%Mm%Ss');
+  ! [ -e answer-yes.txt ] && echo 'yes' > answer-yes.txt;
+  /opt/jena-fuseki/import-sandbox/bin/fixRDF_before_validateRDFs.sh -s "$file_pattern" \
+    < answer-yes.txt > fixRDF_before_validateRDFs_Finland_${this_datetime}.log 2>&1 &
+  # [1] 29542 (this is the Process ID (could be stopped by "kill 29542"))
+  tail fixRDF_before_validateRDFs_Finland_${this_datetime}.log # e.g. output:
+  # …
+  # Process 002 of 070 in Thread-01_id.luomus.fi_20220616-1704.rdf.gz …
+  #    Still 69 job to do, estimated end 0day(s) 0h:9min:55sec
+  #    Read out comperessd Thread-01_id.luomus.fi_20220616-1704.rdf.gz (4028279 bytes) using zcat … > Thread-01_id.luomus.fi_20220616-1704_modified.rdf …
+  #    Extract all <rdf:RDF …> to Thread-01_id.luomus.fi_20220616-1704_rdfRDF_headers_extracted.rdf ... 
+  #    fix common errors (also check or fix decimalLatitude decimalLongitude data type) ... 
+  #    fix RDF (tag ranges: XML-head; XML-stylesheet; DOCTYPE rdf:RDF aso.) ... 
+  # …
+  # Time Started: 2022-06-29 13:15:41+02:00
+  # Time Ended:   2022-06-29 13:45:52+02:00
 ```
 
 **2. Compare RDF headers**
 
-`fixRDF_before_validateRDFs_modified.sh` will printout and log for checking RDF headers manually, to compare the prefixes side by side: from the initial RDF and after processing.
+`fixRDF_before_validateRDFs_modified.sh` will printout and log for checking RDF headers manually, to compare the prefixes side by side: from the first obtained RDF and after amassing RDFs.
 
-This step could possibly be skipped as the script will merge all found RDF headers of one amassed harvest file, however if you want to compare them, the output can be look like:
+This step could be skipped possibly as the script will merge all found RDF headers of one amassed harvest file. Bear in mind that theoretically one individual RDF could ascribe `dc:…` for one URI namespace and another individual RDF could use the same `dc:…` prefix but meaning another URI namespace but both may have merged into one file, in which case one has to take care manually for the right resolving URI namespace.
+
+However, if you want to compare them, the output can be look like:
 
 ```bash
 # -----------------------
@@ -293,12 +318,26 @@ This step could possibly be skipped as the script will merge all found RDF heade
 
 ## (3) Validation
 
-Validate data with `validateRDF.sh` to check if each RDF file is technically correct:
+Validate data with `validateRDF.sh` to check if each RDF file is technically correct, now we use the `_modified` files:
 
 ``` bash
 /opt/jena-fuseki/import-sandbox/bin/validateRDFs.sh -h # show help
-/opt/jena-fuseki/import-sandbox/bin/validateRDFs.sh -s 'Thread-*x500000-coldb.mnhn.fr_202203[0-9][0-9]-[0-9][0-9][0-9][0-9]_modified.rdf.gz'
-```
+/opt/jena-fuseki/import-sandbox/bin/validateRDFs.sh -s \
+  'Thread-*x500000-coldb.mnhn.fr_202203[0-9][0-9]-[0-9][0-9][0-9][0-9]_modified.rdf.gz'
+
+# Or run multiple files in the background (log terminal output to log file)
+cd /opt/jena-fuseki/import-sandbox/rdf/Finland
+  file_pattern='Thread-*2022*-[0-9][0-9][0-9][0-9]_modified.rdf.gz'
+  ! [ -e answer-yes.txt ] && echo 'yes' > answer-yes.txt;
+  this_datetime=$(date '+%Y%m%d-%Hh%Mm%Ss')
+  /opt/jena-fuseki/import-sandbox/bin/validateRDFs.sh -s "$file_pattern" \
+  -l "validate_RDF_all-Finland-$this_datetime.log" \
+  < answer-yes.txt > validate_RDF_all-Finland-processing_${this_datetime}.log 2>&1 &
+  # run in background
+  # sample output (Error and Bad IRI warnings will not import, they must be fixed beforehand; most warnings could be imported)
+  # [line: 540833, col: 142] Illegal character in IRI (Not a ucschar: 0xF022): <https://image.laji.fi/MM.157358/globispora_vuosaari_2.8.2017[U+F022]
+  # [line: 540833, col: 75] Bad IRI: <https://image.laji.fi/MM.157358/globispora_vuosaari_2.8.2017939_kn_IMG_2863.JPG> Code: 50/PRIVATE_USE_CHARACTER in PATH: TODO
+  ```
  
 ## (4) Normalize RDF for Subsequent Import
 
@@ -308,7 +347,22 @@ Normalize data is done with `convertRDF4import_normal-files_……….sh` to pre
 
 ``` bash
 /opt/jena-fuseki/import-sandbox/bin/convertRDF4import_normal-files_Paris.sh -h # show help
-/opt/jena-fuseki/import-sandbox/bin/convertRDF4import_normal-files_Paris.sh -s 'Thread-*x500000-coldb.mnhn.fr_202203[0-9][0-9]-[0-9][0-9][0-9][0-9]_modified.rdf.gz'
+/opt/jena-fuseki/import-sandbox/bin/convertRDF4import_normal-files_Paris.sh -s \
+  'Thread-*x500000-coldb.mnhn.fr_202203[0-9][0-9]-[0-9][0-9][0-9][0-9]_modified.rdf.gz'
+
+# Or run multiple files in the background (log terminal output to log file)
+cd /opt/jena-fuseki/import-sandbox/rdf/Finland
+  [ $(ls *_modified.rdf*warn-or-error.log* 2> /dev/null | wc -l) -gt 0 ] && rm *_modified.rdf*warn-or-error.log*
+  # remove any previous error files
+  file_pattern='Thread-*2022*-[0-9][0-9][0-9][0-9]_modified.rdf.gz'
+  ! [ -e answer-yes.txt ] && echo 'yes' > answer-yes.txt;
+  /opt/jena-fuseki/import-sandbox/bin/convertRDF4import_normal-files_Finland.sh \
+    -s "$file_pattern" \
+    < answer-yes.txt  > \
+    convertRDF4import_normal-files-processing-$(date '+%Y%m%d-%Hh%Mm%Ss').log 2>&1 &
+    # run in the background
+  zcat *${file_pattern/%.gz/}*.log* | grep --color=always --ignore-case 'error\|warn'
+  # get error or warn(ings) of all zipped log files
 ```
 
 ## (5) Import Data Into the Triple Store
@@ -317,26 +371,59 @@ Data are imported into the RDF store via **S**PARQL **O**ver **H**TTP (SOH: http
 
 TODO describe examples to delete
 
-### TODO Prepare file sizes
+### Prepare file sizes
 
-Better split data into smaller pieces (~50MB) using `patternsplit.awk`; 50MB may take 4 to 15 minutes to import.
+(TODO describe more)
+
+Better split data into smaller pieces (~50MB) using `patternsplit.awk`; 50MB may take 4 to 15 minutes to import. Before you ran `patternsplit.awk` edit the code section matching the wanted split match.
+
 ``` bash
 gunzip --verbose Threads_import_*20201111-1335.rdf*.trig.gz
 for i in {1..5};do
   # set max_strlen=50000000 ?50MB?
-  awk -v fileprefix="NHM_import_${i}_" -v fileext=".rdf.normalized.ttl.trig" -f ~/sandbox/import/bin/patternsplit.awk Threads_import_${i}_20201111-1335.rdf._normalized.ttl.trig
+  awk \
+  -v fileprefix="NHM_import_${i}_" \
+  -v fileext=".rdf.normalized.ttl.trig" \
+  -v compress_files=1 \
+  -f ~/sandbox/import/bin/patternsplit.awk \
+  Threads_import_${i}_20201111-1335.rdf._normalized.ttl.trig
 done
 ```
 
-Import the data into the docker app:
+Import the data into the docker app, here as default GRAPH (not recommended, better use named GRAPHs) and interactively:
 
 ``` bash
 # docker ps # list only running containers
-docker exec -it fuseki-app bash
+docker exec -it fuseki-app bash  # enter docker-container
   cd /import-data/bin/
-  ./import_rdf2trig.gz4docker-fuseki-app.sh -h  # get help
-  ./import_rdf2trig.gz4docker-fuseki-app.sh -w '/import-data/rdf/tmpimport-nhm' -s 'NHM_import_*.trig' -d 'data.nhm.ac.uk'
+  # import data 
+  /import-data/bin/import_rdf2trig.gz4docker-fuseki-app.sh -h  # get help
+  /import-data/bin/import_rdf2trig.gz4docker-fuseki-app.sh \
+    -w '/import-data/rdf/tmpimport-nhm' \
+    -s 'NHM_import_*.trig' \
+    -d 'data.nhm.ac.uk'
 ```
+
+Import the data unsing a named GRAPH-IRI and also run it in the background:
+
+```bash
+  docker exec -it fuseki-app bash # enter docker-container
+  cd /import-data/rdf/Finland
+  this_domain="id.luomus.fi"         # 
+  this_graph="http://${this_domain}" # http://id.luomus.fi will be the GRAPH
+  file_pattern="Thread-*${this_domain}*normalized.ttl.trig.gz"
+  
+  ! [ -e answer-yes.txt ] && echo 'yes' > answer-yes.txt;
+  /import-data/bin/import_rdf2trig.gz4docker-fuseki-app.sh -d CETAF-IDs \
+    -w /import-data/rdf/Finland \
+    -g ${this_graph} \
+    -u ${this_domain} \
+    -s "$file_pattern" \
+    -l Import_GRAPH-${this_domain}_$(date '+%Y%m%d-%H%M%S').log \
+    < answer-yes.txt  > \
+    import_rdf2trig.gz4docker-fuseki-app_GRAPH-${this_domain}_$(date '+%Y%m%d-%Hh%Mm%Ss').log 2>&1 &
+```
+
 
 <hr/>
 Footnotes:
