@@ -288,18 +288,20 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
 # parse
   #   sed --regexp-extended  '  /"https?:\/\/[^"]+[ `]+[^"]*"/ {:label.urispace; s@"(https?://[^" ]+)\s@"\1%20@; tlabel.urispace; :label.uriaccentgrave; s@"(https?://[^"`]+)`@"\1%60@; tlabel.uriaccentgrave; } ' test-space-in-URIs.rdf > test-space-in-URIs_replaced.rdf
 
-  n_of_illegal_iri_character_in_urls=`grep --ignore-case '"https\?://[^"]\+[ \^\`\\]\+[^"]*"' "${rdfFilePath}" | wc -l`
+  n_of_illegal_iri_character_in_urls=`sed -nr '/"https?:\/\/[^"]+[][\x20\xef\x80\xa1\xef\x80\xa2\^\x60\x5c]+[^"]*"/{p}'  "${rdfFilePath}" | wc -l`
   if [[ $n_of_illegal_iri_character_in_urls -gt 0 ]];then
     printf   "\e[31m# (0) Fix illegal IRI characters in %s URLs within \"http...double quotes\" ...\e[0m\n" $n_of_illegal_iri_character_in_urls;
     sed --regexp-extended --in-place '
     # fix some characters that should be encoded (see https://www.ietf.org/rfc/rfc3986.txt)
-    /"https?:\/\/[^"]+[][ \^`\\]+[^"]*"/ { # replace characters that are not allowed in URL
+    /"https?:\/\/[^"]+[][\x20\xef\x80\xa1\xef\x80\xa2\^\x60\x5c]+[^"]*"/ { # replace characters that are not allowed in URL
       :label.circumflex;          s@"(https?://[^"\^]+)\^@"\1%5E@; tlabel.circumflex;
-      :label.urispace;            s@"(https?://[^" ]+)\s@"\1%20@;  tlabel.urispace;
-      :label.uriaccentgrave;      s@"(https?://[^"`]+)`@"\1%60@;   tlabel.uriaccentgrave;
-      :label.backslash;           s@"(https?://[^"\\]+)\\@"\1%5C@; tlabel.backslash;
-      :label.leftsquaredbracket;  s@"(https?://[^"\[]+)\[@"\1%5B@; tlabel.leftsquaredbracket;
-      :label.rightsquaredbracket; s@"(https?://[^"\[]+)\]@"\1%5D@; tlabel.rightsquaredbracket;
+      :label.urispace;            s@"(https?://[^\x20"]+)[\x20]@"\1%20@;  tlabel.urispace;
+      :label.uriaccentgrave;      s@"(https?://[^\x60"]+)[\x60]@"\1%60@; tlabel.uriaccentgrave;
+      :label.backslash;           s@"(https?://[^\x5c"]+)[\x5c]@"\1%5C@; tlabel.backslash;
+      :label.leftsquaredbracket;  s@"(https?://[^\x5b"]+)[\x5b]@"\1%5B@; tlabel.leftsquaredbracket;
+      :label.rightsquaredbracket; s@"(https?://[^\x5d"]+)[\x5d]@"\1%5D@; tlabel.rightsquaredbracket;
+      :label.xefx80xa1;           s@"(https?://[^"\xef\x80\xa1]+)[\xef\x80\xa1]@"\1%EF%80%A1@; tlabel.xefx80xa1;
+      :label.xefx80xa2;           s@"(https?://[^"\xef\x80\xa2]+)[\xef\x80\xa2]@"\1%EF%80%A2@; tlabel.xefx80xa2;
     }
  ' "${rdfFilePath}"
   fi
