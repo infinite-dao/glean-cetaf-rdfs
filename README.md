@@ -334,10 +334,15 @@ cd /opt/jena-fuseki/import-sandbox/rdf/Finland
   -l "validate_RDF_all-Finland-$this_datetime.log" \
   < answer-yes.txt > validate_RDF_all-Finland-processing_${this_datetime}.log 2>&1 &
   # run in background
-  # sample output (Error and Bad IRI warnings will not import, they must be fixed beforehand; most warnings could be imported)
-  # [line: 540833, col: 142] Illegal character in IRI (Not a ucschar: 0xF022): <https://image.laji.fi/MM.157358/globispora_vuosaari_2.8.2017[U+F022]
-  # [line: 540833, col: 75] Bad IRI: <https://image.laji.fi/MM.157358/globispora_vuosaari_2.8.2017939_kn_IMG_2863.JPG> Code: 50/PRIVATE_USE_CHARACTER in PATH: TODO
-  ```
+```
+
+Note that IRI warnings can also prohibit data import to Fuseki (e.g. by encoding those special IRI characters). Sample output:
+
+```
+# (Error and Bad IRI warnings will not import, they must be fixed beforehand; most warnings could be imported)
+# [line: …, col: …] Illegal character in IRI (Not a ucschar: 0xF022): <https://image.laji.fi/MM.157358/globispora_vuosaari_2.8.2017[U+F022]
+# [line: …, col: …] Bad IRI: <https://image.laji.fi/MM.157358/globispora_vuosaari_2.8.2017939_kn_IMG_2863.JPG> Code: 50/PRIVATE_USE_CHARACTER in PATH: TODO
+```
  
 ## (4) Normalize RDF for Subsequent Import
 
@@ -407,7 +412,9 @@ docker exec -it fuseki-app bash  # enter docker-container
 Import the data unsing a named GRAPH-IRI and also run it in the background:
 
 ```bash
-  docker exec -it fuseki-app bash # enter docker-container
+docker exec -it fuseki-app bash
+# enter docker-container
+
   cd /import-data/rdf/Finland
   this_domain="id.luomus.fi"         # 
   this_graph="http://${this_domain}" # http://id.luomus.fi will be the GRAPH
