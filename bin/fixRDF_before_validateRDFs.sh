@@ -434,7 +434,7 @@ for this_file in `ls $file_search_pattern | sort --version-sort`; do
   0,/<rdf:RDF/{
     /<rdf:RDF/{
       :rdf_anchor;N; /<rdf:RDF[^>]*>/${exclamation_mark}b rdf_anchor;
-      s@(<rdf:RDF[^>]*>)@${this_rdf_header_all_extracted}\n<!-- RDF header from first harvested RDF file -->\n<!--\n\1\n-->@;
+      s@(<rdf:RDF[^>]*>)@${this_rdf_header_all_extracted}\n<!-- RDF header from first harvested RDF file --><!-- \1 -->@;
     }
   }
   " "${this_file_modified}"
