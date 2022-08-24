@@ -1,4 +1,11 @@
 #!/bin/bash
+set -eu
+  # https://vaneyckt.io/posts/safer_bash_scripts_with_set_euxo_pipefail/
+  # set -e -- option will cause a bash script to exit immediately when a command fails
+  # set -o -- exit also on non-existing command, print also BASH settings
+  # set -u -- this option causes the bash shell to treat unset variables as an error and exit immediately.
+  # set -x -- the -x option causes bash to print each command before executing it. This can be a great help when trying to debug a bash script failure. Note that arguments get expanded before a command gets printed, which will cause our logs to contain the actual argument values that were present at the time of execution!
+  # set -E -- traps are pieces of code that fire when a bash script catches certain signals. Aside from the usual signals (e.g. SIGINT, SIGTERM, …), traps can also be used to catch special bash signals like EXIT, DEBUG, RETURN, and ERR. However, reader Kevin Gibbs pointed out that using -e without -E will cause an ERR trap to not fire in certain scenarios.
 ###########################
 # Usage: convert RDF files to normalised zipped files and check for adding ror.org IDs or dcterms:isPartOf aso. or remove technical stuff. It is expected to run these commands on a modified copy of the original RDF-file and have the original RDF-file untouched, so this programm is not intended to create backups.
 # # # # # # # # # # # # # #
@@ -177,7 +184,6 @@ function usage() {
   echo    "#   -h  ...................................... show this help usage" 1>&2;
   echo -e "#   -s  \e[32m'Thread*file-search-pattern*.rdf'\e[0m .... optional specific search pattern" 1>&2;
   echo -e "#       Note: better use quotes for pattern with asterisk '*pattern*' (default: '$(file_search_pattern_default)')" 1>&2;
-  exit 1;
 }
 
 
@@ -238,16 +244,18 @@ while getopts ":s:h" o; do
             file_search_pattern=$( [[ -z ${this_file_search_pattern// /} ]] && echo "$(file_search_pattern_default)" || echo "$this_file_search_pattern" );
             ;;
         *)
-            usage
+            usage; exit 0;
             ;;
     esac
 done
+shift "$((OPTIND-1))"
 
 
 # set (i)ndex and (n)umber of files alltogether
 i=1; 
 n=`find . -maxdepth 1 -type f -iname "${file_search_pattern}" | wc -l `
 n_parsed=`find . -maxdepth 1 -type f -iname "${file_search_pattern}*.ttl*" -or -iname "${file_search_pattern}*.log*" | wc -l `
+
 
 processinfo
 read yno
@@ -372,7 +380,7 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
   /\.$/!b label_uri-entry_www.wikidata.orSLASHentitySLASH # loop back to label… if last char is anything but a dot
   s@(<https?)(://www.wikidata.org/entity/)(.+)(\s+[.])@\1\2\3 ;\n        <http://purl.org/dc/terms/isPartOf>  <http\2>\4@;
 }
- 
+
 # delete technical stuff
 /^<https?:\/\/[^<>/]+\/[^<>]+=[^<>]+>/ {
   :label_uri-entry_technical_data_tobedeleted
@@ -558,7 +566,7 @@ echo  -e "# \e[32mNow you can import the normalised *.trig or *.ttl files to Apa
 echo  -e "# \e[32m# # # # Modifications # # # # # # # # # #\e[0m"
 echo  -e "# \e[32mAdded: \e[1;34mdcterms:conformsTo <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_(CSPP)>\e[32m\e[0m"
 echo  -e "# \e[32mAdded: \e[1;34mdcterms:isPartOf <http://gbif.fi>\e[32m\e[0m"
-echo  -e "# \e[32mAdded some \e[1;34mdwcterms:institutionID <http://ror.org/…ID…>\e[32m\e[0m"
+echo  -e "# \e[32mAdded some \e[1;34mdwc:institutionID <http://ror.org/…ID…>\e[32m\e[0m"
 echo  -e "# \e[32mMaybe added \e[1;34mdcterms:isPartOf <http://www.wikidata.org/entity/>\e[32m \e[0m"
 echo  -e "# \e[32mMaybe added \e[1;34mdcterms:hasPart  <http://www.wikidata.org/entity/>\e[32m \e[0m"
 echo  -e "# \e[32mMaybe added \e[1;34mdcterms:isPartOf <http://viaf.org/viaf/>\e[32m \e[0m"
