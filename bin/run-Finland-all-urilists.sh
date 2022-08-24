@@ -13,7 +13,7 @@ echo "# # # Run Finland Institutions Data at $(date '+%Y%m%d-%H:%M:%S') …"
 command_RDF4domain=get_RDF4domain_from_urilist_with_ETA.sh
 n_jobs=10
 # this_domain=data.biodiversitydata.nl
-this_wd=/opt/jena-fuseki/import-sandbox/rdf/Finnland/
+this_wd=/opt/jena-fuseki/import-sandbox/rdf/Finland/
 cd $this_wd;
 
 for institute in Helsinki OtherFinl OULU; do
