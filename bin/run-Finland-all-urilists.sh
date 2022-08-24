@@ -1,4 +1,12 @@
 #!/bin/bash
+set -eu
+  # https://vaneyckt.io/posts/safer_bash_scripts_with_set_euxo_pipefail/
+  # set -e -- option will cause a bash script to exit immediately when a command fails
+  # set -o -- exit also on non-existing command, print also BASH settings
+  # set -u -- this option causes the bash shell to treat unset variables as an error and exit immediately.
+  # set -x -- the -x option causes bash to print each command before executing it. This can be a great help when trying to debug a bash script failure. Note that arguments get expanded before a command gets printed, which will cause our logs to contain the actual argument values that were present at the time of execution!
+  # set -E -- traps are pieces of code that fire when a bash script catches certain signals. Aside from the usual signals (e.g. SIGINT, SIGTERM, …), traps can also be used to catch special bash signals like EXIT, DEBUG, RETURN, and ERR. However, reader Kevin Gibbs pointed out that using -e without -E will cause an ERR trap to not fire in certain scenarios.
+# # # # # # #
 # Description: Run RDF harvest through all urilists from gbif.fi one after another (i.e. contains also multiple institutions)
 # Example files:
 # urilist_Helsinki_20220616_per_01x250000.txt
