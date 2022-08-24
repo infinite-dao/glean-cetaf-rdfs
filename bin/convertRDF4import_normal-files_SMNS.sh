@@ -1,4 +1,11 @@
 #!/bin/bash
+set -eu
+  # https://vaneyckt.io/posts/safer_bash_scripts_with_set_euxo_pipefail/
+  # set -e -- option will cause a bash script to exit immediately when a command fails
+  # set -o -- exit also on non-existing command, print also BASH settings
+  # set -u -- this option causes the bash shell to treat unset variables as an error and exit immediately.
+  # set -x -- the -x option causes bash to print each command before executing it. This can be a great help when trying to debug a bash script failure. Note that arguments get expanded before a command gets printed, which will cause our logs to contain the actual argument values that were present at the time of execution!
+  # set -E -- traps are pieces of code that fire when a bash script catches certain signals. Aside from the usual signals (e.g. SIGINT, SIGTERM, …), traps can also be used to catch special bash signals like EXIT, DEBUG, RETURN, and ERR. However, reader Kevin Gibbs pointed out that using -e without -E will cause an ERR trap to not fire in certain scenarios.
 ###########################
 # Usage: convert RDF files to normalised zipped files and check for adding ror.org IDs or dcterms:isPartOf aso. or remove technical stuff. It is expected to run these commands on a modified copy of the original RDF-file and have the original RDF-file untouched, so this programm is not intended to create backups.
 # # # # # # # # # # # # # #
@@ -165,6 +172,7 @@ get_timediff_for_njobs_new () {
 export -f get_timediff_for_njobs_new 
 get_timediff_for_njobs_new --test
 
+
 function file_search_pattern_default () {
   file_search_pattern_default=`printf "Threads_import_*_%s.rdf" $(date '+%Y%m%d')`
 }
@@ -175,8 +183,7 @@ function usage() {
   echo -e "# Usage: \e[32m${0##*/}\e[0m [-s 'Thread*file-search-pattern*.rdf']" 1>&2;
   echo    "#   -h  ...................................... show this help usage" 1>&2;
   echo -e "#   -s  \e[32m'Thread*file-search-pattern*.rdf'\e[0m .... optional specific search pattern" 1>&2;
-  echo -e "#       Note: better use quotes for pattern with asterisk '*pattern*' (default: '${file_search_pattern_default}')" 1>&2;
-  exit 1;
+  echo -e "#       Note: better use quotes for pattern with asterisk '*pattern*' (default: '$(file_search_pattern_default)')" 1>&2;
 }
 
 
@@ -229,21 +236,26 @@ while getopts ":s:h" o; do
             usage; exit 0;
             ;;
         s)
-            file_search_pattern=${OPTARG}
-            if   [[ -z ${file_search_pattern// /} ]] ; then file_search_pattern_default; file_search_pattern="$file_search_pattern_default" ; fi
+            # TODO problems when file_search_pattern is not wrapped by quotes
+            this_file_search_pattern=${OPTARG} 
+            if [[ $this_file_search_pattern =~ ^- ]];then # the next option was given without this option having an argument
+              echo -e "\e[33mOption Error:\e[0m option -s requires an argument, please specify e.g. \e[3m-s 'Thread*file-search-pattern*.rdf.gz'\e[0m or let it run without -s option (default: '\e[32m$(file_search_pattern_default)\e[0m')."; exit 1;
+            fi
+            file_search_pattern=$( [[ -z ${this_file_search_pattern// /} ]] && echo "$(file_search_pattern_default)" || echo "$this_file_search_pattern" );
             ;;
         *)
-            usage
+            usage; exit 0;
             ;;
     esac
 done
-shift $((OPTIND-1))
+shift "$((OPTIND-1))"
 
 
 # set (i)ndex and (n)umber of files alltogether
 i=1; 
 n=`find . -maxdepth 1 -type f -iname "${file_search_pattern}" | wc -l `
 n_parsed=`find . -maxdepth 1 -type f -iname "${file_search_pattern}*.ttl*" -or -iname "${file_search_pattern}*.log*" | wc -l `
+
 
 processinfo
 read yno
@@ -272,7 +284,6 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
     gunzip --quiet "$rdfFilePath"; 
     rdfFilePath=${rdfFilePath/%.gz/}
   fi
-
   import_ttl="${rdfFilePath}.ttl"
   import_ttl_normalized="${rdfFilePath}.normalized.ttl"
   log_rdfparse_warnEtError="${rdfFilePath}.ttl-warn-or-error.log"
@@ -364,25 +375,25 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
   # ## ROR_OR_INSTITUTION of id.smns-bw.org --- https://ror.org/05k35b119
   /^<https?:\/\/id.smns-bw.org\/smns\/collection\/[0-9]+\/[^<>]+>/ {
     :label_uri-entry_id.smns-bw.org
-    N                                     # append lines via \n into patternspace
+   N                                     # append lines via \n into patternspace
     / \.$/!b label_uri-entry_id.smns-bw.org # go back if last char is not a dot
-    # add ROR_OR_INSTITUTION ID eventually to the final dot, and remove possible duplicates
+  # add ROR_OR_INSTITUTION ID eventually to the final dot, and remove possible duplicates
       s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/05k35b119>\1@;
       s@<http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/05k35b119>\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/05k35b119 .)@\1\2@; 
-    # add dcterms:isPartOf, dcterms:hasPart, dcterms:conformsTo
-    s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_(CSPP)>\1@;
-    s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
-    s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\1\2@;
+  # add dcterms:isPartOf, dcterms:hasPart, dcterms:conformsTo
+  s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_(CSPP)>\1@;
+   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
+   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\1\2@;
   } ## end ROR_OR_INSTITUTION id.smns-bw.org
-    
-  # http://www.wikidata.org/entity/
-  /^<https?:\/\/www.wikidata.org\/entity\/[^<>/]+>/ {
-    :label_uri-entry_www.wikidata.orSLASHentitySLASH
-    N;    # append lines via \n into patternspace
-    /\.$/!b label_uri-entry_www.wikidata.orSLASHentitySLASH # loop back to label… if last char is anything but a dot
-    s@(<https?)(://www.wikidata.org/entity/)(.+)(\s+[.])@\1\2\3 ;\n        <http://purl.org/dc/terms/isPartOf>  <http\2>\4@;
-  }
- 
+
+# http://www.wikidata.org/entity/
+/^<https?:\/\/www.wikidata.org\/entity\/[^<>/]+>/ {
+  :label_uri-entry_www.wikidata.orSLASHentitySLASH
+  N;    # append lines via \n into patternspace
+  /\.$/!b label_uri-entry_www.wikidata.orSLASHentitySLASH # loop back to label… if last char is anything but a dot
+  s@(<https?)(://www.wikidata.org/entity/)(.+)(\s+[.])@\1\2\3 ;\n        <http://purl.org/dc/terms/isPartOf>  <http\2>\4@;
+}
+
   '  "${import_ttl_normalized}.trig"
 
   if [[ $debug_mode -gt 0  ]];then
@@ -421,6 +432,7 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
     echo -e  "# \e[31m      warnings and errors in other log files (gzip)      ${rdfFilePath##*/}*.log.gz ...\e[0m" ;
     gzip --force "${rdfFilePath##*/}"*.log
   fi
+
   # increase index
   i=$((i + 1 ))
 done
