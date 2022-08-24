@@ -1,4 +1,12 @@
 #!/bin/bash
+set -eu
+  # https://vaneyckt.io/posts/safer_bash_scripts_with_set_euxo_pipefail/
+  # set -e -- option will cause a bash script to exit immediately when a command fails
+  # set -o -- exit also on non-existing command, print also BASH settings
+  # set -u -- this option causes the bash shell to treat unset variables as an error and exit immediately.
+  # set -x -- the -x option causes bash to print each command before executing it. This can be a great help when trying to debug a bash script failure. Note that arguments get expanded before a command gets printed, which will cause our logs to contain the actual argument values that were present at the time of execution!
+  # set -E -- traps are pieces of code that fire when a bash script catches certain signals. Aside from the usual signals (e.g. SIGINT, SIGTERM, …), traps can also be used to catch special bash signals like EXIT, DEBUG, RETURN, and ERR. However, reader Kevin Gibbs pointed out that using -e without -E will cause an ERR trap to not fire in certain scenarios.
+# # # # # # # # # # # # # # # 
 # Import inside the docker fuseki-app
 #   (use only absolute paths)
 # dependencies: /jena-fuseki/bin/s-post
@@ -20,58 +28,17 @@ fi
 SPARQL_END_POINT_DATASET="CETAF-IDs"
 datetime_now=$(date '+%Y%m%d-%H%M%S')
 URN_DOMAINNAME='id.snsb.info'
+URN_DOMAINNAME='finnland.fi'
+URN_DOMAINNAME='jacq.org'
+URN_DOMAINNAME='data.rbge.org.uk'
 GRAPH='default'
 
-# LOGFILE="Thread-import-trig_data.biodiversitydata.nl_0000001-7963204${datetime_now}.log"
-# FILE_SEARCH_PATTERN="Thread-*_coldb.mnhn.fr_*2020-06-*.rdf._normalized.ttl.trig.gz"
-# FILE_SEARCH_PATTERN="Thread-*_data.biodiversitydata.nl*.rdf._normalized.ttl.trig.gz"
-# 
-# LOGFILE="Thread-import-trig_jacq.org_${datetime_now}.log"
-# FILE_SEARCH_PATTERN="Thread_*tub.jacq.org*.rdf._normalized.ttl.trig.gz"
-# THIS_WD="/import-data/rdf/tub-jacq-org"
-# 
-# FILE_SEARCH_PATTERN="Thread_*lagu.jacq.org*.rdf._normalized.ttl.trig.gz"
-# # FILE_SEARCH_PATTERN_NOT="Thread_*lagu.jacq.org*.rdf._normalized.ttl.trig.gz"
-# THIS_WD="/import-data/rdf/tmpimport-jacq"
-
-# LOGFILE="Thread-import-herbarium.bgbm.org_${datetime_now}.log"
-# FILE_SEARCH_PATTERN="Thread*herbarium.bgbm.org*.rdf._normalized.ttl.trig.gz"
-# THIS_WD="/import-data/rdf/tmpimport-bgbm"
-
-LOGFILE="Import_Thread-kew.org_${datetime_now}.log"
-FILE_SEARCH_PATTERN="Thread*.kew*_2020-0[89]-[12]*.rdf._normalized.ttl.trig.gz"
-THIS_WD="/import-data/rdf/tmpimport-kew"
-
-# LOGFILE="Import_Thread-snsb.info_${datetime_now}.log"
-# FILE_SEARCH_PATTERN="Threads*import*_normalized.ttl.one_lines_filtered.trig"
-# FILE_SEARCH_PATTERN="SNSB_import_*_*.rdf.normalized.ttl.filtered.trig"
-# FILE_SEARCH_PATTERN="SNSB_import_[3-5]_*.rdf.normalized.ttl.filtered.trig"
-# THIS_WD="/import-data/rdf/tmpimport-snsb.info"
-
-
-FILE_SEARCH_PATTERN="Thread-*_jacq.org_20211117-1006.rdf._normalized.ttl.trig.gz"
-FILE_SEARCH_PATTERN="JACQ-*_*.rdf._normalized.ttl.trig.gz"
-THIS_WD="/import-data/rdf/tmpimport-jacq_20211206"
-
-FILE_SEARCH_PATTERN="Thread-*finnland.fi_20211206-1647.rdf._normalized.ttl.trig.gz"
-LOGFILE="Import_Thread-finland.fi_${datetime_now}.log"
-THIS_WD="/import-data/rdf/Finnland"
-URN_DOMAINNAME='finnland.fi'
-
+FILE_SEARCH_PATTERN="Thread-*${URN_DOMAINNAME}_20211206-1647.rdf._normalized.ttl.trig.gz"
+LOGFILE="Import_Thread-XX-${URN_DOMAINNAME}_${datetime_now}.log"
 THIS_WD="${PWD}"
 
 
-LOGFILE="Import_inside_Thread-XX-data.rbge.org.uk_20220228ff_${datetime_now}.log"
-URN_DOMAINNAME='data.rbge.org.uk'
-
-LOGFILE="Import_Thread-jacq.org_${datetime_now}.log"
-URN_DOMAINNAME='jacq.org'
-# LOGFILE=""
-# URN_DOMAINNAME=""
-
-i=1; 
-# set (i)ndex and (n)umber of files alltogether
-
+i=1; # set (i)ndex and (n)umber of files alltogether
 
 function reset_logfile_name () {
   LOGFILE_DEFAULT=`printf "Import_fuseki_%s_${URN_DOMAINNAME}_${datetime_now}.log" X`
@@ -188,7 +155,6 @@ function usage() {
   echo -e "#   -w \e[32m'/import-data/rdf/tmpimport-kew'\e[0m ..... working directory" 1>&2; 
   echo -e "#       (default: $THIS_WD)" 1>&2; 
   testdependencies;
-  exit 1; 
 }
 
 function processinfo () {
@@ -345,4 +311,4 @@ fi
 printf   "# \e[34mcat\e[0m /import-data/\e[32m${LOGFILE}\e[0m\n"
 echo     "#########################################"
 
-  # exit # eventually exit the container
+# exit # eventually exit the container
