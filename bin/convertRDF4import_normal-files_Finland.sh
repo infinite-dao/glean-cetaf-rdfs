@@ -402,8 +402,8 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
    # add dcterms:isPartOf, dcterms:hasPart, dcterms:conformsTo
    s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_(CSPP)>\1@;
     # fix remove conformsTo:CETAFID on rdf:type or dcterms:type Event
-    s@(<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> +<http://rs.tdwg.org/dwc/terms/Event> ;)(.*) ;\n +<http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_(CSPP)>(\s+[.])@\1\2\3@;
-    s@(<http://purl.org/dc/terms/type> +<http://purl.org/dc/dcmitype/Event> ;)(.*) ;\n +<http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_(CSPP)>(\s+[.])@\1\2\3@;
+    s@(<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> +<http://rs.tdwg.org/dwc/terms/Event> ;)(.*) ;\n +<http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_\(CSPP\)>(\s+[.])@\1\2\3@;
+    s@(<http://purl.org/dc/terms/type> +<http://purl.org/dc/dcmitype/Event> ;)(.*) ;\n +<http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_\(CSPP\)>(\s+[.])@\1\2\3@;
    s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://gbif.fi>\1@;
    s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://id.herb.oulu.fi>\1@;
    s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
@@ -421,8 +421,8 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
    # add dcterms:isPartOf, dcterms:hasPart, dcterms:conformsTo
    s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_(CSPP)>\1@;
     # fix remove conformsTo:CETAFID on rdf:type or dcterms:type Event
-    s@(<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> +<http://rs.tdwg.org/dwc/terms/Event> ;)(.*) ;\n +<http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_(CSPP)>(\s+[.])@\1\2\3@;
-    s@(<http://purl.org/dc/terms/type> +<http://purl.org/dc/dcmitype/Event> ;)(.*) ;\n +<http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_(CSPP)>(\s+[.])@\1\2\3@;
+    s@(<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> +<http://rs.tdwg.org/dwc/terms/Event> ;)(.*) ;\n +<http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_\(CSPP\)>(\s+[.])@\1\2\3@;
+    s@(<http://purl.org/dc/terms/type> +<http://purl.org/dc/dcmitype/Event> ;)(.*) ;\n +<http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_\(CSPP\)>(\s+[.])@\1\2\3@;
    s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://gbif.fi>\1@;
    s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://id.luomus.fi>\1@;
    s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
@@ -474,8 +474,8 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
   # add dcterms:isPartOf, dcterms:hasPart, dcterms:conformsTo
   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_(CSPP)>\1@;
     # fix remove conformsTo:CETAFID on rdf:type or dcterms:type Event
-    s@(<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> +<http://rs.tdwg.org/dwc/terms/Event> ;)(.*) ;\n +<http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_(CSPP)>(\s+[.])@\1\2\3@;
-    s@(<http://purl.org/dc/terms/type> +<http://purl.org/dc/dcmitype/Event> ;)(.*) ;\n +<http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_(CSPP)>(\s+[.])@\1\2\3@;
+    s@(<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> +<http://rs.tdwg.org/dwc/terms/Event> ;)(.*) ;\n +<http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_\(CSPP\)>(\s+[.])@\1\2\3@;
+    s@(<http://purl.org/dc/terms/type> +<http://purl.org/dc/dcmitype/Event> ;)(.*) ;\n +<http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_\(CSPP\)>(\s+[.])@\1\2\3@;
   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://gbif.fi>\1@;
   s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://tun.fi>\1@;
   s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
@@ -493,8 +493,8 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
 ##    # add dcterms:isPartOf, dcterms:hasPart, dcterms:conformsTo
 ##    s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_(CSPP)>\1@;
 ##      # fix remove conformsTo:CETAFID on rdf:type or dcterms:type Event
-##      s@(<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> +<http://rs.tdwg.org/dwc/terms/Event> ;)(.*) ;\n +<http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_(CSPP)>(\s+[.])@\1\2\3@;
-##      s@(<http://purl.org/dc/terms/type> +<http://purl.org/dc/dcmitype/Event> ;)(.*) ;\n +<http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_(CSPP)>(\s+[.])@\1\2\3@;
+##      s@(<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> +<http://rs.tdwg.org/dwc/terms/Event> ;)(.*) ;\n +<http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_\(CSPP\)>(\s+[.])@\1\2\3@;
+##      s@(<http://purl.org/dc/terms/type> +<http://purl.org/dc/dcmitype/Event> ;)(.*) ;\n +<http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_\(CSPP\)>(\s+[.])@\1\2\3@;
 ##    s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://gbif.fi>\1@;
 ##    s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://tun.fi>\1@;
 ##    s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
