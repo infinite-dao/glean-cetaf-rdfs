@@ -1,0 +1,1168 @@
+{ "head": {
+    "vars": [ "cspp_example" , "title_example" , "all__count" , "type_example" , "publisher_example" , "graph_example" ]
+  } ,
+  "results": {
+    "bindings": [
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://ubt.jacq.org/UBT0004263" } ,
+        "title_example": { "type": "literal" , "value": "Acacia robusta subsp. usambarensis (Taub.) Brenan" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1600" } ,
+        "type_example": { "type": "literal" , "value": "PreservedSpecimen" } ,
+        "publisher_example": { "type": "literal" , "value": "UBT" } ,
+        "graph_example": { "type": "uri" , "value": "http://ubt.jacq.org" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://kiel.jacq.org/KIEL0007002" } ,
+        "title_example": { "type": "literal" , "value": "Inga bonplandiana Kunth" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "4" } ,
+        "type_example": { "type": "literal" , "value": "PreservedSpecimen" } ,
+        "publisher_example": { "type": "literal" , "value": "KIEL" } ,
+        "graph_example": { "type": "uri" , "value": "http://kiel.jacq.org" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://admont.jacq.org/ADMONT100673" } ,
+        "title_example": { "type": "literal" , "value": "Polypodium calcareum Sm." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "35" } ,
+        "type_example": { "type": "literal" , "value": "PreservedSpecimen" } ,
+        "publisher_example": { "type": "literal" , "value": "ADMONT" } ,
+        "graph_example": { "type": "uri" , "value": "http://admont.jacq.org" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://gzu.jacq.org/GZU000304127" } ,
+        "title_example": { "type": "literal" , "value": "Hysteropeziza pubescens B. Hein & Scheuer" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "11645" } ,
+        "type_example": { "type": "literal" , "value": "PreservedSpecimen" } ,
+        "publisher_example": { "type": "literal" , "value": "GZU" } ,
+        "graph_example": { "type": "uri" , "value": "http://gzu.jacq.org" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://wu.jacq.org/WU0024578" } ,
+        "title_example": { "type": "literal" , "value": "Philodendron microstictum Standl. & L. O. Williams" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "15416" } ,
+        "type_example": { "type": "literal" , "value": "PreservedSpecimen" } ,
+        "publisher_example": { "type": "literal" , "value": "WU" } ,
+        "graph_example": { "type": "uri" , "value": "http://wu.jacq.org" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://brnu.jacq.org/BRNU439820" } ,
+        "title_example": { "type": "literal" , "value": "Dracocephalum ruyschiana L." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "Specimen" } ,
+        "publisher_example": { "type": "literal" , "value": "BGBM" } ,
+        "graph_example": { "type": "uri" , "value": "http://brnu.jacq.org" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://gjo.jacq.org/GJO0027274" } ,
+        "title_example": { "type": "literal" , "value": "Taphrina deformans (Berk.) Tul." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "9423" } ,
+        "type_example": { "type": "literal" , "value": "PreservedSpecimen" } ,
+        "publisher_example": { "type": "literal" , "value": "GJO" } ,
+        "graph_example": { "type": "uri" , "value": "http://gjo.jacq.org" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://tub.jacq.org/TUB006677" } ,
+        "title_example": { "type": "literal" , "value": "Dovea ludwigii Hochst." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "2741" } ,
+        "type_example": { "type": "literal" , "value": "PreservedSpecimen" } ,
+        "publisher_example": { "type": "literal" , "value": "TUB" } ,
+        "graph_example": { "type": "uri" , "value": "http://tub.jacq.org" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://hal.jacq.org/HAL0076396" } ,
+        "title_example": { "type": "literal" , "value": "Swertia brevicornis Kunth" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "9677" } ,
+        "type_example": { "type": "literal" , "value": "PreservedSpecimen" } ,
+        "publisher_example": { "type": "literal" , "value": "HAL" } ,
+        "graph_example": { "type": "uri" , "value": "http://hal.jacq.org" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://bak.jacq.org/BAK0007140" } ,
+        "title_example": { "type": "literal" , "value": "Trinia leiogona (C. A. Mey.) B. Fedtsch." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "577" } ,
+        "type_example": { "type": "literal" , "value": "PreservedSpecimen" } ,
+        "publisher_example": { "type": "literal" , "value": "BAK" } ,
+        "graph_example": { "type": "uri" , "value": "http://bak.jacq.org" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://w.jacq.org/W0032371" } ,
+        "title_example": { "type": "literal" , "value": "Acacia ericifolia Benth." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "54679" } ,
+        "type_example": { "type": "literal" , "value": "PreservedSpecimen" } ,
+        "publisher_example": { "type": "literal" , "value": "W" } ,
+        "graph_example": { "type": "uri" , "value": "http://w.jacq.org" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://ere.jacq.org/ERE0000393" } ,
+        "title_example": { "type": "literal" , "value": "Colpodium schelkownikowii Grossh." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1149" } ,
+        "type_example": { "type": "literal" , "value": "PreservedSpecimen" } ,
+        "publisher_example": { "type": "literal" , "value": "ERE" } ,
+        "graph_example": { "type": "uri" , "value": "http://ere.jacq.org" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://lagu.jacq.org/object/DR-05218" } ,
+        "title_example": { "type": "literal" , "value": "Fimbristylis spadicea (L.) Vahl" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "3994" } ,
+        "type_example": { "type": "literal" , "value": "PreservedSpecimen" } ,
+        "publisher_example": { "type": "literal" , "value": "LAGU" } ,
+        "graph_example": { "type": "uri" , "value": "http://lagu.jacq.org/object" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://tbi.jacq.org/object/TBI1014797" } ,
+        "title_example": { "type": "literal" , "value": "Pyrus oxyprion Woronow" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "257" } ,
+        "type_example": { "type": "literal" , "value": "PreservedSpecimen" } ,
+        "publisher_example": { "type": "literal" , "value": "TBI" } ,
+        "graph_example": { "type": "uri" , "value": "http://tbi.jacq.org/object" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://pi.jacq.org/PI019235" } ,
+        "title_example": { "type": "literal" , "value": "Crocus imperati Ten." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "8011" } ,
+        "type_example": { "type": "literal" , "value": "PreservedSpecimen" } ,
+        "publisher_example": { "type": "literal" , "value": "PI" } ,
+        "graph_example": { "type": "uri" , "value": "http://pi.jacq.org" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://je.jacq.org/JE00014649" } ,
+        "title_example": { "type": "literal" , "value": "Rubus saxonicus H. Hofm." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "10708" } ,
+        "type_example": { "type": "literal" , "value": "PreservedSpecimen" } ,
+        "publisher_example": { "type": "literal" , "value": "JE" } ,
+        "graph_example": { "type": "uri" , "value": "http://je.jacq.org" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://dr.jacq.org/DR063805" } ,
+        "title_example": { "type": "literal" , "value": "Psathyrostachys lanuginosa (Trin.) Nevski" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "2217" } ,
+        "type_example": { "type": "literal" , "value": "PreservedSpecimen" } ,
+        "publisher_example": { "type": "literal" , "value": "DR" } ,
+        "graph_example": { "type": "uri" , "value": "http://dr.jacq.org" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://lz.jacq.org/LZ171513" } ,
+        "title_example": { "type": "literal" , "value": "Billia Peyr." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "2093" } ,
+        "type_example": { "type": "literal" , "value": "PreservedSpecimen" } ,
+        "publisher_example": { "type": "literal" , "value": "LZ" } ,
+        "graph_example": { "type": "uri" , "value": "http://lz.jacq.org" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://je.jacq.org/JE00023802" } ,
+        "title_example": { "type": "literal" , "value": "Typha haussknechtii Rohrb." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "Specimen" } ,
+        "publisher_example": { "type": "literal" , "value": "BGBM" } ,
+        "graph_example": { "type": "uri" , "value": "http://je.jacq.org" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://gjo.jacq.org/GJO0081978" } ,
+        "title_example": { "type": "literal" , "value": "Laburnum anagyroides Medik." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "Specimen" } ,
+        "publisher_example": { "type": "literal" , "value": "BGBM" } ,
+        "graph_example": { "type": "uri" , "value": "http://gjo.jacq.org" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://w.jacq.org/W19160015437" } ,
+        "title_example": { "type": "literal" , "value": "Acinos arvensis (Lam.) Dandy" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "Specimen" } ,
+        "publisher_example": { "type": "literal" , "value": "BGBM" } ,
+        "graph_example": { "type": "uri" , "value": "http://w.jacq.org" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://piagr.jacq.org/PIAGR0870" } ,
+        "title_example": { "type": "literal" , "value": "Anagallis arvensis var. phoenicea (Scop.) Neilr." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "54" } ,
+        "type_example": { "type": "literal" , "value": "PreservedSpecimen" } ,
+        "publisher_example": { "type": "literal" , "value": "PIAGR" } ,
+        "graph_example": { "type": "uri" , "value": "http://piagr.jacq.org" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://brnu.jacq.org/BRNU675582" } ,
+        "title_example": { "type": "literal" , "value": "Alnus incana subsp. tenuifolia (Nutt.) Breitung" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "7885" } ,
+        "type_example": { "type": "literal" , "value": "PreservedSpecimen" } ,
+        "publisher_example": { "type": "literal" , "value": "BRNU" } ,
+        "graph_example": { "type": "uri" , "value": "http://brnu.jacq.org" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://prc.jacq.org/PRC449984" } ,
+        "title_example": { "type": "literal" , "value": "Fagopyrum dibotrys Hara" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "4474" } ,
+        "type_example": { "type": "literal" , "value": "PreservedSpecimen" } ,
+        "publisher_example": { "type": "literal" , "value": "PRC" } ,
+        "graph_example": { "type": "uri" , "value": "http://prc.jacq.org" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://gat.jacq.org/GAT0069888" } ,
+        "title_example": { "type": "literal" , "value": "Crocus cappadocicus (B. Mathew) Rukšāns" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1309" } ,
+        "type_example": { "type": "literal" , "value": "PreservedSpecimen" } ,
+        "publisher_example": { "type": "literal" , "value": "GAT" } ,
+        "graph_example": { "type": "uri" , "value": "http://gat.jacq.org" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://boz.jacq.org/BOZ000003" } ,
+        "title_example": { "type": "literal" , "value": "Arabis alpina var. latens Porta" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "3" } ,
+        "type_example": { "type": "literal" , "value": "PreservedSpecimen" } ,
+        "publisher_example": { "type": "literal" , "value": "BOZ" } ,
+        "graph_example": { "type": "uri" , "value": "http://boz.jacq.org" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://mjg.jacq.org/MJG009067" } ,
+        "title_example": { "type": "literal" , "value": "Silene italica subsp. italica (L.) Pers." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "4175" } ,
+        "type_example": { "type": "literal" , "value": "PreservedSpecimen" } ,
+        "publisher_example": { "type": "literal" , "value": "MJG" } ,
+        "graph_example": { "type": "uri" , "value": "http://mjg.jacq.org" }
+      }, { 
+        "cspp_example": { "type": "uri" , "value": "http://tun.fi/MY.760825" } ,
+        "title_example": { "type": "literal" , "xml:lang": "en" , "value": "PreservedSpecimen http://tun.fi/MY.760825 of Cnemidaria horrida" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "530905" } ,
+        "type_example": { "type": "uri" , "value": "http://purl.org/dc/dcmitype/PhysicalObject" } ,
+        "publisher_example": { "type": "literal" , "value": "http://gbif.fi" } ,
+        "graph_example": { "type": "uri" , "value": "http://tun.fi" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://id.luomus.fi/MY.4976951" } ,
+        "title_example": { "type": "literal" , "xml:lang": "en" , "value": "PreservedSpecimen http://id.luomus.fi/MY.4976951 of Saxifraga" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "639453" } ,
+        "type_example": { "type": "uri" , "value": "http://purl.org/dc/dcmitype/PhysicalObject" } ,
+        "publisher_example": { "type": "literal" , "value": "http://gbif.fi" } ,
+        "graph_example": { "type": "uri" , "value": "http://id.luomus.fi" }
+      } , { 
+        "cspp_example": { "type": "uri" , "value": "http://id.herb.oulu.fi/MY.10411606" } ,
+        "title_example": { "type": "literal" , "xml:lang": "en" , "value": "PreservedSpecimen http://id.herb.oulu.fi/MY.10411606 of Isopterygiopsis pulchella" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "33777" } ,
+        "type_example": { "type": "uri" , "value": "http://purl.org/dc/dcmitype/PhysicalObject" } ,
+        "publisher_example": { "type": "literal" , "value": "http://gbif.fi" } ,
+        "graph_example": { "type": "uri" , "value": "http://id.herb.oulu.fi" }
+      }, { 
+        "cspp_example": { "type": "uri" , "value": "https://www.botanicalcollections.be/specimen/BR0000015196514" } ,
+        "title_example": { "type": "literal" , "value": "Bidens rueppellii (Sch.Bip. ex Walp.) Sherff" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1414" } ,
+        "type_example": { "type": "literal" , "value": "StillImage" } ,
+        "graph_example": { "type": "uri" , "value": "http://botanicalcollections.be/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://www.botanicalcollections.be/specimen/BR0000018881691" } ,
+        "title_example": { "type": "literal" , "value": "Strophanthus sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "139224" } ,
+        "type_example": { "type": "literal" , "value": "PhysicalObject" } ,
+        "graph_example": { "type": "uri" , "value": "http://botanicalcollections.be/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://www.botanicalcollections.be/specimen/BR5020006635391" } ,
+        "title_example": { "type": "literal" , "value": "Phylloporus nigrescens Heinem. & Rammeloo" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "33" } ,
+        "type_example": { "type": "literal" , "value": "Text" } ,
+        "graph_example": { "type": "uri" , "value": "http://botanicalcollections.be/specimen/" }
+      }, { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.449987" } ,
+        "title_example": { "type": "literal" , "value": "Pisces Gen. indet. sp. indet." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "14" } ,
+        "type_example": { "type": "literal" , "value": "mandibula" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.113455" } ,
+        "title_example": { "type": "literal" , "value": "Gen. indet. sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "4" } ,
+        "type_example": { "type": "literal" , "value": "Scale" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.5918.k" } ,
+        "title_example": { "type": "literal" , "value": "Duboisia santeng (Dubois, 1891)" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "phalange I" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.75266" } ,
+        "title_example": { "type": "literal" , "value": "Acipeuse sturio (L.)" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "plastron" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.964.37" } ,
+        "title_example": { "type": "literal" , "value": "Gen. indet. sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "3" } ,
+        "type_example": { "type": "literal" , "value": "cubonaviculare" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.561646.8" } ,
+        "title_example": { "type": "literal" , "value": "Bulimina cf. elegans exilis" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "976" } ,
+        "type_example": { "type": "literal" , "value": "Isolated fossils" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.1091.21" } ,
+        "title_example": { "type": "literal" , "value": "Gen. indet. sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "tibiotarsus" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.12024" } ,
+        "title_example": { "type": "literal" , "value": "Cercopithidae" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "3" } ,
+        "type_example": { "type": "literal" , "value": "premolar" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.820.a-3" } ,
+        "title_example": { "type": "literal" , "value": "Gen. indet. sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "coracoid" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.113448" } ,
+        "title_example": { "type": "literal" , "value": "Gen. indet. sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "4" } ,
+        "type_example": { "type": "literal" , "value": "cleithrum" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.987587" } ,
+        "title_example": { "type": "literal" , "value": "Periporata @" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "13132" } ,
+        "type_example": { "type": "literal" , "value": "unknown" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.821.7" } ,
+        "title_example": { "type": "literal" , "value": "Hystrix brachyurus L." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "3" } ,
+        "type_example": { "type": "literal" , "value": "metacarpus" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.1058.13" } ,
+        "title_example": { "type": "literal" , "value": "Gen. indet. sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "11" } ,
+        "type_example": { "type": "literal" , "value": "cranium" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.674.22" } ,
+        "title_example": { "type": "literal" , "value": "Gen. indet. sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "sternum" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RMNH.CRUS.D.43138" } ,
+        "title_example": { "type": "literal" , "value": "Platymera gaudichaudi H. Milne Edwards, 1837." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "6" } ,
+        "type_example": { "type": "literal" , "value": "carapace" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.785.w" } ,
+        "title_example": { "type": "literal" , "value": "Gen. indet. sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "2" } ,
+        "type_example": { "type": "literal" , "value": "metatarsus" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.1009.e" } ,
+        "title_example": { "type": "literal" , "value": "Hystrix sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "4" } ,
+        "type_example": { "type": "literal" , "value": "pelvis" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.900749" } ,
+        "title_example": { "type": "literal" , "value": "Calamostachys sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "3" } ,
+        "type_example": { "type": "literal" , "value": "fructification" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.1457.16" } ,
+        "title_example": { "type": "literal" , "value": "Presbytes (Trachypithecus) sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "incisor 2" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RMNH.COEL.5631.a" } ,
+        "title_example": { "type": "literal" , "value": "Flexaura fusca" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "887" } ,
+        "type_example": { "type": "literal" , "value": "WholeOrganism" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.1318626" } ,
+        "title_example": { "type": "literal" , "value": "Indet" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "spicule" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.1500" } ,
+        "title_example": { "type": "literal" , "value": "Gen. indet. sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "carina" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.261077" } ,
+        "title_example": { "type": "literal" , "value": "Testudinata Gen. indet. sp. indet." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "5" } ,
+        "type_example": { "type": "literal" , "value": "skeleton part(s) and teeth" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.104751.A" } ,
+        "title_example": { "type": "literal" , "value": "Indet" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "30" } ,
+        "type_example": { "type": "literal" , "value": "tooth" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.630770" } ,
+        "title_example": { "type": "literal" , "value": "Duboisia santeng (Dubois, 1891)" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "premolar 2" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.1130.j" } ,
+        "title_example": { "type": "literal" , "value": "Hystrix sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "5" } ,
+        "type_example": { "type": "literal" , "value": "femur" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.15789" } ,
+        "title_example": { "type": "literal" , "value": "Paracestes wanneri Arth." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "666" } ,
+        "type_example": { "type": "literal" , "value": "Not applicable" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RMNH.CRUS.D.44800" } ,
+        "title_example": { "type": "literal" , "value": "Xantho gracilicarpus Forest, 1953" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "cheliped" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.7112.26" } ,
+        "title_example": { "type": "literal" , "value": "Gen. indet. sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "2" } ,
+        "type_example": { "type": "literal" , "value": "vertebra cervicalis" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.812.q" } ,
+        "title_example": { "type": "literal" , "value": "Hystrix sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "2" } ,
+        "type_example": { "type": "literal" , "value": "patella" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.699.d" } ,
+        "title_example": { "type": "literal" , "value": "Hystrix sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "4" } ,
+        "type_example": { "type": "literal" , "value": "ulna" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.969836" } ,
+        "title_example": { "type": "literal" , "value": "Rhynia major K&L" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "2" } ,
+        "type_example": { "type": "literal" , "value": "sporangia" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RMNH.5070132.a" } ,
+        "title_example": { "type": "literal" , "value": "Mus musculatus Linnaeus, 1758" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "25" } ,
+        "type_example": { "type": "literal" , "value": "skull" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.708.17" } ,
+        "title_example": { "type": "literal" , "value": "Gen. indet. sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "4" } ,
+        "type_example": { "type": "literal" , "value": "radius" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.968114" } ,
+        "title_example": { "type": "literal" , "value": "Nyssa" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "238" } ,
+        "type_example": { "type": "literal" , "value": "pollen" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.900731" } ,
+        "title_example": { "type": "literal" , "value": "Alethopteris valida" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "79" } ,
+        "type_example": { "type": "literal" , "value": "Leaf" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.175392" } ,
+        "title_example": { "type": "literal" , "value": "Ongedetermineerd" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "6" } ,
+        "type_example": { "type": "literal" , "value": "AnimalPart" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.1457.11" } ,
+        "title_example": { "type": "literal" , "value": "Hystrix brachyurus (L., 1758)" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "molar 2" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.1457.18" } ,
+        "title_example": { "type": "literal" , "value": "Presbytes (Trachypithecus) sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "3" } ,
+        "type_example": { "type": "literal" , "value": "premolar 3" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.5728" } ,
+        "title_example": { "type": "literal" , "value": "Duboisia santeng (Dubois, 1891)" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "2" } ,
+        "type_example": { "type": "literal" , "value": "vertebra lumbalis" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RMNH.AVES.P.1712" } ,
+        "title_example": { "type": "literal" , "value": "Psittacus erythacus" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "13" } ,
+        "type_example": { "type": "literal" , "value": "feather" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RMNH.MAM.45909.B" } ,
+        "title_example": { "type": "literal" , "value": "Pteropus" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "skin (part)" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.1098.12" } ,
+        "title_example": { "type": "literal" , "value": "Gen. indet. sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "3" } ,
+        "type_example": { "type": "literal" , "value": "calcaneum" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.671.43a" } ,
+        "title_example": { "type": "literal" , "value": "Gen. indet. sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "os hamatum" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.813725" } ,
+        "title_example": { "type": "literal" , "value": "cf. Solea kleinii (Risso, 1826)" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "173" } ,
+        "type_example": { "type": "literal" , "value": "otolith" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RMNH.PISC.38595" } ,
+        "title_example": { "type": "literal" , "value": "Latimera chalumnea Smith, 1939" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "3" } ,
+        "type_example": { "type": "literal" , "value": "cast" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.2064.l" } ,
+        "title_example": { "type": "literal" , "value": "Duboisia santeng (Dubois, 1891)" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "ossa sesamoidea" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.3798.d" } ,
+        "title_example": { "type": "literal" , "value": "Siluroidae" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "clavicula" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.925.f" } ,
+        "title_example": { "type": "literal" , "value": "Hystrix sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "3" } ,
+        "type_example": { "type": "literal" , "value": "costa" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RMNH.RENA.26720" } ,
+        "title_example": { "type": "literal" , "value": "Craniata" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "eggs" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.1137.g" } ,
+        "title_example": { "type": "literal" , "value": "Hystrix sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "3" } ,
+        "type_example": { "type": "literal" , "value": "epistropheum" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.675.11" } ,
+        "title_example": { "type": "literal" , "value": "Gen. indet. sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "tarsometatarsus" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.631239" } ,
+        "title_example": { "type": "literal" , "value": "Elephas planifrons (Falconer & Cautley, 1845)" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "decideous molar 2" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.803275" } ,
+        "title_example": { "type": "literal" , "value": "Plantae" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "3" } ,
+        "type_example": { "type": "literal" , "value": "wood" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.913029" } ,
+        "title_example": { "type": "literal" , "value": "Lagenanodosaria hispada (DÓrb.)" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "3009" } ,
+        "type_example": { "type": "literal" , "value": "test" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.1350481" } ,
+        "title_example": { "type": "literal" , "value": "Cyclopteris" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "6" } ,
+        "type_example": { "type": "literal" , "value": "leaf prints" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.1030.k" } ,
+        "title_example": { "type": "literal" , "value": "Cercopithidae" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "4" } ,
+        "type_example": { "type": "literal" , "value": "canine" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.1457.9" } ,
+        "title_example": { "type": "literal" , "value": "Hystrix brachyurus (L., 1758)" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "4" } ,
+        "type_example": { "type": "literal" , "value": "premolar 4" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.1824.l" } ,
+        "title_example": { "type": "literal" , "value": "Duboisia santeng (Dubois, 1891)" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "2" } ,
+        "type_example": { "type": "literal" , "value": "molar 3" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RMNH.PISC.4616" } ,
+        "title_example": { "type": "literal" , "value": "Ophiocephalus spec." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "Head" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.12133" } ,
+        "title_example": { "type": "literal" , "value": "Megaceros giganteus blumenbach, 1799" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "4" } ,
+        "type_example": { "type": "literal" , "value": "humerus" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.901010" } ,
+        "title_example": { "type": "literal" , "value": "Trigonocarpus sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "8" } ,
+        "type_example": { "type": "literal" , "value": "seed" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.755.am" } ,
+        "title_example": { "type": "literal" , "value": "Hystrix sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "3" } ,
+        "type_example": { "type": "literal" , "value": "phalange" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGMS.603975" } ,
+        "title_example": { "type": "literal" , "value": "Heterostegina sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "133" } ,
+        "type_example": { "type": "literal" , "value": "Sample" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.1317655" } ,
+        "title_example": { "type": "literal" , "value": "Ongedetermineerd" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "4" } ,
+        "type_example": { "type": "literal" , "value": "jaw" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.1077.p" } ,
+        "title_example": { "type": "literal" , "value": "Gen. indet. sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "os pisiforme" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.5887" } ,
+        "title_example": { "type": "literal" , "value": "Duboisia santeng (Dubois, 1891)" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "5" } ,
+        "type_example": { "type": "literal" , "value": "tibia" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.3798.a" } ,
+        "title_example": { "type": "literal" , "value": "Siluroidae" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "os ceratohyale" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGMS.11000" } ,
+        "title_example": { "type": "literal" , "value": "Orbitolites sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "microscopic slide" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.6254.a" } ,
+        "title_example": { "type": "literal" , "value": "Duboisia santeng (Dubois, 1891)" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "2" } ,
+        "type_example": { "type": "literal" , "value": "phalange III" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.6245.b" } ,
+        "title_example": { "type": "literal" , "value": "Duboisia santeng (Dubois, 1891)" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "phalange II" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RMNH.5092436.c" } ,
+        "title_example": { "type": "literal" , "value": "Dendrocygna autumnails (Linnaeus, 1758)" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "9" } ,
+        "type_example": { "type": "literal" , "value": "skeleton (partial)" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.1318442" } ,
+        "title_example": { "type": "literal" , "value": "Ongedetermineerd" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "mould" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.3803" } ,
+        "title_example": { "type": "literal" , "value": "Duboisia santeng (Dubois, 1891)" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "7" } ,
+        "type_example": { "type": "literal" , "value": "incisor" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.928.b" } ,
+        "title_example": { "type": "literal" , "value": "Gen. indet. sp. indet" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "bulla" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RMNH.5069643.b" } ,
+        "title_example": { "type": "literal" , "value": "Otis asio (Linnaeus, 1758)" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "18" } ,
+        "type_example": { "type": "literal" , "value": "Wing" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.812.n" } ,
+        "title_example": { "type": "literal" , "value": "Hystrix sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "4" } ,
+        "type_example": { "type": "literal" , "value": "atlas" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.1144.f" } ,
+        "title_example": { "type": "literal" , "value": "Hystrix sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "3" } ,
+        "type_example": { "type": "literal" , "value": "metapodial" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.900839" } ,
+        "title_example": { "type": "literal" , "value": "Ullmannia selaginoides" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "10" } ,
+        "type_example": { "type": "literal" , "value": "Twig" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.1009.i" } ,
+        "title_example": { "type": "literal" , "value": "Hystrix sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "3" } ,
+        "type_example": { "type": "literal" , "value": "vertebra caudalis" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RMNH.5092436.e" } ,
+        "title_example": { "type": "literal" , "value": "Dendrocygna autumnails (Linnaeus, 1758)" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "2" } ,
+        "type_example": { "type": "literal" , "value": "soft body parts" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.6392" } ,
+        "title_example": { "type": "literal" , "value": "Varanus komodoensis Ouwens, 1912" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "19" } ,
+        "type_example": { "type": "literal" , "value": "vertebra" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RMNH.COEL.5010" } ,
+        "title_example": { "type": "literal" , "value": "Lemnalia longirama Verseveldt" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "2" } ,
+        "type_example": { "type": "literal" , "value": "Colony" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.823009" } ,
+        "title_example": { "type": "literal" , "value": "Baculogypsina saoneki Rutten" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "97" } ,
+        "type_example": { "type": "literal" , "value": "shell" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.928.m" } ,
+        "title_example": { "type": "literal" , "value": "Hystrix sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "5" } ,
+        "type_example": { "type": "literal" , "value": "astragalus" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.900948" } ,
+        "title_example": { "type": "literal" , "value": "Archaeocalamites radiatus Brg." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "47" } ,
+        "type_example": { "type": "literal" , "value": "Stem" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.11640.q" } ,
+        "title_example": { "type": "literal" , "value": "Siluroidae" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "preoperculum" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.15847" } ,
+        "title_example": { "type": "literal" , "value": "Duboisia santeng (Dubois, 1891)" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "os cuboideum" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.631395" } ,
+        "title_example": { "type": "literal" , "value": "Duboisia santeng (Dubois, 1891)" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "molar 1" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.583342" } ,
+        "title_example": { "type": "literal" , "value": "Shvetsovia carpathica (Uhlig, 1883)" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "16" } ,
+        "type_example": { "type": "literal" , "value": "Cone" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RMNH.RENA.3164" } ,
+        "title_example": { "type": "literal" , "value": "Monitor cepedianus" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "specimen" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.988781" } ,
+        "title_example": { "type": "literal" , "value": "Bryophyta" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "rhizome" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.13771" } ,
+        "title_example": { "type": "literal" , "value": "Cocos nucifera (L.)" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "3" } ,
+        "type_example": { "type": "literal" , "value": "BotanicalPart" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RMNH.AVES.6557" } ,
+        "title_example": { "type": "literal" , "value": "Chrysolampis mosquitas" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "17" } ,
+        "type_example": { "type": "literal" , "value": "skeleton (whole)" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.59568" } ,
+        "title_example": { "type": "literal" , "value": "Myliobatis sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "68" } ,
+        "type_example": { "type": "literal" , "value": "dentition" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.450225" } ,
+        "title_example": { "type": "literal" , "value": "Megaceros giganteus (Blum)" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "antler" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.630776" } ,
+        "title_example": { "type": "literal" , "value": "Duboisia santeng (Dubois, 1891)" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "8" } ,
+        "type_example": { "type": "literal" , "value": "molar" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RMNH.AVES.176734.b" } ,
+        "title_example": { "type": "literal" , "value": "Orthorhynchus cristatus emigrans" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "49" } ,
+        "type_example": { "type": "literal" , "value": "nest" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGMS.13242" } ,
+        "title_example": { "type": "literal" , "value": "Miogypsina sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "4" } ,
+        "type_example": { "type": "literal" , "value": "thin section" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RMNH.PISC.S.130" } ,
+        "title_example": { "type": "literal" , "value": "Iullus gallus" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "4" } ,
+        "type_example": { "type": "literal" , "value": "skeleton" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.800.75" } ,
+        "title_example": { "type": "literal" , "value": "Gen. indet. sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "2" } ,
+        "type_example": { "type": "literal" , "value": "fibula" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.821.11" } ,
+        "title_example": { "type": "literal" , "value": "Gen. indet. sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "2" } ,
+        "type_example": { "type": "literal" , "value": "os petrosum" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.2060.a" } ,
+        "title_example": { "type": "literal" , "value": "Duboisia santeng (Dubois, 1891)" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "horn core" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.819.88" } ,
+        "title_example": { "type": "literal" , "value": "Gen. indet. sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "os hyoideum" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.10005.c" } ,
+        "title_example": { "type": "literal" , "value": "Hystrix sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "deciduous premolar 4" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.3797.e" } ,
+        "title_example": { "type": "literal" , "value": "Siluroidae" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "post-clavicula" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.18292" } ,
+        "title_example": { "type": "literal" , "value": "Hydracodon nebrascensis (Leidy)" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "8" } ,
+        "type_example": { "type": "literal" , "value": "maxilla" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.6007" } ,
+        "title_example": { "type": "literal" , "value": "Duboisia santeng (Dubois, 1891)" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "2" } ,
+        "type_example": { "type": "literal" , "value": "vertebra thoracalis" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.7112.5" } ,
+        "title_example": { "type": "literal" , "value": "Hystrix sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "4" } ,
+        "type_example": { "type": "literal" , "value": "scapula" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.1457.35" } ,
+        "title_example": { "type": "literal" , "value": "Gen. indet. sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "carpus" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.900764" } ,
+        "title_example": { "type": "literal" , "value": "Stigmaria sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "9" } ,
+        "type_example": { "type": "literal" , "value": "Root" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.353004" } ,
+        "title_example": { "type": "literal" , "value": "Cryptoschisma schultzii (DARCHIAC & VERNEUIL ,1845)" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "theca" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RMNH.AVES.186398" } ,
+        "title_example": { "type": "literal" , "value": "Amaurornis phoenicura leucomelana" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "138" } ,
+        "type_example": { "type": "literal" , "value": "egg" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RMNH.AVES.257601.c" } ,
+        "title_example": { "type": "literal" , "value": "Sitta europea Linnaeus, 1758" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "20" } ,
+        "type_example": { "type": "literal" , "value": "tissue" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.1333511" } ,
+        "title_example": { "type": "literal" , "value": "Lunaria" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "9" } ,
+        "type_example": { "type": "literal" , "value": "Trace" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGMS.11572" } ,
+        "title_example": { "type": "literal" , "value": "Amphistegina sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "24" } ,
+        "type_example": { "type": "literal" , "value": "Fragment" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RMNH.MAM.62967" } ,
+        "title_example": { "type": "literal" , "value": "Tamias sibericus E. Geoffroy St. Hilaire, 1811" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "220" } ,
+        "type_example": { "type": "literal" , "value": "skin" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.DUB.1457.167" } ,
+        "title_example": { "type": "literal" , "value": "Gen. indet. sp." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "2" } ,
+        "type_example": { "type": "literal" , "value": "tarsus" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/RGM.900912" } ,
+        "title_example": { "type": "literal" , "value": "Sigillaria fossorum Weiss" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "19" } ,
+        "type_example": { "type": "literal" , "value": "trunk" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.biodiversitydata.nl/naturalis/specimen/" }
+      }, { 
+        "cspp_example": { "type": "uri" , "value": "http://specimens.kew.org/herbarium/K001075104" } ,
+        "title_example": { "type": "literal" , "value": "Microchloa indica (L. f.) P. Beauv.Fiebrig, K.5918" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "154579" } ,
+        "type_example": { "type": "literal" , "value": "PhysicalObject" } ,
+        "publisher_example": { "type": "uri" , "value": "https://www.kew.org" } ,
+        "graph_example": { "type": "uri" , "value": "http://specimens.kew.org/herbarium/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://id.snsb.info/snsb/collection/13840/21515/13660" } ,
+        "title_example": { "type": "literal" , "value": "Scutula miliaris (Wallr.) Trevis." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1" } ,
+        "type_example": { "type": "literal" , "value": "DrawingOrPhotograph" } ,
+        "publisher_example": { "type": "literal" , "value": "http://www.snsb.info" } ,
+        "graph_example": { "type": "uri" , "value": "http://id.snsb.info/snsb/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://id.smns-bw.org/smns/collection/263002/760357/267386" } ,
+        "title_example": { "type": "literal" , "value": "SMNS Collection Specimen SMNS-B-BR-034984" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "1313" } ,
+        "type_example": { "type": "literal" , "value": "specimen" } ,
+        "graph_example": { "type": "uri" , "value": "http://id.smns-bw.org/smns/collection/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://id.snsb.info/snsb/collection/183372/217956/159242" } ,
+        "title_example": { "type": "literal" , "value": "Bellemerea cinereorufescens (Ach.) Clauzad & Cl.Roux var. diamartha" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "100" } ,
+        "type_example": { "type": "literal" , "value": "LivingSpecimen" } ,
+        "publisher_example": { "type": "literal" , "value": "http://www.snsb.info" } ,
+        "graph_example": { "type": "uri" , "value": "http://id.snsb.info/snsb/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://id.snsb.info/snsb/collection/856180/981601" } ,
+        "title_example": { "type": "literal" , "value": "Orbilia euonymi Velen." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "30" } ,
+        "type_example": { "type": "literal" , "value": "HumanObservation" } ,
+        "publisher_example": { "type": "literal" , "value": "http://www.snsb.info" } ,
+        "graph_example": { "type": "uri" , "value": "http://id.snsb.info/snsb/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://id.snsb.info/snsb/collection/469026/575329/247978" } ,
+        "title_example": { "type": "literal" , "value": "Astragalus cobresiiphilus Podlech & L.R.Xu" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "64597" } ,
+        "type_example": { "type": "literal" , "value": "PreservedSpecimen" } ,
+        "publisher_example": { "type": "literal" , "value": "http://www.snsb.info" } ,
+        "graph_example": { "type": "uri" , "value": "http://id.snsb.info/snsb/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://id.snsb.info/snsb/collection/12/18/12" } ,
+        "title_example": { "type": "literal" , "value": "Didymium melanospermum (Pers.) T.Macbr." } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "11" } ,
+        "type_example": { "type": "literal" , "value": "FossilSpecimen" } ,
+        "publisher_example": { "type": "literal" , "value": "http://www.snsb.info" } ,
+        "graph_example": { "type": "uri" , "value": "http://id.snsb.info/snsb/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "http://id.snsb.info/snsb/collection/97096/153421/92991" } ,
+        "title_example": { "type": "literal" , "value": "Quercus robur" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "2" } ,
+        "type_example": { "type": "literal" , "value": "OtherSpecimen" } ,
+        "publisher_example": { "type": "literal" , "value": "http://www.snsb.info" } ,
+        "graph_example": { "type": "uri" , "value": "http://id.snsb.info/snsb/" }
+      } ,
+      { 
+        "cspp_example": { "type": "uri" , "value": "https://data.rbge.org.uk/herb/E00009931" } ,
+        "title_example": { "type": "literal" , "value": "Instituto de Investigaciónes Ecológicas Chiloé (IIECH) and Royal Botanic Garden Edinburgh #536 Skytanthus acutus Meyen" } ,
+        "all__count": { "type": "literal" , "datatype": "http://www.w3.org/2001/XMLSchema#integer" , "value": "620353" } ,
+        "type_example": { "type": "literal" , "value": "Specimen" } ,
+        "publisher_example": { "type": "uri" , "value": "http://www.rbge.org.uk" } ,
+        "graph_example": { "type": "uri" , "value": "http://data.rbge.org.uk/herb/" }
+      }
+    ]
+  }
+}
