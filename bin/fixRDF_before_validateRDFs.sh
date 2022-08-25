@@ -192,7 +192,7 @@ fi
 
 
 this_wd="$PWD"
-cd "$this_pwd"
+cd "$this_wd"
 
 if [[ ${#} -eq 0 ]]; then
     usage; exit 0;
