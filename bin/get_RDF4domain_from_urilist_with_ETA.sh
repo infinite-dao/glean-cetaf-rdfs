@@ -16,6 +16,7 @@ set -eu
 # dependency: wget
 # dependency: shuf
 # dependency: gzip
+# dependency: awk
 
 
 DOMAINNAME='jacq.org'
