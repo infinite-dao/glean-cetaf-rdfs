@@ -26,15 +26,15 @@ declare -A SED_EXPRESSION_MATCH_CETAFID # associative array
 #   SED_EXPRESSION_MATCH_CETAFID["id.smns-bw.org"]="^<https?:\/\/id.smns-bw.org\/smns\/collection\/[0-9]+\/[^<>]+>"
         #   https://id.smns-bw.org/smns/collection/275270/772621/279650
 
-ROR_OR_INSTITUTION["id.snsb.info/snsb/collection/"]="https://ror.org/05th1v540"
-ROR_OR_INSTITUTION["id.snsb.info/snsb/collection_monitoring/"]="https://ror.org/05th1v540"
-  SED_EXPRESSION_MATCH_CETAFID["id.snsb.info/snsb/collection/"]="^<https?:\/\/id.snsb.info\/snsb\/collection\/[0-9]+\/[^<>]+>"
-  SED_EXPRESSION_MATCH_CETAFID["id.snsb.info/snsb/collection_monitoring/"]="^<https?:\/\/id.snsb.info\/snsb\/collection_monitoring\/[0-9]+\/[^<>]+>"
+# ROR_OR_INSTITUTION["id.snsb.info/snsb/collection/"]="https://ror.org/05th1v540"
+# ROR_OR_INSTITUTION["id.snsb.info/snsb/collection_monitoring/"]="https://ror.org/05th1v540"
+#   SED_EXPRESSION_MATCH_CETAFID["id.snsb.info/snsb/collection/"]="^<https?:\/\/id.snsb.info\/snsb\/collection\/[0-9]+\/[^<>]+>"
+#   SED_EXPRESSION_MATCH_CETAFID["id.snsb.info/snsb/collection_monitoring/"]="^<https?:\/\/id.snsb.info\/snsb\/collection_monitoring\/[0-9]+\/[^<>]+>"
 
-# # # # # # Finland
+# # # # # # Finland (needs carful check to catch the CSPP and conformsTo the right way: the CSPP should not be added for (dcmi)type Event but for (dcmi)type PhysicalObject ?Occurrence?)
 # ROR_OR_INSTITUTION["id.luomus.fi"]="https://ror.org/undefined4id.luomus.fi"
-# ROR_OR_INSTITUTION["id.luomus.fi"]="https://ror.org/03tcx6c30"
-# ROR_OR_INSTITUTION["id.zmuo.oulu.fi"]="https://ror.org/03yj89h83"
+ROR_OR_INSTITUTION["id.luomus.fi"]="https://ror.org/03tcx6c30"
+ROR_OR_INSTITUTION["id.zmuo.oulu.fi"]="https://ror.org/03yj89h83"
 # ROR_OR_INSTITUTION["tun.fi"]="https://ror.org/6-institutions"
 
 # # # # # # # # # # # # # # 
@@ -128,10 +128,15 @@ for null_index in "${!ROR_OR_INSTITUTION_DOMAIN_sorted[@]}";do
      s@<http://rs.tdwg.org/dwc/terms/institutionID>  <${this_institution_id}>\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  ${this_institution_id} .)@\1\2@; "
   fi # institutionID
   echo "  # add dcterms:isPartOf, dcterms:hasPart, dcterms:conformsTo"
-  echo "  s@(\s+[.])\$@ ;\n        <http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_(CSPP)>\1@;"
+  echo "    s@(\s+[.])\$@ ;\n        <http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_(CSPP)>\1@;"
   if [[ $domain_part =~ .fi$ ]];then
-  echo "  s@(\s+[.])\$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://gbif.fi>\1@;"
+  echo "  # fix remove conformsTo:CETAFID on rdf:type or dcterms:type Event"
+  echo "    s@(<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> +<http://rs.tdwg.org/dwc/terms/Event> ;)(.*) ;\n +<http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_\(CSPP\)>(\s+[.])@\1\2\3@;"
+  echo "    s@(<http://purl.org/dc/terms/type> +<http://purl.org/dc/dcmitype/Event> ;)(.*) ;\n +<http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_\(CSPP\)>(\s+[.])@\1\2\3@;"
+  echo "    s@(\s+[.])\$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://gbif.fi>\1@;"
+  echo "    s@(\s+[.])\$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://$domain_part>\1@;"
   fi
+
   if [[ $domain_part =~ jacq.org ]];then
   echo "  s@(\s+[.])\$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <http://jacq.org>\1@;"
   echo "  s@(\s+[.])\$@ ;\n        <http://purl.org/dc/terms/isPartOf>  <${domain_only_http}>\1@;"
