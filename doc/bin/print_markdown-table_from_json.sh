@@ -12,6 +12,7 @@ this_json_file=$1
 function usage() { 
   echo    "############ Print Markdown Table from JSON (Fuseki Results) #########"
   echo -e "# Usage example: \e[32m${0##*/}\e[0m count_cspp_title_Paris_20220822.json" 1>&2; 
+  echo -e "# (sorting is done as well see «sort … --key=5.1b» for the 5th field/column)" 1>&2; 
   echo    "#   -h  ...................................... show this help usage" 1>&2; 
 }
 
