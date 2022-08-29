@@ -41,6 +41,7 @@ More technically:
    Thread-01…normalized.ttl.trig via s-put (SOH - SPARQL over HTTP)
    Thread-02…normalized.ttl.trig via s-put (SOH - SPARQL over HTTP)
 ```
+See also in directory [`./doc/`](./doc/) for some documented imports.
 
 ## Advise to Manage Data
 
