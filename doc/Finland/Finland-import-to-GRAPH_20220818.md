@@ -6,7 +6,7 @@ pandoc -f gfm --toc -s Finland-import-to-GRAPH_20220818.md -o Finland-import-to-
 # Import (2022-08-18)
 ## Prepare Data 
 
-Get urilist data from GBIF or from internally harvsted GBIF Index of GUIDs of occurrence id, export those as CSV or better TSV (tab separated values)
+Get urilist data from GBIF or from internally harvsted GBIF Index of GUIDs of occurrence id, export those as CSV or better TSV (tab separated values). In this example we took only URI data that were not yet imported (~1700 URIs), the Finland data have about 1 million URIs at the present. And also we decided to include only botanical data.
 
 
 ```sql
