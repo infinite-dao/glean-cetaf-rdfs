@@ -17,6 +17,8 @@ Steps we do:
 
 More technically:
 ```
+0. get an URI list for gathering RDF data (e.g. from GBIF)
+
 1. download RDF into:
    Thread-01….rdf
    Thread-02….rdf aso.
@@ -77,7 +79,19 @@ SPARQL endpoint
 - Apache Jena Fuseki Server<br/>e.g. ☞&nbsp;[hub.docker.com/r/stain/jena-fuseki/](https://hub.docker.com/r/stain/jena-fuseki/), i.e. 
   `jena-fuseki` from [stain/jena-docker](https://github.com/stain/jena-docker)
 
-  
+## (0) Getting Data
+
+In any way you have to prepare and check available data, for instance: Is there any URI to get RDF from aso.. If you get data from GBIF, you need the `occurrencID`, which GBIF defines it as «a single globally unique identifier for the occurrence record as provided by the publisher» and then you need it better to be an URI. See documentation at https://www.gbif.org/developer/occurrence#predicates, use for instance `basisOfRecord` with the value `"PRESERVED_SPECIMEN"` to get only herbarium sheets or preserved specimens and not just observations for instance.
+
+Another way of getting data basically is using the normal interface and click through the occurrences as a table and download then this table:
+
+1. https://www.gbif.org/country/DE/about show data sets from Germany
+2. select, e.g. Plantae (at OCCURRENCES PER KINGDOM)
+3. you get a table view https://www.gbif.org/occurrence/search?country=DE&taxon_key=6 and can narrow further if you will (basis of record: Preserved specimen, publisher: Botanical Garden and Museum Berlin https://www.gbif.org/occurrence/search?basis_of_record=PRESERVED_SPECIMEN&country=DE&publishing_org=57254bd0-8256-11d8-b7ed-b8a03c50a862&taxon_key=6)
+4. at the table 3 vertical points you can add columns, add `Occurrence ID`
+5. then you can download this filter combination and proceed to check for http-occurrencIDs
+
+
 ## (1) Download and Harvesting RDFs
 
 In this example we organize all the data (the `/rdf`), and binaries (`./bin`) in `/opt/jena-fuseki/import-sandbox/` that can be read by all necessary users.
