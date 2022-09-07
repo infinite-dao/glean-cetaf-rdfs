@@ -1,6 +1,6 @@
 ##################################################
-#   Description: split a file based on search pattern and max_strlen and eventually compress all split files with gzip
-#     modify the search pattern to meet your needs, where to split
+#   Description: split a file based on search pattern and max_strlen and optionally compress all split files with gzip
+#     DO MODIFY the search pattern to meet your needs, and max_strlen perhaps, where to split
 ##################################################
 #   Usage
 #     (before you start this program, check the search pattern in code you want to match)
@@ -13,6 +13,12 @@
 ##################################################
 #   
 BEGIN {
+    instruct_to_print_debug=1
+    # max_strlen=100000000                                     # can be modified original 100000000
+    max_strlen=50000000                                       # can be modified 50000000: about 48MB uncompressed
+    file_index = 0 # 0 because of while file++ = file number 1
+    
+    # check if external variables where given
     if (length(fileprefix) > 0) { this_fileprefix = fileprefix } 
     else { this_fileprefix = "BGBM_1_" }
 
@@ -29,26 +35,22 @@ BEGIN {
       
     }
     # this_fileext = ".www.mnhn.fr.dwc-institutionID.sparql"   # can be modified
-    # max_strlen=100000000                                     # can be modified original 100000000
     
-    max_strlen=50000000                                       # can be modified 50000000: about 48MB uncompressed
-     
-    fileno = 0 # 0 because of while file++ = file number 1
     {
       do {
-        fileno++
-        this_outputfile = sprintf ("%s%02d%s", this_fileprefix,fileno,this_fileext)
-        this_outputfile_gz = sprintf ("%s%02d%s.gz", this_fileprefix,fileno,this_fileext)
-        # printf "#     DEBUG \033[34mstat\033[0m while-in-doing %s returns %s, fileno %s\n", this_outputfile, system("stat " this_outputfile " >/dev/null 2>/dev/null"),fileno
-        # printf "#     DEBUG \033[34mstat\033[0m while-in-doing %s returns %s, fileno %s\n", this_outputfile_gz, system("stat " this_outputfile_gz " >/dev/null 2>/dev/null"),fileno
+        file_index++
+        this_outputfile = sprintf ("%s%02d%s", this_fileprefix,file_index,this_fileext)
+        this_outputfile_gz = sprintf ("%s%02d%s.gz", this_fileprefix,file_index,this_fileext)
+        # printf "#     DEBUG \033[34mstat\033[0m while-in-doing %s returns %s, file_index %s\n", this_outputfile, system("stat " this_outputfile " >/dev/null 2>/dev/null"),file_index
+        # printf "#     DEBUG \033[34mstat\033[0m while-in-doing %s returns %s, file_index %s\n", this_outputfile_gz, system("stat " this_outputfile_gz " >/dev/null 2>/dev/null"),file_index
       }
       while ( system("stat " this_outputfile " >/dev/null 2>/dev/null") == 0 || system("stat " this_outputfile_gz " >/dev/null 2>/dev/null") == 0 ) 
         # stat … 0 indicates an existing file (no error)
         # stat … 1 indicates a non-existing file (i.e. stat return error)
     }
     printf "# Split file based on search pattern (see code) and max %d string length each\n#   to %s01, 02 aso. ...\n", max_strlen, fileprefix;
-    printf "#   DEBUG BEGIN script\n";
-    printf "#     Write: %s%02d%s ...\n", this_fileprefix,fileno,this_fileext;
+    if (instruct_to_print_debug) { printf "#   DEBUG BEGIN script\n"; }
+    printf "#     Write: \033[32m%s\033[0m ...\n", this_outputfile;
 } # BEGIN
 
 { # do each text line
@@ -67,10 +69,12 @@ BEGIN {
 # # # # # RBGE (Edinburgh)
 # current_strlength > max_strlen && /^<https?:\/\/data.rbge.org.uk\/herb\/[^>]+>/ {
 # # # # # RBGK (Kew) 
-current_strlength > max_strlen && /^<https?:\/\/specimens.kew.org\/herbarium\/[^>]+>/ {
+# current_strlength > max_strlen && /^<https?:\/\/specimens.kew.org\/herbarium\/[^>]+>/ {
 # # # # # MNHN Paris
 # current_strlength > max_strlen && /INSERT DATA .* <http:\/\/coldb.mnhn.fr\/catalognumber\/mnhn\// {
 # current_strlength > max_strlen && /^<https?:\/\/coldb.mnhn.fr\/catalognumber\/mnhn\/[a-z]+\// {
+current_strlength > max_strlen && /^<https?:\/\/coldb.mnhn.fr\/catalognumber\/mnhn\/p\// {
+# current_strlength > max_strlen && /^<https?:\/\/coldb.mnhn.fr\/catalognumber\/mnhn\/pc\// {
 # # # # # Finland
 # current_strlength > max_strlen && /^<https?:\/\/id.luomus.fi\/[^<>]+>/ {
 # current_strlength > max_strlen && /^<https?:\/\/tun.fi\/[^<>]+>/ {
@@ -78,41 +82,43 @@ current_strlength > max_strlen && /^<https?:\/\/specimens.kew.org\/herbarium\/[^
 # # # # # Meise
 # current_strlength > max_strlen && /^<https?:\/\/www.botanicalcollections.be\/specimen\/[^<>]+>/ {
   
-    this_outputfile = sprintf ("%s%02d%s", this_fileprefix,fileno,this_fileext);
-    printf "#     REACHED MAX_STRLEN close: %s ...\n", this_outputfile;
+    this_outputfile = sprintf ("%s%02d%s", this_fileprefix,file_index,this_fileext);
+    if (instruct_to_print_debug) { printf "#     REACHED MAX_STRLEN close: %s ...\n", this_outputfile; }
     close(this_outputfile) # old file
     
-    this_outputfile = sprintf ("%s%02d%s", this_fileprefix,fileno,this_fileext)
-    this_outputfile_gz = sprintf ("%s%02d%s.gz", this_fileprefix,fileno,this_fileext)
-    printf "#     REACHED MAX_STRLEN check for existing files (do not overwrite them) ...\n", this_fileprefix,fileno,this_fileext;
-    # printf "#     DEBUG \033[34mstat\033[0m while-before %s returns %s, fileno %s\n", this_outputfile, system("stat " this_outputfile " >/dev/null 2>/dev/null"),fileno
-    # printf "#     DEBUG \033[34mstat\033[0m while-before %s returns %s, fileno %s\n", this_outputfile_gz, system("stat " this_outputfile_gz " >/dev/null 2>/dev/null"),fileno
+    this_outputfile = sprintf ("%s%02d%s", this_fileprefix,file_index,this_fileext)
+    this_outputfile_gz = sprintf ("%s%02d%s.gz", this_fileprefix,file_index,this_fileext)
+    if (instruct_to_print_debug) {
+      printf "#     REACHED MAX_STRLEN check for existing files (do not overwrite them) ...\n", this_fileprefix,file_index,this_fileext;
+      # printf "#     DEBUG \033[34mstat\033[0m while-before %s returns %s, file_index %s\n", this_outputfile, system("stat " this_outputfile " >/dev/null 2>/dev/null"),file_index
+      # printf "#     DEBUG \033[34mstat\033[0m while-before %s returns %s, file_index %s\n", this_outputfile_gz, system("stat " this_outputfile_gz " >/dev/null 2>/dev/null"),file_index
+    }
     {
       do {
-        fileno++
-        this_outputfile = sprintf ("%s%02d%s", this_fileprefix,fileno,this_fileext)
-        this_outputfile_gz = sprintf ("%s%02d%s.gz", this_fileprefix,fileno,this_fileext)
-        # printf "#     DEBUG \033[34mstat\033[0m while-in-doing %s returns %s, fileno %s\n", this_outputfile, system("stat " this_outputfile " >/dev/null 2>/dev/null"),fileno
-        # printf "#     DEBUG \033[34mstat\033[0m while-in-doing %s returns %s, fileno %s\n", this_outputfile_gz, system("stat " this_outputfile_gz " >/dev/null 2>/dev/null"),fileno
+        file_index++
+        this_outputfile = sprintf ("%s%02d%s", this_fileprefix,file_index,this_fileext)
+        this_outputfile_gz = sprintf ("%s%02d%s.gz", this_fileprefix,file_index,this_fileext)
+        # printf "#     DEBUG \033[34mstat\033[0m while-in-doing %s returns %s, file_index %s\n", this_outputfile, system("stat " this_outputfile " >/dev/null 2>/dev/null"),file_index
+        # printf "#     DEBUG \033[34mstat\033[0m while-in-doing %s returns %s, file_index %s\n", this_outputfile_gz, system("stat " this_outputfile_gz " >/dev/null 2>/dev/null"),file_index
       }
       while ( system("stat " this_outputfile " >/dev/null 2>/dev/null") == 0 || system("stat " this_outputfile_gz " >/dev/null 2>/dev/null") == 0 ) 
         # stat … 0 indicates an existing file (no error)
         # stat … 1 indicates a non-existing file (i.e. stat return error)
     }
-    # printf "#     DEBUG \033[34mstat\033[0m while-after %s returns %s, fileno %s\n", this_outputfile, system("stat " this_outputfile " >/dev/null 2>/dev/null"),fileno
-    # printf "#     DEBUG \033[34mstat\033[0m while-after %s returns %s, fileno %s\n", this_outputfile_gz, system("stat " this_outputfile_gz " >/dev/null 2>/dev/null"),fileno
-    printf "#     Write: %s ...\n", this_outputfile;
+    # printf "#     DEBUG \033[34mstat\033[0m while-after %s returns %s, file_index %s\n", this_outputfile, system("stat " this_outputfile " >/dev/null 2>/dev/null"),file_index
+    # printf "#     DEBUG \033[34mstat\033[0m while-after %s returns %s, file_index %s\n", this_outputfile_gz, system("stat " this_outputfile_gz " >/dev/null 2>/dev/null"),file_index
+    printf "#     Write: \033[32m%s\033[0m ...\n", this_outputfile;
     current_strlength = 0 # reset 
 }
 { # do each text line
-    this_outputfile = sprintf ("%s%02d%s", this_fileprefix,fileno,this_fileext);
+    this_outputfile = sprintf ("%s%02d%s", this_fileprefix,file_index,this_fileext);
     if (length(headerprefix) > 0 && current_strlength == 0 ) { print headerprefix > this_outputfile; } 
     print $0 > this_outputfile; # write file
 }
 END {
   if (int(this_compress_files) > 0) { 
     this_outputfile_pattern = sprintf ("%s%s%s", this_fileprefix, "*",this_fileext);
-    print "#   DEBUG END script"
+    if (instruct_to_print_debug) { print "#   DEBUG END script" } 
     print "#   Compressing files: \033[34mgzip\033[0m --quiet --force … " this_outputfile_pattern
     system ("gzip --quiet --force " this_outputfile_pattern)
   } 
