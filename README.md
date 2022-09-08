@@ -2,9 +2,11 @@
 
 # glean-cetaf-rdfs (BASH)
 
-Collect and glean RDF data in parallel of stable identifiers of the Consortium of European Taxonomic Facilities (CETAF, ☞&nbsp;[cetaf.org](https://cetaf.org)) and prepare them for import into a SPARQL endpoint. For the documentation of CETAF identifiers read in&#8239;…
+Collect and glean RDF data in parallel of stable identifiers of the Consortium of European Taxonomic Facilities (CETAF, ☞&nbsp;[cetaf.org](https://cetaf.org)) and prepare them for import into a SPARQL endpoint. For the documentation of <abbr title="Consortium of European Taxonomic Facilities">CETAF</abbr> identifiers read in&#8239;…
 - the wiki ☞&nbsp;[cetafidentifiers.biowikifarm.net](https://cetafidentifiers.biowikifarm.net)
 - the **C**ETAF **S**pecimen **P**review **P**rofile (CSPP) on ☞&nbsp;[cetafidentifiers.biowikifarm.net/wiki/CSPP](https://cetafidentifiers.biowikifarm.net/wiki/CSPP)
+
+So in essence these are *C*ETAF *S*pecimen *P*review *P*rofile (CSPP)-identifiers for the preview a real specimen.
 
 ## Overview
 
@@ -52,7 +54,7 @@ Managing later many data sets at once and keep track of them in the triple store
 - http://coldb.mnhn.fr/catalognumber/mnhn/p/ (Paris plants data set)
 - http://coldb.mnhn.fr/catalognumber/mnhn/pc/ (Paris cryptogams data set)
 - http://herbarium.bgbm.org/object/ (BGBM, Berlin all the data)
-- in general, skip the ID-part from the CETAF-ID from the GUID delivered to GBIF occurrences, i.e. `http:// + URL-path-GUID`
+- in general, skip the ID-part from the CSPP-ID from the GUID delivered to GBIF occurrences, i.e. `http:// + URL-path-GUID`
 - aso.
 
 In that way we can query specific GRAPHs and delete, add or overwrite GRAPHs more easily.
@@ -81,29 +83,22 @@ SPARQL endpoint
 
 ## (0) Getting Data
 
-In any way you have to prepare and check available data, for instance: Is there any URI to get RDF from aso.. If you get data from GBIF, you need the `occurrencID`, which GBIF defines it as «a single globally unique identifier for the occurrence record as provided by the publisher» and then you need it better to be an URI. See documentation at https://www.gbif.org/developer/occurrence#predicates, use for instance `basisOfRecord` with the value `"PRESERVED_SPECIMEN"` to get only herbarium sheets or preserved specimens and not just observations for instance.
+In any way you have to prepare and check available data first to deliver RDF from an URI aso.. If you get data lists from GBIF, you need to query the `occurrencID`, which GBIF defines it as *«a single globally unique identifier for the occurrence record as provided by the publisher»*, it can be characters or an URI. See also the technical documentation https://www.gbif.org/developer/occurrence#predicates — and to get only herbarium sheets or preserved specimens, and not just observations for instance, use the filter `basisOfRecord` with the value `"PRESERVED_SPECIMEN"`.
 
-Another way of getting data basically is using the normal interface and click through the occurrences as a table and download then this table:
+Another way of getting GBIF data basically is, using the normal (table) interface and click through the occurrences until you get a table and save it locally (“download”), here an example:
 
 1. https://www.gbif.org/country/DE/about show data sets from Germany
 2. select, e.g. Plantae (at OCCURRENCES PER KINGDOM)
-3. you get a table view https://www.gbif.org/occurrence/search?country=DE&taxon_key=6 and can narrow further if you will (basis of record: Preserved specimen, publisher: Botanical Garden and Museum Berlin https://www.gbif.org/occurrence/search?basis_of_record=PRESERVED_SPECIMEN&country=DE&publishing_org=57254bd0-8256-11d8-b7ed-b8a03c50a862&taxon_key=6)
-4. at the table 3 vertical points you can add columns, add `Occurrence ID`
-5. then you can download this filter combination and proceed to check for http-occurrencIDs
-
+3. you get a table view https://www.gbif.org/occurrence/search?country=DE&taxon_key=6 and can narrow further if you will (basis of record: *Preserved specimen*, publisher: *Botanical Garden and Museum Berlin* https://www.gbif.org/occurrence/search?basis_of_record=PRESERVED_SPECIMEN&country=DE&publishing_org=57254bd0-8256-11d8-b7ed-b8a03c50a862&taxon_key=6)
+4. on the table header click on the 3 vertical points (⋮) then you can add/remove columns, and add `Occurrence ID`
+5. then you can save (“download”) this filter combination and proceed to check for http-URI in the occurrencIDs
 
 ## (1) Download and Harvesting RDFs
 
 In this example we organize all the data (the `/rdf`), and binaries (`./bin`) in `/opt/jena-fuseki/import-sandbox/` that can be read by all necessary users.
 
-
 ``` bash
-/opt/jena-fuseki/import-sandbox/bin/get_RDF4domain_from_urilist_with_ETA.sh -h # show help
-
-# example call, that runs in background (data of https://www.jacq.org)
-cd /opt/jena-fuseki/import-sandbox/rdf/JACQ
-
-# get RDF files, the urilist is a simple list, e.g. with CETAF-IDs like … 
+# get RDF files, the urilist is a simple list, e.g. with CSPP-IDs like … 
 #   https://dr.jacq.org/DR001571
 #   https://dr.jacq.org/DR001583
 #   https://dr.jacq.org/DR001584
@@ -113,12 +108,18 @@ cd /opt/jena-fuseki/import-sandbox/rdf/JACQ
 #   https://dr.jacq.org/DR001585 [tabulator-character] any other information, column, comment or anything
 # aso.
 
+/opt/jena-fuseki/import-sandbox/bin/get_RDF4domain_from_urilist_with_ETA.sh -h # show help
+
+# example call, that runs in background (data of https://www.jacq.org)
+cd /opt/jena-fuseki/import-sandbox/rdf/JACQ
+
+
 # run background job to get RDF
 /opt/jena-fuseki/import-sandbox/bin/get_RDF4domain_from_urilist_with_ETA.sh \
   -u urilist_dr.jacq.org_20220112.txt \
   -j 10 -l \
   -d dr.jacq.org &
-  # -u …… → a simple CSV list to read from the URIs
+  # -u …… → a simple CSV/TSV/TXT list to read from the URIs
   # -j 10 → 10 jobs in parallel
   # -l    → log progress into log file (no console prompt before starting)
   # -d …… → is the label for the “domain“: “dr.jacq.org” to name log files and data files
@@ -127,31 +128,42 @@ cd /opt/jena-fuseki/import-sandbox/rdf/JACQ
 ### Split Huge URI Lists
 
 One may choose to split huge lists of URIs (perhaps above 500.000) because they tend to be interrupted during the RDF gathering, so we split the URI-list into smaller packages. In this example we want to get overall ~12.000.000 RDF files from Paris (`pc` means cryptogams and `p` vascular plants, i.e. only plantish data from Paris URI parts: `…/pc/…` and `…/p/…`), to split the whole ~12.000.000 URIs in the list file `URI_List_Paris_pc-p_20220317.txt` we use `split` command as follows and split all records into parts of 500.000 lines each:
+
 ```bash
 # command usage:
 # split [OPTIONS] ... [FILE                               [PREFIX]]
 # split [OPTIONS] ... URI_List_Paris_pc-p_20220317.txt    URIList20220317_pc-p_per_
-split --verbose \
-  --lines=500000 \
-  --numeric-suffixes=1 \
-  --suffix-length=2 \
+
+# split up the p-collection
+grep "http://coldb.mnhn.fr/catalognumber/mnhn/p/" URI_List_Paris_pc-p_20220317.csv \
+  | split --verbose --numeric-suffixes=1 \
   --additional-suffix=x500000.txt \
-  URI_List_Paris_pc-p_20220317.txt     URIList20220317_pc-p_per_
-# creating file 'URIList20220317_pc-p_per_01x500000.txt'
-# creating file 'URIList20220317_pc-p_per_02x500000.txt'
-# creating file 'URIList20220317_pc-p_per_03x500000.txt'
-# creating file 'URIList20220317_pc-p_per_04x500000.txt'
-# creating file 'URIList20220317_pc-p_per_05x500000.txt'
-# creating file 'URIList20220317_pc-p_per_06x500000.txt'
-# creating file 'URIList20220317_pc-p_per_07x500000.txt'
-# creating file 'URIList20220317_pc-p_per_08x500000.txt'
-# creating file 'URIList20220317_pc-p_per_09x500000.txt'
-# creating file 'URIList20220317_pc-p_per_10x500000.txt'
-# creating file 'URIList20220317_pc-p_per_11x500000.txt'
-# creating file 'URIList20220317_pc-p_per_12x500000.txt'
+  --suffix-length=2 \
+  --lines=500000 - \
+  URIList20220317_collection-p_per_
+# creating file 'URIList20220317_collection-p_per_01x500000.txt'
+# creating file 'URIList20220317_collection-p_per_02x500000.txt'
+# creating file 'URIList20220317_collection-p_per_03x500000.txt'
+# creating file 'URIList20220317_collection-p_per_04x500000.txt'
+# creating file 'URIList20220317_collection-p_per_05x500000.txt'
+# creating file 'URIList20220317_collection-p_per_06x500000.txt'
+# creating file 'URIList20220317_collection-p_per_07x500000.txt'
+# creating file 'URIList20220317_collection-p_per_08x500000.txt'
+# creating file 'URIList20220317_collection-p_per_09x500000.txt'
+# creating file 'URIList20220317_collection-p_per_10x500000.txt'
+# creating file 'URIList20220317_collection-p_per_11x500000.txt'
+
+# split up the pc-collection
+grep "http://coldb.mnhn.fr/catalognumber/mnhn/pc/" URI_List_Paris_pc-p_20220317.csv \
+  | split --verbose --numeric-suffixes=1 \
+  --additional-suffix=x500000.txt \
+  --suffix-length=2 \
+  --lines=500000 - \
+  URIList20220317_collection-pc_per_
+# creating file 'URIList20220317_collection-pc_per_01x500000.txt'
 ```
 
-Then harvesting of it could be done with, e. g. the first URI list `URIList20220317_pc-p_per_01x500000.txt`, like:
+Then harvesting of it could be done with, e. g. the first URI list `URIList20220317_collection-p_per_01x500000.txt`, like:
 
 ```bash
 # mkdir --parents /opt/jena-fuseki/import-sandbox/rdf/Paris
@@ -161,9 +173,9 @@ cd /opt/jena-fuseki/import-sandbox/rdf/Paris
 # -u urilist
 # -j number of parallel jobs
 # -l do log into files
-# -d domain name (here with prefix to describe the steps)
+# -d “domain name” or “descriptor” (here with prefix to describe the steps)
 /opt/jena-fuseki/import-sandbox/bin/get_RDF4domain_from_urilist_with_ETA.sh \
-  -u URIList20220317_pc-p_per_01x500000.txt \
+  -u URIList20220317_collection-p_per_01x500000.txt \
   -j 10 -l \
   -d 01x500000-coldb.mnhn.fr &
   
@@ -183,7 +195,8 @@ To run multiple urilist one after another, you can write a small script looping 
 
 ```bash
 cd /opt/jena-fuseki/import-sandbox/rdf/Finland
-/opt/jena-fuseki/import-sandbox/bin/run-Finland-all-urilists.sh > run-Finland-all-urilists_$(date '+%Y%m%d-%Hh%Mm%Ss').log 2>&1 & 
+/opt/jena-fuseki/import-sandbox/bin/run-Finland-all-urilists.sh \
+  > run-Finland-all-urilists_$(date '+%Y%m%d-%Hh%Mm%Ss').log 2>&1 & 
   # [1] 1916 (this is the Process ID (could be stopped by "kill 1916"))
 ```
 
@@ -253,7 +266,9 @@ find . -iname 'Thread-*coldb.mnhn.fr*.rdf' | parallel -j5  cat {} ">>" Threads_i
 Proceed with:
 1. run `fixRDF_before_validateRDFs.sh -h` to fix and clean the concatenated RDF files to be each a valid RDF
 2. make sure the RDF prefixes are correct, this can take time depending on the input data
-  - e.g. possible error: The prefix `foaf` for element "foaf:depiction" is not bound
+
+  - e.g. possible error: The prefix `foaf` for element "foaf:depiction" is not bound, used in data but not definded on top of the RDF
+  
 3. add missing RDF prefixes if possible
 
 … and proceed with `validate.sh`
@@ -278,7 +293,8 @@ cd /opt/jena-fuseki/import-sandbox/rdf/Finland
   # …
   # Process 002 of 070 in Thread-01_id.luomus.fi_20220616-1704.rdf.gz …
   #    Still 69 job to do, estimated end 0day(s) 0h:9min:55sec
-  #    Read out comperessd Thread-01_id.luomus.fi_20220616-1704.rdf.gz (4028279 bytes) using zcat … > Thread-01_id.luomus.fi_20220616-1704_modified.rdf …
+  #    Read out comperessd Thread-01_id.luomus.fi_20220616-1704.rdf.gz (4028279 bytes) using 
+  #      zcat … > Thread-01_id.luomus.fi_20220616-1704_modified.rdf …
   #    Extract all <rdf:RDF …> to Thread-01_id.luomus.fi_20220616-1704_rdfRDF_headers_extracted.rdf ... 
   #    fix common errors (also check or fix decimalLatitude decimalLongitude data type) ... 
   #    fix RDF (tag ranges: XML-head; XML-stylesheet; DOCTYPE rdf:RDF aso.) ... 
@@ -361,9 +377,10 @@ Note that IRI warnings can also prohibit data import to Fuseki (e.g. by encoding
  
 ## (4) Normalize RDF for Subsequent Import
 
-Normalize data is done with `convertRDF4import_normal-files_……….sh` to prepare import into triple store. Here many modifications are introduced and done:
+Normalize data is done with `convertRDF4import_normal-files_……….sh` to prepare the import into the triple store. Here many modifications are introduced and done:
 - find structural errors (missing values: dc:subject ? etc., e.g. finding '<file:///…>')
-- add ROR-IDs, data type adjustments, add properties to manage query handling using URIs in the SPARQL storage (e. g. `dcterms:isPartOf`)
+- add instiution IDs (ROR-ID or VIAF-ID aso.), data type adjustments
+- add properties to manage query handling using URIs in the SPARQL storage (e. g. `dcterms:isPartOf`)
 
 ``` bash
 /opt/jena-fuseki/import-sandbox/bin/convertRDF4import_normal-files_Paris.sh -h # show help
@@ -395,7 +412,7 @@ TODO describe examples to delete
 
 (TODO describe more)
 
-Better split data into smaller pieces (~50MB) using `patternsplit.awk`; 50MB may take 4 to 15 minutes to import. Before you ran `patternsplit.awk` edit the code section matching the wanted split match.
+Better split data into smaller pieces (~50MB) using `patternsplit.awk`; 50MB may take 4 to 15 minutes to import. Before you ran `patternsplit.awk` edit the code section matching the desired matching to split at.
 
 ``` bash
 gunzip --verbose Threads_import_*20201111-1335.rdf*.trig.gz
@@ -405,7 +422,7 @@ for i in {1..5};do
   -v fileprefix="NHM_import_${i}_" \
   -v fileext=".rdf.normalized.ttl.trig" \
   -v compress_files=1 \
-  -f ~/sandbox/import/bin/patternsplit.awk \
+  -f /opt/jena-fuseki/import-sandbox/bin/patternsplit.awk \
   Threads_import_${i}_20201111-1335.rdf._normalized.ttl.trig
 done
 ```
@@ -436,6 +453,14 @@ docker exec -it fuseki-app bash
   file_pattern="Thread-*${this_domain}*normalized.ttl.trig.gz"
   
   ! [ -e answer-yes.txt ] && echo 'yes' > answer-yes.txt;
+  # run in the background
+  # -d data base
+  # -w working directory
+  # -g graph name to use
+  # -u domain (ULR)
+  # -s search pattern
+  # -l log file of the core import
+  # import_rdf2trig.gz4docker… the log file storing the script’s output
   /import-data/bin/import_rdf2trig.gz4docker-fuseki-app.sh -d CETAF-IDs \
     -w /import-data/rdf/Finland \
     -g ${this_graph} \
