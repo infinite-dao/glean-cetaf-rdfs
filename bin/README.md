@@ -11,4 +11,4 @@ Scripts, and recommended steps up and until import:
     - [`./convertRDF4import_normal-files_Finland.sh`](./convertRDF4import_normal-files_Finland.sh)
     - [`./convertRDF4import_normal-files_Paris.sh`](./convertRDF4import_normal-files_Paris.sh) aso.
     - optional: with the `gawk` program [`./patternsplit.awk`](./patternsplit.awk) to split a large file into handy pieces (e.g. 50MB uncompressed RDF data)
-5. and eventually within the docker-fuseki app: [`./import_rdf2trig.gz4docker-fuseki-app.sh`](./import_rdf2trig.gz4docker-fuseki-app.sh)—import files into the RDF store (which is a docker-container of apache-jena-fuseki)
+5. [`./import_rdf2trig.gz4docker-fuseki-app.sh`](./import_rdf2trig.gz4docker-fuseki-app.sh)—import files into the RDF store (which is a docker-container of apache-jena-fuseki)
