@@ -381,8 +381,8 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
   s@(<https?)(://www.wikidata.org/entity/)(.+)(\s+[.])@\1\2\3 ;\n        <http://purl.org/dc/terms/isPartOf>  <http\2>\4@;
 }
 
-# delete technical stuff
-/^<https?:\/\/[^<>/]+\/[^<>]+=[^<>]+>/ {
+# delete technical stuff, e.g. http://id.herb.oulu.fi/MY.12046523?format=JSONLD
+/^<https?:\/\/[^<>/]+\/[^<>]+[?&]format=[^<>]+>/ {
   :label_uri-entry_technical_data_tobedeleted
   N;    # append lines via \n into patternspace
   /\.$/!b label_uri-entry_technical_data_tobedeleted # loop back to label… if last char is anything but a dot
