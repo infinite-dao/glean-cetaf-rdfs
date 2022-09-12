@@ -24,6 +24,7 @@ DOMAINNAME='jacq.org'
 
 URI_LIST_FILE="urilist_$DOMAINNAME.txt"
 N_JOBS=10
+do_exit=0
 
 DATETIME_NOW_YmdHM=$(date '+%Y%m%d-%H%M')
 # DATETIME_NOW_YmdHM_NANOSECONDS=$(date --rfc-3339 'ns')
@@ -31,7 +32,9 @@ DATETIME_NOW_YmdHM=$(date '+%Y%m%d-%H%M')
 DEBUGLOGFILE=get_RDF4domain_from_urilist_debug.log
 export DEBUGLOGFILE # get it accessible in getrdf_with_urlstatus_check() (?and other functions)
 
-unset LOGFILE PROGRESS_LOGFILE test_mode randomize_urilist do_exit
+PROGRESS_LOGFILE=""
+test_mode=''
+randomize_urilist=''
 
 function logfile_alternative () {
   x_placeholder="XXXXXXXX";
@@ -42,7 +45,6 @@ function logfile_alternative () {
 
 this_wd="$PWD"
 cd "${this_wd}"
-
 
 if ! command -v parallel &> /dev/null
 then
@@ -72,13 +74,14 @@ then
     do_exit=1
 fi
 
-if ! [[ -z ${do_exit// /} || $do_exit -gt 0 ]];then
+
+if [[ $do_exit -gt 0 ]];then
   exit
 fi
 
 function usage() { 
  logfile_alternative;
-  echo    "# ################################################################" 1>&2; 
+  echo    "# ############ Download RDF from List of URIs #################" 1>&2; 
   echo -e "# Usage: \e[34m${0##*/}\e[0m [-u urilist_special.txt] [-j 10] [-d '$DOMAINNAME']" 1>&2; 
   echo -e "#   What does \e[34m${0##*/}\e[0m do?" 1>&2; 
   echo    "#   Download RDF files in parallel from a list of URLs reading a text file into the current working directory." 1>&2; 
@@ -88,7 +91,7 @@ function usage() {
   echo -e "#   -d \e[32m'id.snsb.info'\e[0m ............ domainname of this harvest (default: $DOMAINNAME)" 1>&2; 
   echo    "#   -j 15 ........................ number of parallel jobs (default: $N_JOBS)" 1>&2; 
   echo -e "#   -l ........................... logfile mode, without command prompt (into \e[32m$logfile_alternative\e[0m)" 1>&2; 
-  echo    "#      Note that each Thread has its own log file logging URI and" 1>&2; 
+  echo    "#      Note that each Thread has its own log file, logging URI, and" 1>&2; 
   echo    "#      status code(s) of requests." 1>&2; 
   echo    "#   -t ........................... test mode: run 200 entries only" 1>&2; 
   echo -e "#   -u \e[32murilist_special.txt\e[0m ....... an uri list file (default: \e[32m$URI_LIST_FILE\e[0m)" 1>&2; 
@@ -112,7 +115,7 @@ function usage() {
   echo -e "#   (2) kill process ID (PID) of \e[34m/usr/bin/perl parallel\e[0m, find it by:" 1>&2; 
   echo -e "#       \e[1;34mps\e[0m\e[1m -fp \$( \e[1;34mpgrep\e[0m\e[1m -d, --full parallel )\e[0m " 1>&2; 
   echo    "# ################################################################" 1>&2; 
-  exit 1; 
+  # exit 1; 
 }
 
 function processinfo () {
@@ -149,12 +152,13 @@ echo -ne "# Do you want to proceed with downloading?\n# [\e[32myes\e[0m or \e[31
 
 }
 
+
 if [[ ${#} -eq 0 ]]; then
     usage; exit 0;
 fi
 
 # read command line options (those with a colon require a mandatory option argument)
-while getopts "d:h:j:u:lrt" o; do
+while getopts "d:hj:u:lrt" o; do
     case $o in
         d)
             DOMAINNAME=${OPTARG}
@@ -172,7 +176,9 @@ while getopts "d:h:j:u:lrt" o; do
             export N_JOBS # export to make it accessible in function getrdf_with_urlstatus_check()
             ;;
         l)
-            PROGRESS_LOGFILE=${OPTARG}
+            if [[ -n "${OPTARG:-}" ]]; then
+              PROGRESS_LOGFILE=${OPTARG}
+            fi
             if   [[ -z ${PROGRESS_LOGFILE// /} ]] ; then logfile_alternative; PROGRESS_LOGFILE="$logfile_alternative" ; fi
             ;;
         u)
@@ -185,7 +191,7 @@ while getopts "d:h:j:u:lrt" o; do
             randomize_urilist='yes'
             ;;
         *)
-            usage
+            usage; exit 0;
             ;;
     esac
 done
