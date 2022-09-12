@@ -410,12 +410,18 @@ TODO describe examples to delete
 
 ### Prepare file sizes
 
-(TODO describe more)
-
 Better split data into smaller pieces (~50MB) using `patternsplit.awk`; 50MB may take 4 to 15 minutes to import. Before you ran `patternsplit.awk` edit the code section matching the desired matching to split at.
 
 ``` bash
 gunzip --verbose Threads_import_*20201111-1335.rdf*.trig.gz
+ls -l Threads_import_*20201111-1335.rdf*.trig*  | awk '{print "# size: " $5 " file: " $9}'
+# size: 268447590 file: Threads_import_1_20201111-1335.rdf._normalized.ttl.trig
+# size: 268513428 file: Threads_import_2_20201111-1335.rdf._normalized.ttl.trig
+# size: 269791577 file: Threads_import_3_20201111-1335.rdf._normalized.ttl.trig
+# size: 269036455 file: Threads_import_4_20201111-1335.rdf._normalized.ttl.trig
+# size: 267612212 file: Threads_import_5_20201111-1335.rdf._normalized.ttl.trig
+# files about 250 MB
+
 for i in {1..5};do
   # set max_strlen=50000000 ?50MB?
   awk \
@@ -425,15 +431,24 @@ for i in {1..5};do
   -f /opt/jena-fuseki/import-sandbox/bin/patternsplit.awk \
   Threads_import_${i}_20201111-1335.rdf._normalized.ttl.trig
 done
+# NHM_import_1_01.rdf.normalized.ttl.trig
+# NHM_import_1_02.rdf.normalized.ttl.trig
+# NHM_import_1_03.rdf.normalized.ttl.trig
+# NHM_import_1_04.rdf.normalized.ttl.trig
+# aso.
+# NHM_import_5_03.rdf.normalized.ttl.trig
+# NHM_import_5_04.rdf.normalized.ttl.trig
+# NHM_import_5_05.rdf.normalized.ttl.trig
+# NHM_import_5_06.rdf.normalized.ttl.trig
 ```
 
-Import the data into the docker app, here as default GRAPH (not recommended, better use named GRAPHs) and interactively:
+Import the data into the docker app, here as **default GRAPH** (not recommended, better use named GRAPHs) and interactively:
 
 ``` bash
 # docker ps # list only running containers
 docker exec -it fuseki-app bash  # enter docker-container
   cd /import-data/bin/
-  # import data 
+  # import data (to default data set CETAF-IDs, into default GRAPH)
   /import-data/bin/import_rdf2trig.gz4docker-fuseki-app.sh -h  # get help
   /import-data/bin/import_rdf2trig.gz4docker-fuseki-app.sh \
     -w '/import-data/rdf/tmpimport-nhm' \
@@ -441,13 +456,13 @@ docker exec -it fuseki-app bash  # enter docker-container
     -d 'data.nhm.ac.uk'
 ```
 
-Import the data unsing a named GRAPH-IRI and also run it in the background:
+Import the data unsing a **named GRAPH**-IRI and also run it in the background:
 
 ```bash
-docker exec -it fuseki-app bash
 # enter docker-container
+docker exec -it fuseki-app bash
 
-  cd /import-data/rdf/Finland
+  this_working_directory=/import-data/rdf/Finland
   this_domain="id.luomus.fi"         # 
   this_graph="http://${this_domain}" # http://id.luomus.fi will be the GRAPH
   file_pattern="Thread-*${this_domain}*normalized.ttl.trig.gz"
@@ -457,18 +472,20 @@ docker exec -it fuseki-app bash
   # -d data base
   # -w working directory
   # -g graph name to use
-  # -u domain (ULR)
+  # -u (ULR) domain 
   # -s search pattern
-  # -l log file of the core import
+  # -l log file of the fuseki import
   # import_rdf2trig.gz4docker… the log file storing the script’s output
   /import-data/bin/import_rdf2trig.gz4docker-fuseki-app.sh -d CETAF-IDs \
-    -w /import-data/rdf/Finland \
+    -w ${this_working_directory} \
     -g ${this_graph} \
     -u ${this_domain} \
     -s "$file_pattern" \
     -l Import_GRAPH-${this_domain}_$(date '+%Y%m%d-%H%M%S').log \
     < answer-yes.txt  > \
     import_rdf2trig.gz4docker-fuseki-app_GRAPH-${this_domain}_$(date '+%Y%m%d-%Hh%Mm%Ss').log 2>&1 &
+  
+  cd "${this_working_directory}" && ls -lt --reverse # long list format, by time sorting, reversed
 ```
 
 
