@@ -13,6 +13,7 @@ set -eu
 
 ########################### Settings
 apache_jena_bin=""
+debug_mode=0
 
 # # # # 
 # find latest version of apache jena assume apache_jena_bin in: ~/Programme OR ~ OR /opt/jena-fuseki/import-sandbox/bin
