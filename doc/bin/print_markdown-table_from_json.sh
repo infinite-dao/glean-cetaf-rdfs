@@ -9,23 +9,31 @@ set -eu
 
 this_json_file=${!#}
 this_sortByKey_default=2.1h # first is index column
-this_sortByKey=$this_sortByKey_default
+    this_sortByKey=$this_sortByKey_default
+this_sortByKeyFiledSeparator='|'
+    this_sortByKeyFiledSeparator_default=$this_sortByKeyFiledSeparator
+this_showIndex=1
+this_showDebug=0
 
 function usage() { 
   echo    "############ Print Markdown Table from JSON (Fuseki Results) #########"
   echo -e "# Usage example: \e[32m${0##*/}\e[0m count_cspp_title_Paris_20220822.json" 1>&2; 
   echo -e "# (sorting is done as well see «sort … --key=${this_sortByKey_default}» for the field/column: ${this_sortByKey_default%.*})" 1>&2; 
-  echo    "#   -h  ...................................... show this help usage" 1>&2; 
-  echo    "#   -k 3.1nr ..................................... sorting key: by 3rd column numeric reverse" 1>&2; 
+  echo    "#   -h  ........... show this help usage" 1>&2; 
+  echo    "#   -k 3.1nr ...... sorting key: by 3rd field, but 2nd column numeric reverse" 1>&2; 
   echo    "#       n - numeric sorting" 1>&2; 
   echo    "#       r - reverse sorting" 1>&2; 
-  echo    "#       b - ignore leading blanks" 1>&2; 
+  echo    "#       b - ignore leading blanks (useful for sorting alphabetically)" 1>&2; 
   echo    "#       h - human-numeric-sort" 1>&2; 
   echo    "#       f - ignore case, aso. see «man sort»" 1>&2; 
+  echo    "#   -d  ........... show debug sorting of columns" 1>&2; 
+  echo    "#   -f  '/' ....... set another field separator for sorting of columns (default: ${this_sortByKeyFiledSeparator_default} )" 1>&2; 
+  echo    "#                   (you have to take care of -k then, check it with debug sorting using -d)" 1>&2; 
+  echo    "#   -n  ........... show no index column" 1>&2; 
   echo -e "# \e[33mNeeds a decent version of command column (from util-linux, to have «--output-separator»)\e[0m" 1>&2; 
 }
 
-while getopts ":k:h" o; do
+while getopts ":k:hndf:" o; do
     case "${o}" in
         k)
             this_sortByKey=${OPTARG};
@@ -34,8 +42,21 @@ while getopts ":k:h" o; do
                 this_sortByKey=$this_sortByKey_default;
             fi
             ;;
+        f)
+            this_sortByKeyFiledSeparator=${OPTARG};
+            # if ! [[ $this_sortByKeyFiledSeparator =~ ^some-regexp$ ]];then
+            # echo -e "\e[31m# sorting field separator $this_sortByKeyFiledSeparator cannot be used, sorting now by default field separator: ${this_sortByKeyFiledSeparator_default}\e[0m" 1>&2
+            #     $this_sortByKeyFiledSeparator=$this_sortByKeyFiledSeparator_default;
+            # fi
+            ;;
         h)
             usage; exit 0;
+            ;;
+        d)
+            this_showDebug=1;
+            ;;
+        n)
+            this_showIndex=0;
             ;;
         *)
             usage; exit 0;
@@ -59,8 +80,15 @@ if ! [[ $(echo "$this_file_type_summary" | grep --ignore-case "json.\+data" ) ]]
     exit 1;
 fi
 
-# --key=5.1b sorts type_example
+this_sortDebugOption=$( [[ $this_showDebug -gt 0 ]] && echo " --debug " || echo "" )
+
+if [[ $this_showIndex -gt 0 ]];then
 cat "$this_json_file"  | jq --raw-output '.head.vars | @tsv' | sed --regexp-extended 's@^@| # | @; s@$@ |@; s@[\t]@ | @g; h; s@[^|]@-@g;x;G;'
 cat "$this_json_file" | jq --raw-output '.head.vars as $fields | .results.bindings[] |  [.[($fields[])].value] |@tsv' \
-    | sed --regexp-extended 's@^@| @; s@$@ |@; s@[\t]@ | @g;' | column --table --separator '|' --output-separator '|' | sort --field-separator='|' --key=${this_sortByKey}  \
+    | sed --regexp-extended 's@^@| @; s@$@ |@; s@[\t]@ | @g;' | column --table --separator '|' --output-separator '|' | sort ${this_sortDebugOption} --field-separator=$this_sortByKeyFiledSeparator --key=${this_sortByKey}  \
     | sed "=" | sed --regexp-extended "/^[[:digit:]]/{ N; s@(^[[:digit:]]+)\n@| \1 @; }"
+else
+cat "$this_json_file"  | jq --raw-output '.head.vars | @tsv' | sed --regexp-extended 's@^@| @;     s@$@ |@; s@[\t]@ | @g; h; s@[^|]@-@g;x;G;'
+cat "$this_json_file" | jq --raw-output '.head.vars as $fields | .results.bindings[] |  [.[($fields[])].value] |@tsv' \
+    | sed --regexp-extended 's@^@| @; s@$@ |@; s@[\t]@ | @g;' | column --table --separator '|' --output-separator '|' | sort ${this_sortDebugOption} --field-separator=$this_sortByKeyFiledSeparator --key=${this_sortByKey} 
+fi
