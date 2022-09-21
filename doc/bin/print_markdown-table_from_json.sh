@@ -10,10 +10,34 @@ set -eu
 this_json_file=${!#}
 this_sortByKey_default=2.1h # first is index column
     this_sortByKey=$this_sortByKey_default
-this_sortByKeyFiledSeparator='|'
-    this_sortByKeyFiledSeparator_default=$this_sortByKeyFiledSeparator
+this_sortByKeyFiledSeparator_default='|'
+    this_sortByKeyFiledSeparator=$this_sortByKeyFiledSeparator_default
 this_showIndex=1
 this_showDebug=0
+do_exit=0
+
+if ! command -v jq &> /dev/null
+then
+    echo -e "\e[31m# Error: Command jq could not be found. Please install it.\e[0m"
+    do_exit=1
+fi
+if ! command -v sed &> /dev/null 
+then
+    echo -e "# \e[31mError: command sed (stream editor) could not be found. Please install package sed.\e[0m"
+    doexit=1
+fi
+
+if ! command -v echo "| test | test test |" | column  --table --separator '|' --output-separator '|' &> /dev/null 
+then
+    echo -e "# \e[31mError: program column seems not right, we need a decent version of it (from util-linux, to have «--output-separator»).\e[0m"
+    doexit=1
+fi
+
+
+if [[ $do_exit -gt 0 ]];then
+  exit 1;
+fi
+
 
 function usage() { 
   echo    "############ Print Markdown Table from JSON (Fuseki Results) #########"
