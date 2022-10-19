@@ -184,7 +184,6 @@ function usage() {
   echo    "#   -h  ...................................... show this help usage" 1>&2;
   echo -e "#   -s  \e[32m'Thread*file-search-pattern*.rdf'\e[0m .... optional specific search pattern" 1>&2;
   echo -e "#       Note: better use quotes for pattern with asterisk '*pattern*' (default: '$(file_search_pattern_default)')" 1>&2;
-  exit 1;
 }
 
 
@@ -245,10 +244,11 @@ while getopts ":s:h" o; do
             file_search_pattern=$( [[ -z ${this_file_search_pattern// /} ]] && echo "$(file_search_pattern_default)" || echo "$this_file_search_pattern" );
             ;;
         *)
-            usage
+            usage; exit 0;
             ;;
     esac
 done
+shift "$((OPTIND-1))"
 
 
 # set (i)ndex and (n)umber of files alltogether
@@ -348,21 +348,21 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
 
   # check for decimal numbers to round
   echo -en "# \e[32m      check for geographic digits at 5 digits (about 1m accuracy) ...\e[0m"
-  
-  this_files_long_decimal_numbers=""
-  this_files_long_decimal_numbers=` grep --max-count=1 --only-matching --files-with-matches --extended-regexp "(decimal(Latitude|Longitude)>|wgs84_pos#(lat|long)>) \"-?[0-9]+\.[0-9]{6,}\"" "${import_ttl_normalized}"`
-  
-  if ! [[ -z ${this_files_long_decimal_numbers//[\t ]/} ]];then
-  echo -en "# \e[32mproceed and round numbers ...\e[0m\n"
-    grep --max-count=1 --only-matching --files-with-matches --extended-regexp "(decimal(Latitude|Longitude)>|wgs84_pos#(lat|long)>) \"-?[0-9]+\.[0-9]{6,}\"" "${import_ttl_normalized}" \
-    | while read this_filename ; do perl -i -pe '
-    s/(?<=decimalLatitude> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge; 
-    s/(?<=decimalLongitude> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge; 
-    s/(?<=wgs84_pos#lat> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge; 
-    s/(?<=wgs84_pos#long> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge;' \
-    "$this_filename"; done
+  #### Notice:
+  # grepe can find digits but the pattern may not match: this evaluates as exit code 1 
+  # (and using set -e it stops the entire script, so testing it within if … is safe; redirect 2>/dev/null does not help to continue the script)
+  #### Notice:
+  if grep --max-count=1 --only-matching --files-with-matches --extended-regexp '(decimal(Latitude|Longitude)>|wgs84_pos#(lat|long)>) "-?[0-9]+\.[0-9]{6,}"' "${import_ttl_normalized}"; then
+    echo -en " \e[32mproceed and round numbers ...\e[0m\n"
+      grep --max-count=1 --only-matching --files-with-matches --extended-regexp '(decimal(Latitude|Longitude)>|wgs84_pos#(lat|long)>) "-?[0-9]+\.[0-9]{6,}"' "${import_ttl_normalized}" \
+      | while read this_filename ; do perl -i -pe '
+      s/(?<=decimalLatitude> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge; 
+      s/(?<=decimalLongitude> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge; 
+      s/(?<=wgs84_pos#lat> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge; 
+      s/(?<=wgs84_pos#long> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge;' \
+      "$this_filename"; done
   else
-  echo -en "# \e[32mno number match found\e[0m\n"  
+    echo -en " \e[32mno numbers to convert\e[0m\n"  
   fi
 
 # plus trig format
@@ -375,24 +375,24 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
   # ## ROR_OR_INSTITUTION of www.botanicalcollections.be/specimen/ --- https://ror.org/01h1jbk91
   /^<https?:\/\/www.botanicalcollections.be\/specimen\/[^<>/]+>/ {
     :label_uri-entry_www.botanicalcollections.beSLASHspecimenSLASH
-    N                                     # append lines via \n into patternspace
+  N                                     # append lines via \n into patternspace
     / \.$/!b label_uri-entry_www.botanicalcollections.beSLASHspecimenSLASH # go back if last char is not a dot
-    # add ROR_OR_INSTITUTION ID eventually to the final dot, and remove possible duplicates
+  # add ROR_OR_INSTITUTION ID eventually to the final dot, and remove possible duplicates
       s@(\s+[.])$@ ;\n        <http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/01h1jbk91>\1@;
       s@<http://rs.tdwg.org/dwc/terms/institutionID>  <https://ror.org/01h1jbk91>\s+[;]\n +(<.+)(<http://rs.tdwg.org/dwc/terms/institutionID>  https://ror.org/01h1jbk91 .)@\1\2@; 
-    # add dcterms:isPartOf, dcterms:hasPart, dcterms:conformsTo
-    s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_(CSPP)>\1@;
-    s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
-    s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\1\2@;
+  # add dcterms:isPartOf, dcterms:hasPart, dcterms:conformsTo
+  s@(\s+[.])$@ ;\n        <http://purl.org/dc/terms/conformsTo>  <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_(CSPP)>\1@;
+  s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://www.wikidata.org/entity/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://www.wikidata.org/entity/> ;\1\2@;
+  s@(\n +<http://rs.tdwg.org/dwc/iri/recordedBy>  <http://viaf.org/viaf/[^<>]+>\s+[;.])(\n +<.+[.])$@\n        <http://purl.org/dc/terms/hasPart>  <http://viaf.org/viaf/> ;\1\2@;
   } ## end ROR_OR_INSTITUTION www.botanicalcollections.be/specimen/
 
-  # http://www.wikidata.org/entity/
-  /^<https?:\/\/www.wikidata.org\/entity\/[^<>/]+>/ {
-    :label_uri-entry_www.wikidata.orSLASHentitySLASH
-    N;    # append lines via \n into patternspace
-    /\.$/!b label_uri-entry_www.wikidata.orSLASHentitySLASH # loop back to label… if last char is anything but a dot
-    s@(<https?)(://www.wikidata.org/entity/)(.+)(\s+[.])@\1\2\3 ;\n        <http://purl.org/dc/terms/isPartOf>  <http\2>\4@;
-  }
+# http://www.wikidata.org/entity/
+/^<https?:\/\/www.wikidata.org\/entity\/[^<>/]+>/ {
+  :label_uri-entry_www.wikidata.orSLASHentitySLASH
+  N;    # append lines via \n into patternspace
+  /\.$/!b label_uri-entry_www.wikidata.orSLASHentitySLASH # loop back to label… if last char is anything but a dot
+  s@(<https?)(://www.wikidata.org/entity/)(.+)(\s+[.])@\1\2\3 ;\n        <http://purl.org/dc/terms/isPartOf>  <http\2>\4@;
+}
 
   '  "${import_ttl_normalized}.trig"
 
@@ -456,7 +456,7 @@ fi
 echo  -e "# \e[32mNow you can import the normalised *.trig or *.ttl files to Apache Jena\e[0m"
 echo  -e "# \e[32m# # # # Modifications # # # # # # # # # #\e[0m"
 echo  -e "# \e[32mAdded: \e[1;34mdcterms:conformsTo <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_(CSPP)>\e[32m\e[0m"
-echo  -e "# \e[32mAdded some \e[1;34mdwcterms:institutionID <http://ror.org/…ID…>\e[32m\e[0m"
+echo  -e "# \e[32mAdded some \e[1;34mdwc:institutionID <http://ror.org/…ID…>\e[32m\e[0m"
 echo  -e "# \e[32mMaybe added \e[1;34mdcterms:isPartOf <http://www.wikidata.org/entity/>\e[32m \e[0m"
 echo  -e "# \e[32mMaybe added \e[1;34mdcterms:hasPart  <http://www.wikidata.org/entity/>\e[32m \e[0m"
 echo  -e "# \e[32mMaybe added \e[1;34mdcterms:isPartOf <http://viaf.org/viaf/>\e[32m \e[0m"
