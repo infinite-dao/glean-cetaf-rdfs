@@ -348,21 +348,21 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
 
   # check for decimal numbers to round
   echo -en "# \e[32m      check for geographic digits at 5 digits (about 1m accuracy) ...\e[0m"
-  
-  this_files_long_decimal_numbers=""
-  this_files_long_decimal_numbers=` grep --max-count=1 --only-matching --files-with-matches --extended-regexp "(decimal(Latitude|Longitude)>|wgs84_pos#(lat|long)>) \"-?[0-9]+\.[0-9]{6,}\"" "${import_ttl_normalized}"`
-  
-  if ! [[ -z ${this_files_long_decimal_numbers//[\t ]/} ]];then
-  echo -en "# \e[32mproceed and round numbers ...\e[0m\n"
-    grep --max-count=1 --only-matching --files-with-matches --extended-regexp "(decimal(Latitude|Longitude)>|wgs84_pos#(lat|long)>) \"-?[0-9]+\.[0-9]{6,}\"" "${import_ttl_normalized}" \
-    | while read this_filename ; do perl -i -pe '
-    s/(?<=decimalLatitude> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge; 
-    s/(?<=decimalLongitude> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge; 
-    s/(?<=wgs84_pos#lat> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge; 
-    s/(?<=wgs84_pos#long> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge;' \
-    "$this_filename"; done
+  #### Notice:
+  # grepe can find digits but the pattern may not match: this evaluates as exit code 1 
+  # (and using set -e it stops the entire script, so testing it within if … is safe; redirect 2>/dev/null does not help to continue the script)
+  #### Notice:
+  if grep --max-count=1 --only-matching --files-with-matches --extended-regexp '(decimal(Latitude|Longitude)>|wgs84_pos#(lat|long)>) "-?[0-9]+\.[0-9]{6,}"' "${import_ttl_normalized}"; then
+    echo -en " \e[32mproceed and round numbers ...\e[0m\n"
+      grep --max-count=1 --only-matching --files-with-matches --extended-regexp '(decimal(Latitude|Longitude)>|wgs84_pos#(lat|long)>) "-?[0-9]+\.[0-9]{6,}"' "${import_ttl_normalized}" \
+      | while read this_filename ; do perl -i -pe '
+      s/(?<=decimalLatitude> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge; 
+      s/(?<=decimalLongitude> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge; 
+      s/(?<=wgs84_pos#lat> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge; 
+      s/(?<=wgs84_pos#long> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge;' \
+      "$this_filename"; done
   else
-  echo -en "# \e[32mno number match found\e[0m\n"  
+    echo -en " \e[32mno numbers to convert\e[0m\n"  
   fi
 
 # plus trig format
