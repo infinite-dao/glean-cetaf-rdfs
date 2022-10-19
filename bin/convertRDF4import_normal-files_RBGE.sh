@@ -172,18 +172,18 @@ get_timediff_for_njobs_new () {
 export -f get_timediff_for_njobs_new 
 get_timediff_for_njobs_new --test
 
+
 function file_search_pattern_default () {
-  file_search_pattern_default=`printf "Threads_import_*_%s.rdf" $(date '+%Y%m%d')`
+  printf "Thread-[0-9]*-*%s*_modified.rdf.gz" $(date '+%Y%m%d')
 }
-file_search_pattern_default
+export file_search_pattern_default
 
 function usage() {
   echo -e "# Convert RDF into TriG format (*.trig) format " 1>&2;
   echo -e "# Usage: \e[32m${0##*/}\e[0m [-s 'Thread*file-search-pattern*.rdf']" 1>&2;
   echo    "#   -h  ...................................... show this help usage" 1>&2;
   echo -e "#   -s  \e[32m'Thread*file-search-pattern*.rdf'\e[0m .... optional specific search pattern" 1>&2;
-  echo -e "#       Note: better use quotes for pattern with asterisk '*pattern*' (default: '${file_search_pattern_default}')" 1>&2;
-  exit 1;
+  echo -e "#       Note: better use quotes for pattern with asterisk '*pattern*' (default: '$(file_search_pattern_default)')" 1>&2;
 }
 
 
@@ -236,11 +236,15 @@ while getopts ":s:h" o; do
             usage; exit 0;
             ;;
         s)
-            file_search_pattern=${OPTARG}
-            if   [[ -z ${file_search_pattern// /} ]] ; then file_search_pattern_default; file_search_pattern="$file_search_pattern_default" ; fi
+            # TODO problems when file_search_pattern is not wrapped by quotes
+            this_file_search_pattern=${OPTARG} 
+            if [[ $this_file_search_pattern =~ ^- ]];then # the next option was given without this option having an argument
+              echo -e "\e[33mOption Error:\e[0m option -s requires an argument, please specify e.g. \e[3m-s 'Thread*file-search-pattern*.rdf.gz'\e[0m or let it run without -s option (default: '\e[32m$(file_search_pattern_default)\e[0m')."; exit 1;
+            fi
+            file_search_pattern=$( [[ -z ${this_file_search_pattern// /} ]] && echo "$(file_search_pattern_default)" || echo "$this_file_search_pattern" );
             ;;
         *)
-            usage
+            usage; exit 0;
             ;;
     esac
 done
@@ -251,6 +255,7 @@ shift "$((OPTIND-1))"
 i=1; 
 n=`find . -maxdepth 1 -type f -iname "${file_search_pattern}" | wc -l `
 n_parsed=`find . -maxdepth 1 -type f -iname "${file_search_pattern}*.ttl*" -or -iname "${file_search_pattern}*.log*" | wc -l `
+
 
 processinfo
 read yno
@@ -279,7 +284,6 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
     gunzip --quiet "$rdfFilePath"; 
     rdfFilePath=${rdfFilePath/%.gz/}
   fi
-
   import_ttl="${rdfFilePath}.ttl"
   import_ttl_normalized="${rdfFilePath}.normalized.ttl"
   log_rdfparse_warnEtError="${rdfFilePath}.ttl-warn-or-error.log"
@@ -344,21 +348,21 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
 
   # check for decimal numbers to round
   echo -en "# \e[32m      check for geographic digits at 5 digits (about 1m accuracy) ...\e[0m"
-  
-  this_files_long_decimal_numbers=""
-  this_files_long_decimal_numbers=` grep --max-count=1 --only-matching --files-with-matches --extended-regexp "(decimal(Latitude|Longitude)>|wgs84_pos#(lat|long)>) \"-?[0-9]+\.[0-9]{6,}\"" "${import_ttl_normalized}"`
-  
-  if ! [[ -z ${this_files_long_decimal_numbers//[\t ]/} ]];then
-  echo -en "# \e[32mproceed and round numbers ...\e[0m\n"
-    grep --max-count=1 --only-matching --files-with-matches --extended-regexp "(decimal(Latitude|Longitude)>|wgs84_pos#(lat|long)>) \"-?[0-9]+\.[0-9]{6,}\"" "${import_ttl_normalized}" \
-    | while read this_filename ; do perl -i -pe '
-    s/(?<=decimalLatitude> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge; 
-    s/(?<=decimalLongitude> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge; 
-    s/(?<=wgs84_pos#lat> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge; 
-    s/(?<=wgs84_pos#long> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge;' \
-    "$this_filename"; done
+  #### Notice:
+  # grepe can find digits but the pattern may not match: this evaluates as exit code 1 
+  # (and using set -e it stops the entire script, so testing it within if … is safe; redirect 2>/dev/null does not help to continue the script)
+  #### Notice:
+  if grep --max-count=1 --only-matching --files-with-matches --extended-regexp '(decimal(Latitude|Longitude)>|wgs84_pos#(lat|long)>) "-?[0-9]+\.[0-9]{6,}"' "${import_ttl_normalized}"; then
+    echo -en " \e[32mproceed and round numbers ...\e[0m\n"
+      grep --max-count=1 --only-matching --files-with-matches --extended-regexp '(decimal(Latitude|Longitude)>|wgs84_pos#(lat|long)>) "-?[0-9]+\.[0-9]{6,}"' "${import_ttl_normalized}" \
+      | while read this_filename ; do perl -i -pe '
+      s/(?<=decimalLatitude> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge; 
+      s/(?<=decimalLongitude> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge; 
+      s/(?<=wgs84_pos#lat> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge; 
+      s/(?<=wgs84_pos#long> ")-?[0-9]+\.[0-9]{6,}(?=")/sprintf("%.5f",$&)/ge;' \
+      "$this_filename"; done
   else
-  echo -en "# \e[32mno number match found\e[0m\n"  
+    echo -en " \e[32mno numbers to convert\e[0m\n"  
   fi
 
 # plus trig format
@@ -385,7 +389,7 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
   s@(<http://purl.org/dc/terms/publisher>  <http://www.rbge.org.uk>\s+[;]\n +)(<.+)(<http://purl.org/dc/terms/publisher>  <http://www.rbge.org.uk> .)@\2\3@;
 
 } ## end ROR_OR_INSTITUTION data.rbge.org.uk/herb/
-  
+
 # http://www.wikidata.org/entity/
 /^<https?:\/\/www.wikidata.org\/entity\/[^<>/]+>/ {
   :label_uri-entry_www.wikidata.orSLASHentitySLASH
@@ -393,7 +397,7 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
   /\.$/!b label_uri-entry_www.wikidata.orSLASHentitySLASH # loop back to label… if last char is anything but a dot
   s@(<https?)(://www.wikidata.org/entity/)(.+)(\s+[.])@\1\2\3 ;\n        <http://purl.org/dc/terms/isPartOf>  <http\2>\4@;
 }
- 
+
   '  "${import_ttl_normalized}.trig"
 
   if [[ $debug_mode -gt 0  ]];then
@@ -432,6 +436,7 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
     echo -e  "# \e[31m      warnings and errors in other log files (gzip)      ${rdfFilePath##*/}*.log.gz ...\e[0m" ;
     gzip --force "${rdfFilePath##*/}"*.log
   fi
+
   # increase index
   i=$((i + 1 ))
 done
@@ -453,4 +458,11 @@ else
 echo  -e "# \e[32m   No log files generated (i.e. it seems no errors, warnings)\e[0m"
 fi
 echo  -e "# \e[32mNow you can import the normalised *.trig or *.ttl files to Apache Jena\e[0m"
+echo  -e "# \e[32m# # # # Modifications # # # # # # # # # #\e[0m"
+echo  -e "# \e[32mAdded: \e[1;34mdcterms:conformsTo <https://cetafidentifiers.biowikifarm.net/wiki/CETAF_Specimen_Preview_Profile_(CSPP)>\e[32m\e[0m"
+echo  -e "# \e[32mAdded some \e[1;34mdwc:institutionID <http://ror.org/…ID…>\e[32m\e[0m"
+echo  -e "# \e[32mMaybe added \e[1;34mdcterms:isPartOf <http://www.wikidata.org/entity/>\e[32m \e[0m"
+echo  -e "# \e[32mMaybe added \e[1;34mdcterms:hasPart  <http://www.wikidata.org/entity/>\e[32m \e[0m"
+echo  -e "# \e[32mMaybe added \e[1;34mdcterms:isPartOf <http://viaf.org/viaf/>\e[32m \e[0m"
+echo  -e "# \e[32mMaybe added \e[1;34mdcterms:hasPart  <http://viaf.org/viaf/>\e[32m \e[0m"
 echo  -e "\e[32m#########################################\e[0m"
