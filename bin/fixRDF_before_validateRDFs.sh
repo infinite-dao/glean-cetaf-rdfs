@@ -285,14 +285,27 @@ for this_file in `ls $file_search_pattern | sort --version-sort`; do
   if ! [[ -e "${this_file_modified}" ]]; then
     echo -e "#    \e[31mError:\e[0m File not found to process: $this_file_modified (skip to next step)";
     continue;
+  else
+    sed --in-place 's@\r@@g' "${this_file_modified}" # to get sed properly working remove \r
   fi
   
   this_file_modified_mimetype=$(file --mime-type "${this_file_modified}" | sed -r 's@.*: ([^:]+)@\1@')
-  if ! [[ "${this_file_modified_mimetype}" == "text/xml" ]];then
+  # if ! [[ "${this_file_modified_mimetype}" == "text/xml" ]];then
+  #   echo -e "#    \e[31mError:\e[0m Please fix wrong file type: ${this_file_modified_mimetype}, we expects file type “text/xml” (skip to next step)";
+  #   continue;
+  # fi
+  case "${this_file_modified_mimetype}" in
+    "text/xml") # expected
+    ;;
+    "text/html")
+    echo -e "#    \e[32mFile seems interupted or seems to have HTML in it (file type: ${this_file_modified_mimetype})\e[0m" 
+    ;;
+    *)
     echo -e "#    \e[31mError:\e[0m Please fix wrong file type: ${this_file_modified_mimetype}, we expects file type “text/xml” (skip to next step)";
     continue;
-  fi
-
+    ;;
+  esac
+    
   echo -e "#    \e[32mExtract all\e[0m <rdf:RDF …> to \e[3m${this_file_headers_extracted}\e[0m ... " 
 
   # TODO check correct functioning
@@ -391,19 +404,18 @@ for this_file in `ls $file_search_pattern | sort --version-sort`; do
   # replace all <rdf:RDF…> but the first
   ' "${this_file_modified}"
   
-  sed --regexp-extended --in-place '  
-  0,/<\?xml/{
-    /<!--/,/<\?xml/{
-     N; s@(<!--.+-->\n?)(<\?xml[[:space:]\n][^>]+\?>)@\2\1@; 
-    }
-  };
-  # move comments that may be there before first starting <?xml…>
+  sed --regexp-extended --in-place '
+  # remove comments that may be there before first starting <?xml…>
+  0,/<\?xml/ {  
+    /<\?xml/! d  # delete all comments before first <?xml
+    /^.+<\?xml/ { s@^.+(<\?xml)@\1@ }
+  } 
   
+  # replace all DOCTYPE rdf
   /<!DOCTYPE rdf:RDF/,/\[/ {     
       :label_DOCTYPE; N;   /<!DOCTYPE rdf:RDF.+\]>/!b label_DOCTYPE;  
       s@(<!DOCTYPE rdf:RDF.+\]>)@<!-- DOCTYPE rdf:RDF REPLACED -->@
   }
-  # replace all DOCTYPE rdf
   
   # 0,/<rdf:RDF/!{
   #   /<rdf:RDF/,/>/ { # Note: it can have newline <rdf:RDF[\n or [:space:]+] …>
