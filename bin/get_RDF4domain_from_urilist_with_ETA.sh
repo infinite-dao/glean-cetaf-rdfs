@@ -508,8 +508,8 @@ if   [[ -z ${PROGRESS_LOGFILE// /} ]] ; then
   
   $exec_datediff "$datetime_start" "$datetime_end" -f "# Done. $TOTAL_JOBS jobs took %dd  %0Hh:%0Mm:%0Ss using $N_JOBS parallel connections" 
   echo -e "# Hint: use \e[1;34mzgrep\e[0m or \e[1;34mzcat\e[0m … | \e[1;34mtail\e[0m    to search or list file content on gz text files" 
-  echo    "# Substitute potential \r (carriage return) to get sed properyl working …"
-  sed --in-place 's@\r@@g' "Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.rdf"
+  echo    "# Substitute potential \r (carriage return) to get sed properly working …"
+  sed --in-place 's@\r@@g' $(echo "Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.rdf")
   echo    "# Compress all files Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.rdf …"
   gzip --verbose $(echo "Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.rdf")
   echo    "# Compress all files Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.log …"
@@ -571,8 +571,8 @@ else   # PROGRESS_LOGFILE and log into file
   # echo "# Ended:   $datetime_end"   >> "${PROGRESS_LOGFILE}"
   $exec_datediff "$datetime_start" "$datetime_end" -f "# Done. $TOTAL_JOBS jobs took %dd  %0Hh:%0Mm:%0Ss using $N_JOBS parallel connections" >> "${PROGRESS_LOGFILE}"
   echo -e "# Hint: use zgrep or zcat … | tail   to search or list file content on gz text files"  >> "${PROGRESS_LOGFILE}"
-  echo    "# Substitute potential \r (carriage return) to get sed properyl working …" >> "${PROGRESS_LOGFILE}"
-  sed --in-place 's@\r@@g' "Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.rdf" &>> "${PROGRESS_LOGFILE}"
+  echo    "# Substitute potential \r (carriage return) to get sed properly working …" >> "${PROGRESS_LOGFILE}"
+  sed --in-place 's@\r@@g' $(echo "Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.rdf") &>> "${PROGRESS_LOGFILE}"
   echo    "# Compress all files Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.rdf …" >> "${PROGRESS_LOGFILE}"
   gzip --verbose $(echo "Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.rdf") &>> "${PROGRESS_LOGFILE}"
   echo    "# Compress all files Thread-*_${DOMAINNAME}_${DATETIME_NOW_YmdHM}.log …" >> "${PROGRESS_LOGFILE}"
