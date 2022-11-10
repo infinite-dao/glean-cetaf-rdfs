@@ -113,6 +113,9 @@ this_log_is_gz_flag=0
 msg "# ${GREEN}write this_temporary_list.txt${NOFORMAT} …"
 # msg "# ${GREEN}search for pattern ${param_searchpattern}${NOFORMAT} …"
 echo "" > this_temporary_list.txt;
+echo "| URI List (Log File)   |   Date Time     |  Notes and Time |" >> this_temporary_list.txt;
+echo "|-----------------------|-----------------|-------------------------------------------------------------------|" >> this_temporary_list.txt;
+
 for this_logfile in ${param_searchpattern};do 
   msg "# check $this_logfile …"
   this_log_is_gz_flag=$(echo "$this_logfile" | grep --count '.gz$') || this_exit_code=$?
@@ -187,4 +190,4 @@ for this_logfile in ${param_searchpattern};do
 done
 # cat this_temporary_list.txt | tr '\t' '|' | column -t -s '|' | sed -r '/jobs/{ :label.space; s@(jobs.*)\s{2}@\1 @; tlabel.space; } ; '
 # cat this_temporary_list.txt | column -t -s $'\t' | sed -r '/jobs/{ :label.space; s@(jobs.*)\s{2}@\1 @; tlabel.space; } ; '
-cat this_temporary_list.txt  | sed -r 's@[\t]@ | @g;'
+cat this_temporary_list.txt  | sed -r 's@^[\t]@| @g; s@[\t]$@ |@g; s@[\t]@ | @g;'
