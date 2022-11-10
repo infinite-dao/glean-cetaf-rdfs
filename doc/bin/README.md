@@ -29,3 +29,19 @@ Convert markdown to HTML using pandoc (note: `<http://…>` generates also `<a h
  | sed --regexp-extended 's@(https?://[^[:space:]]+)@<\1>@g;' \
  | pandoc -f markdown -t html
 ```
+
+# Print Results from Harvesting
+
+```bash
+./report_harvest_Done-status-and-log-errors.sh --help # show help and options
+./report_harvest_Done-status-and-log-errors.sh \
+  --urilist urilist_BGBM_20221107_todo.tsv \
+  --searchpattern Thread-XX_*_20221110-1227.log.gz
+```
+… this can return a table like this:
+
+```
+| URI List (Log File)   |   Date Time     |  Notes and Time |
+|-----------------------|-----------------|-------------------------------------------------------------------|
+| urilist_BGBM_20221107_todo.tsv  (Thread-XX_herbarium.bgbm.org_20221110-1227.log.gz) | 20221110-1227 | Done. 011556 jobs took 0d 01h:44m:45s using 20 parallel connections, having URI-Errors: 67 |
+```
