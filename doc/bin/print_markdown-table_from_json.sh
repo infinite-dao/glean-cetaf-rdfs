@@ -45,9 +45,9 @@ function usage() {
   echo -e "# (sorting is done as well see «sort … --key=${this_sortByKey_default}» for the field/column: ${this_sortByKey_default%.*})" 1>&2; 
   echo    "#   -h  ........... show this help usage" 1>&2; 
   echo    "#   -k 3.1nr ...... sorting key: by 3rd field, but 2nd column numeric reverse" 1>&2; 
+  echo    "#       b - ignore leading blanks (useful for sorting alphabetically)" 1>&2; 
   echo    "#       n - numeric sorting" 1>&2; 
   echo    "#       r - reverse sorting" 1>&2; 
-  echo    "#       b - ignore leading blanks (useful for sorting alphabetically)" 1>&2; 
   echo    "#       h - human-numeric-sort" 1>&2; 
   echo    "#       f - ignore case, aso. see «man sort»" 1>&2; 
   echo    "#   -d  ........... show debug sorting of columns" 1>&2; 
@@ -99,9 +99,8 @@ fi
 
 this_file_type_summary=$(file "$this_json_file" )
 if ! [[ $(echo "$this_file_type_summary" | grep --ignore-case "json.\+data" ) ]]; then
-    usage; 
-    echo -e "# \e[31mError:\e[0m \e[33m$this_json_file\e[0m seems not to be a JSON file: «$this_file_type_summary» (stop)"
-    exit 1;
+    echo -e "# \e[33mWarning:\e[0m \e[33m$this_json_file\e[0m seems not to be a JSON file: «$this_file_type_summary» (continue)"
+    # exit 1;
 fi
 
 this_sortDebugOption=$( [[ $this_showDebug -gt 0 ]] && echo " --debug " || echo "" )
