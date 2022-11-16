@@ -183,8 +183,12 @@ echo "" >> "$logfile" # final line break
 
 echo -e  "# \e[32mDone\e[0m. Check log file ${logfile} ..."
 echo -e  "\e[34mcat\e[0m ${logfile} \e[2m# read the entire file\e[0m"
-n_warnings=`grep --ignore-case --count '\bwarn\b' ${logfile}`
-n_errors=`grep --ignore-case --count '\berror\b' ${logfile}`
+
+n_warnings=0; exit_code=0;
+n_warnings=$( grep --ignore-case --count '\bwarn\b' ${logfile} ) || exit_code=$? # can have exit 1 (wrap it within if (…) OR (command-with-exit-code 1 || exit_code=$? ) is safe)
+
+n_errors=0;   exit_code=0
+n_errors=$( grep --ignore-case --count '\berror\b' ${logfile} ) || exit_code=$? # can have exit 1 (wrap it within if (…) OR (command-with-exit-code 1 || exit_code=$? ) is safe)
 
 if [[ $(( $n_warnings + $n_errors + 0)) -eq 0 ]];then
 printf   "# \e[32mNo warnings or errors found, using the following command\e[0m\n" 
