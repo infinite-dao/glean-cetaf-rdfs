@@ -8,7 +8,7 @@ set -eu
   # set -E -- traps are pieces of code that fire when a bash script catches certain signals. Aside from the usual signals (e.g. SIGINT, SIGTERM, …), traps can also be used to catch special bash signals like EXIT, DEBUG, RETURN, and ERR. However, reader Kevin Gibbs pointed out that using -e without -E will cause an ERR trap to not fire in certain scenarios.
 # Usage: download RDF files in parallel based on a text urilistfile and compress eventually harvested RDFs
 #   get_RDF4domain_from_urilist.sh -h # get help; see also function usage()
-# dependency: parallel
+# dependency: parallel (2016 )
 # dependency: dateutils
 # dependency: date
 # dependency: sed
@@ -525,13 +525,15 @@ else   # PROGRESS_LOGFILE and log into file
   # take start time
   if   [[ -z ${test_mode// /} ]] ; then
     # echo "# DEBUG script line ${LINENO}: PROGRESS_LOGFILE not zero; test mode zero"
-    echo -e "# Running $TOTAL_JOBS jobs. See progress log files:\n  tail ${PROGRESS_LOGFILE}       # logging all progress or\n  tail ${PROGRESS_LOGFILE%.*}_error.log # loggin errors only: 404 500 aso." 
-    echo -e "# ------------------------------" 1>&2; 
     echo    "# To interrupt all the downloads in progress you have to:" 1>&2; 
     echo -e "#   (1) kill process ID (PID) of \e[34m${0##*/}\e[0m, find it by:" 1>&2; 
     echo -e "#       \e[1;34mps\e[0m\e[1m -fp \$( \e[1;34mpgrep\e[0m\e[1m -d, --full ${0##*/} )\e[0m " 1>&2; 
     echo -e "#   (2) kill process ID (PID) of \e[34m/usr/bin/perl parallel\e[0m, find it by:" 1>&2; 
     echo -e "#       \e[1;34mps\e[0m\e[1m -fp \$( \e[1;34mpgrep\e[0m\e[1m -d, --full parallel )\e[0m " 1>&2; 
+    echo -e "# ------------------------------" 1>&2; 
+    echo -e "# Running $TOTAL_JOBS jobs. See running progress in log files (become later …log.gz!):" 1>&2;
+    echo -e "  tail ${PROGRESS_LOGFILE}       # logging all progress or" 1>&2;
+    echo -e "  tail ${PROGRESS_LOGFILE%.*}_error.log # loggin errors only: 404 500 aso."  1>&2
 
     processinfo             &>> "${PROGRESS_LOGFILE}"
     echo " yes"             &>> "${PROGRESS_LOGFILE}"
@@ -544,13 +546,15 @@ else   # PROGRESS_LOGFILE and log into file
     fi
   else
     # echo "# DEBUG script line ${LINENO}: PROGRESS_LOGFILE not zero; test mode not zero"
-    echo -e "# Running in TEST MODE ($TOTAL_JOBS jobs). See progress log files:\n  tail ${PROGRESS_LOGFILE}       # logging all progress or\n  tail ${PROGRESS_LOGFILE%.*}_error.log # loggin errors only: 404 500 aso." 
-    echo -e "# ------------------------------" 1>&2; 
     echo    "# To interrupt all the downloads in progress you have to:" 1>&2; 
     echo -e "#   (1) kill process ID (PID) of \e[34m${0##*/}\e[0m, find it by:" 1>&2; 
     echo -e "#       \e[1;34mps\e[0m\e[1m -fp \$( \e[1;34mpgrep\e[0m\e[1m -d, --full ${0##*/} )\e[0m " 1>&2; 
     echo -e "#   (2) kill process ID (PID) of \e[34m/usr/bin/perl parallel\e[0m, find it by:" 1>&2; 
     echo -e "#       \e[1;34mps\e[0m\e[1m -fp \$( \e[1;34mpgrep\e[0m\e[1m -d, --full parallel )\e[0m " 1>&2; 
+    echo -e "# ------------------------------" 1>&2; 
+    echo -e "# Running in TEST MODE ($TOTAL_JOBS jobs). See running progress in log files (become later …log.gz!):" 1>&2;
+    echo -e "  tail ${PROGRESS_LOGFILE}       # logging all progress or" 1>&2;
+    echo -e "  tail ${PROGRESS_LOGFILE%.*}_error.log # loggin errors only: 404 500 aso." 1>&2;
     processinfo             &>> "${PROGRESS_LOGFILE}"
     echo " yes"             &>> "${PROGRESS_LOGFILE}"
     if [[ -z ${randomize_urilist// /} ]] ; then
