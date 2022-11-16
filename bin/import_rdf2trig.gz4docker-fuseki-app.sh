@@ -32,6 +32,7 @@ URN_DOMAINNAME='finnland.fi'
 URN_DOMAINNAME='jacq.org'
 URN_DOMAINNAME='data.rbge.org.uk'
 GRAPH='default'
+FILE_SEARCH_PATTERN_NOT=""
 
 FILE_SEARCH_PATTERN="Thread-*${URN_DOMAINNAME}_20211206-1647.rdf._normalized.ttl.trig.gz"
 LOGFILE="Import_Thread-XX-${URN_DOMAINNAME}_${datetime_now}.log"
@@ -232,7 +233,7 @@ while getopts "hd:g:l:s:u:w:" this_opt; do
             ;;
     esac
 done
-shift $((OPTIND-1))
+shift "$((OPTIND-1))"
 
 if [[ -z "${FILE_SEARCH_PATTERN_NOT// /}" ]]; then
 n=`find "${THIS_WD}" -maxdepth 1 -type f -iname "${FILE_SEARCH_PATTERN##*/}" | sort --version-sort | wc -l `
@@ -293,7 +294,8 @@ n_failed_files=`cat "/import-data/${LOGFILE}" | grep "Failed" | wc -l `
 n_created_files=`cat "/import-data/${LOGFILE}" | grep "201 Created" | wc -l `
 n_ok_files=`cat "/import-data/${LOGFILE}" | grep "200 OK" | wc -l `
 echo     "#----------------------------------------"
-echo     "# Done. Check the import log file (if status is «200 OK», then it is fine)"
+printf   "# Done. (\e[32m%02d\e[0m files processed)" $n
+echo     "# Check the import log file (if status is «200 OK» or any other)"
 
 if [[ $n_created_files -gt 0 ]];then
 printf   "# \e[32m%02d\e[0m files report status “\e[32m201 Created\e[0m”\n" $n_created_files
