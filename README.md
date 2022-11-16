@@ -63,15 +63,21 @@ In that way we can query specific GRAPHs and delete, add or overwrite GRAPHs mor
 
 BASH
 - cat, dateutils (for date diff), date, bc, find, gawk, grep, gunzip, gzip, parallel, sed, sort, uniq, wget
-- scripts, and recommended steps up and until import:
+
+Scripts, and recommended steps up and until import:
+  1. [`./get_RDF4domain_from_urilist_with_ETA.sh`](./bin/get_RDF4domain_from_urilist_with_ETA.sh)
+  2. [`./master_RDF_fix-validate-normalize.sh`](./bin/master_RDF_fix-validate-normalize.sh)
+  3. and eventually within the docker-fuseki app: [`./import_rdf2trig.gz4docker-fuseki-app.sh`](./bin/import_rdf2trig.gz4docker-fuseki-app.sh)
+
+… or step by step:
   1. [`./get_RDF4domain_from_urilist_with_ETA.sh`](./bin/get_RDF4domain_from_urilist_with_ETA.sh)
   2. [`./fixRDF_before_validateRDFs.sh`](./bin/fixRDF_before_validateRDFs.sh)
   3. [`./validateRDFs.sh`](./bin/validateRDFs.sh)
   4. convert specifically for instiutions or project data sets, e.g.
-     - [`./convertRDF4import_normal-files_JACQ.sh`](./bin/convertRDF4import_normal-files_JACQ.sh)
-     - [`./convertRDF4import_normal-files_Finland.sh`](./bin/convertRDF4import_normal-files_Finland.sh)
-     - [`./convertRDF4import_normal-files_Paris.sh`](./bin/convertRDF4import_normal-files_Paris.sh) aso.
-     - optional: with the `gawk` program [`./patternsplit.awk`](./bin/patternsplit.awk) to split a large file into handy pieces (e.g. 50MB uncompressed RDF data)
+     - [`./convertRDF4import_normal-files_JACQ.sh`](./bin/convertRDF4import_normal-files_JACQ.sh)
+     - [`./convertRDF4import_normal-files_Finland.sh`](./bin/convertRDF4import_normal-files_Finland.sh)
+     - [`./convertRDF4import_normal-files_Paris.sh`](./bin/convertRDF4import_normal-files_Paris.sh) aso.
+     - optional: with the `gawk` program [`./patternsplit.awk`](./bin/patternsplit.awk) to split a large file into handy pieces (e.g. 50MB uncompressed RDF data)
   5. and eventually within the docker-fuseki app: [`./import_rdf2trig.gz4docker-fuseki-app.sh`](./bin/import_rdf2trig.gz4docker-fuseki-app.sh)
 
 RDF checks
