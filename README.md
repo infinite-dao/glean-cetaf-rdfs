@@ -65,20 +65,21 @@ BASH
 - cat, dateutils (for date diff), date, bc, find, gawk, grep, gunzip, gzip, parallel, sed, sort, uniq, wget
 
 Scripts, and recommended steps up and until import:
-  1. [`./get_RDF4domain_from_urilist_with_ETA.sh`](./bin/get_RDF4domain_from_urilist_with_ETA.sh)
-  2. [`./master_RDF_fix-validate-normalize.sh`](./bin/master_RDF_fix-validate-normalize.sh)
-  3. and eventually within the docker-fuseki app: [`./import_rdf2trig.gz4docker-fuseki-app.sh`](./bin/import_rdf2trig.gz4docker-fuseki-app.sh)
+1. [`./get_RDF4domain_from_urilist_with_ETA.sh`](./bin/get_RDF4domain_from_urilist_with_ETA.sh)
+2. [`./master_RDF_fix-validate-normalize.sh`](./bin/master_RDF_fix-validate-normalize.sh) (RDF fixing, validation, normalising)
+3. and eventually within the docker-fuseki app: [`./import_rdf2trig.gz4docker-fuseki-app.sh`](./bin/import_rdf2trig.gz4docker-fuseki-app.sh)
 
 … or step by step:
-  1. [`./get_RDF4domain_from_urilist_with_ETA.sh`](./bin/get_RDF4domain_from_urilist_with_ETA.sh)
-  2. [`./fixRDF_before_validateRDFs.sh`](./bin/fixRDF_before_validateRDFs.sh)
-  3. [`./validateRDFs.sh`](./bin/validateRDFs.sh)
-  4. convert specifically for instiutions or project data sets, e.g.
-     - [`./convertRDF4import_normal-files_JACQ.sh`](./bin/convertRDF4import_normal-files_JACQ.sh)
-     - [`./convertRDF4import_normal-files_Finland.sh`](./bin/convertRDF4import_normal-files_Finland.sh)
-     - [`./convertRDF4import_normal-files_Paris.sh`](./bin/convertRDF4import_normal-files_Paris.sh) aso.
-     - optional: with the `gawk` program [`./patternsplit.awk`](./bin/patternsplit.awk) to split a large file into handy pieces (e.g. 50MB uncompressed RDF data)
-  5. and eventually within the docker-fuseki app: [`./import_rdf2trig.gz4docker-fuseki-app.sh`](./bin/import_rdf2trig.gz4docker-fuseki-app.sh)
+
+1. [`./get_RDF4domain_from_urilist_with_ETA.sh`](./bin/get_RDF4domain_from_urilist_with_ETA.sh)
+2. [`./fixRDF_before_validateRDFs.sh`](./bin/fixRDF_before_validateRDFs.sh)
+3. [`./validateRDFs.sh`](./bin/validateRDFs.sh)
+4. convert specifically for instiutions or project data sets, e.g.
+    - [`./convertRDF4import_normal-files_JACQ.sh`](./bin/convertRDF4import_normal-files_JACQ.sh)
+    - [`./convertRDF4import_normal-files_Finland.sh`](./bin/convertRDF4import_normal-files_Finland.sh)
+    - [`./convertRDF4import_normal-files_Paris.sh`](./bin/convertRDF4import_normal-files_Paris.sh) aso.
+    - optional: with the `gawk` program [`./patternsplit.awk`](./bin/patternsplit.awk) to split a large file into handy pieces (e.g. 50MB uncompressed RDF data)
+5. and eventually within the docker-fuseki app: [`./import_rdf2trig.gz4docker-fuseki-app.sh`](./bin/import_rdf2trig.gz4docker-fuseki-app.sh)
 
 RDF checks
 - Apache Jena Fuseki<br/>☞&nbsp;[jena.apache.org/download/](https://jena.apache.org/download/index.cgi)
@@ -89,7 +90,7 @@ SPARQL endpoint
 
 ## (0) Getting Data
 
-In any way you have to prepare and check available data first to deliver RDF from an URI aso.. If you get data lists from GBIF, you need to query the `occurrencID`, which GBIF defines it as *«a single globally unique identifier for the occurrence record as provided by the publisher»*, it can be characters or an URI. See also the technical documentation https://www.gbif.org/developer/occurrence#predicates — and to get only herbarium sheets or preserved specimens, and not just observations for instance, use the filter `basisOfRecord` with the value `"PRESERVED_SPECIMEN"`.
+In any way you have to prepare and check available data first to deliver RDF from an URI aso.. If you get data lists from GBIF, you need to query the `occurrencID`, which GBIF defines it as *«a single globally unique identifier for the occurrence record as provided by the publisher»*, it can be characters or an URI. See also the technical documentation https://www.gbif.org/developer/occurrence#predicates — and to get only herbarium sheets or preserved specimens, and not just observations for instance, use the filter `basisOfRecord` with the value `"PRESERVED_SPECIMEN"`.
 
 Another way of getting GBIF data basically is, using the normal (table) interface and click through the occurrences until you get a table and save it locally (“download”), here an example:
 
@@ -306,7 +307,7 @@ cd /opt/jena-fuseki/import-sandbox/rdf/Finland
   #    fix RDF (tag ranges: XML-head; XML-stylesheet; DOCTYPE rdf:RDF aso.) ... 
   # …
   # Time Started: 2022-06-29 13:15:41+02:00
-  # Time Ended:   2022-06-29 13:45:52+02:00
+  # Time Ended:   2022-06-29 13:45:52+02:00
 ```
 
 **2. Compare RDF headers**
