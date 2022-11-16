@@ -349,10 +349,14 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
   # check for decimal numbers to round
   echo -en "# \e[32m      check for geographic digits at 5 digits (about 1m accuracy) ...\e[0m"
   #### Notice:
-  # grepe can find digits but the pattern may not match: this evaluates as exit code 1 
-  # (and using set -e it stops the entire script, so testing it within if … is safe; redirect 2>/dev/null does not help to continue the script)
-  #### Notice:
-  if grep --max-count=1 --only-matching --files-with-matches --extended-regexp '(decimal(Latitude|Longitude)>|wgs84_pos#(lat|long)>) "-?[0-9]+\.[0-9]{6,}"' "${import_ttl_normalized}"; then
+  # grep can find digits but the pattern may not match: this evaluates as exit code 1 
+  # (and using set -e it stops the entire script, so testing it within if (…) OR (command-with-exit-code 1 || exit_code=$? ) is safe; redirect 2>/dev/null does not help to continue the script)
+  exit_code=0;
+  this_files_long_decimal_numbers=$( grep --max-count=1 --only-matching --files-with-matches --extended-regexp '(decimal(Latitude|Longitude)>|wgs84_pos#(lat|long)>) "-?[0-9]+\.[0-9]{6,}"' "${import_ttl_normalized}") \
+    || exit_code=$?
+    
+  if ! [[ -z ${this_files_long_decimal_numbers//[\t ]/} ]];
+  then
     echo -en " \e[32mproceed and round numbers ...\e[0m\n"
       grep --max-count=1 --only-matching --files-with-matches --extended-regexp '(decimal(Latitude|Longitude)>|wgs84_pos#(lat|long)>) "-?[0-9]+\.[0-9]{6,}"' "${import_ttl_normalized}" \
       | while read this_filename ; do perl -i -pe '
@@ -364,11 +368,17 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
   else
     echo -en " \e[32mno numbers to convert\e[0m\n"  
   fi
-
+  
 # plus trig format
-  echo -e  "# \e[32m(3)   create formatted TriG                  ${import_ttl_normalized}.trig ...\e[0m" ;
-  $apache_jena_bin/turtle --validate "${import_ttl_normalized}" > "${log_turtle2trig_warnEtError}" 2>&1
-  $apache_jena_bin/turtle --quiet --output=trig --formatted=trig "${import_ttl_normalized}" > "${import_ttl_normalized}.trig"
+  echo -en  "# \e[32m(3)   create formatted TriG                  ${import_ttl_normalized}.trig ...\e[0m" ;
+  exit_code=0;
+  $apache_jena_bin/turtle --quiet --output=trig --formatted=trig "${import_ttl_normalized}" > "${import_ttl_normalized}.trig" 2>"${log_turtle2trig_warnEtError}" || exit_code=$?
+
+  if [[ ${exit_code} -ne 0 ]]; then 
+  echo -en " \e[32msome warnings/errors (see log file; turtle exit code: ${exit_code})\e[0m\n" ;
+  else 
+  echo -en "\n"
+  fi
 
   echo -e  "# \e[32m(4)   add/check ROR ID; Botany Pilot modifications ... (data.biodiversitydata.nl)\e[0m" ;
   sed --in-place --regexp-extended '
@@ -403,9 +413,9 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
     gzip  --force "${import_ttl_normalized}"
   else
   echo  -e   "# \e[32m(5)   remove parsed file ...\e[0m" ;
-    rm "${import_ttl}"
+    rm -- "${import_ttl}"
   echo  -e   "# \e[32m(5)   remove normalised file ...\e[0m" ;
-    rm "${import_ttl_normalized}"
+    rm -- "${import_ttl_normalized}"
   fi
   
   echo  -e   "# \e[32m(7)   keep and compress normalised trig file for import \e[0m${import_ttl_normalized}.trig.gz\e[32m ...\e[0m" ;
@@ -415,18 +425,18 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
 
   # if [[ `stat --printf="%s" "${rdfFilePath##*/}"*.log ` -eq 0 ]];then
   if [[ `file  $log_rdfparse_warnEtError | awk --field-separator=': ' '{print $2}'` == 'empty' ]]; then
-    echo -e  "# \e[32m(8)   no warnings or errors, remove empty rdfparse log   ...\e[0m" ;
-    rm $log_rdfparse_warnEtError
+    echo -e  "# \e[32m(8)   no warnings or errors: remove empty rdfparse log   ...\e[0m" ;
+    rm -- "${log_rdfparse_warnEtError}"
   else
-    echo -e  "# \e[31m(8)   warnings and errors in rdfparse log (gzip)         ${log_rdfparse_warnEtError}.gz ...\e[0m" ;
+    echo -e  "# \e[31m(8)   warnings and errors: in rdfparse log (gzip)         ${log_rdfparse_warnEtError}.gz ...\e[0m" ;
     gzip --force "${log_rdfparse_warnEtError}"
   fi
   if [[ `file  $log_turtle2trig_warnEtError | awk --field-separator=': ' '{print $2}'` == 'empty' ]]; then
-    echo -e  "# \e[32m      no warnings or errors, remove empty trig log       ...\e[0m" ;
-    rm $log_turtle2trig_warnEtError
+    echo -e  "# \e[32m      no warnings or errors: remove empty trig log       ...\e[0m" ;
+    rm -- "${log_turtle2trig_warnEtError}"
   else
-    echo -e  "# \e[31m      warnings and errors in converting to trig (gzip)   ${log_turtle2trig_warnEtError}.gz ...\e[0m" ;
-    gzip --force "${log_turtle2trig_warnEtError}"
+    echo -e  "# \e[31m      warnings and errors: in converting to trig (gzip)   ${log_turtle2trig_warnEtError}.gz ...\e[0m" ;
+    gzip --force -- "${log_turtle2trig_warnEtError}"
   fi
   if [[ `ls -lt "${rdfFilePath##*/}"*.log 2> /dev/null ` ]]; then
     echo -e  "# \e[31m      warnings and errors in other log files (gzip)      ${rdfFilePath##*/}*.log.gz ...\e[0m" ;
