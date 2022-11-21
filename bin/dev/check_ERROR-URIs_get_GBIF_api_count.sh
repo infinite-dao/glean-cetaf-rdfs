@@ -169,7 +169,7 @@ else
 fi
 if [[ ! -d ${this_temporary_work_directory} ]];then
   msg "${GREEN}Make temporary ${this_temporary_work_directory} –${NOFORMAT}"
-  read -n 1 -p "Go on? (continue: yes or enter; n, no → stop)? " answer
+  read -n 1 -p "  Go on? (continue: yes or enter; n, no → stop)? " answer
   [[ -z "$answer" ]] && answer="Yes" # set 'Yes' on hitting enter (without input)
   
   case $answer in
@@ -191,12 +191,24 @@ msg "${GREEN}Process $n count variables out of GBIF’s api JSON (see ${NOFORMAT
 cd "${this_temporary_work_directory}"
 i=1;
 for this_uri in $( cat ${this_temporary_urilist_file} );do 
-  this_id=${this_uri##*/}
+  this_domain=$( echo "$this_uri" | sed --regexp-extended 's@https?://([^/]+)/.+@\1@' )
+  case $this_domain in
+    herbarium.bgbm.org|data.rbge.org.uk|specimens.kew.org) this_id_file_part=${this_uri##*/} ;; 
+    coldb.mnhn.fr) 
+      this_id_file_part=$( echo "$this_uri" | sed --regexp-extended 's@https?://coldb.mnhn.fr/catalognumber/mnhn/[a-z]+/([^ ]+)$@\1@; s@/@slash@g; ' ) ;; 
+    data.biodiversitydata.nl) 
+      this_id_file_part=$( echo "$this_uri" | sed --regexp-extended 's@https?://data.biodiversitydata.nl/naturalis/specimen/([^ ]+)$@\1@; s@/@slash@g; ' ) ;; 
+    id.smns-bw.org) 
+      this_id_file_part=$( echo "$this_uri" | sed --regexp-extended 's@https?://id.smns-bw.org/smns/collection/([0-9]+/[^ ]+)$@\1@; s@/@slash@g; ' ) ;; 
+    id.snsb.info)   
+      this_id_file_part=$( echo "$this_uri" | sed --regexp-extended 's@https?://id.snsb.info/snsb/collection/([0-9]+/[^ ]+)$@\1@; s@/@slash@g; ' ) ;; 
+    *) this_id_file_part=${this_uri##*/} ;;
+  esac
   # check http and https
   this_uri_http=$( echo $this_uri  | sed --regexp-extended 's@https?(://)@http\1@' ) && this_exit_code=$?
   this_uri_https=$( echo $this_uri | sed --regexp-extended 's@https?(://)@https\1@' ) && this_exit_code=$?
-  this_id_jsonfile_http=$( printf "%s_http_%s.json" $today_date $this_id )
-  this_id_jsonfile_https=$( printf "%s_https_%s.json" $today_date $this_id )
+  this_id_jsonfile_http=$(  printf "%s_http_%s.json"  $today_date $this_id_file_part )
+  this_id_jsonfile_https=$( printf "%s_https_%s.json" $today_date $this_id_file_part )
   this_gbif_occurrence_api_http="https://api.gbif.org/v1/occurrence/search?occurrenceId=$this_uri_http"
   this_gbif_occurrence_api_https="https://api.gbif.org/v1/occurrence/search?occurrenceId=$this_uri_https"
 
@@ -229,7 +241,7 @@ for this_uri in $( cat ${this_temporary_urilist_file} );do
   case $this_count_http  in 0) rm  "$this_id_jsonfile_http" ;; esac
   case $this_count_https in 0) rm  "$this_id_jsonfile_https" ;; esac
   fi
-  if [[ $i -eq $n ]];then printf "\n"; fi
+  if [[ $i -eq $n ]];then printf " %04d\n" $i; fi
   i=$(( i + 1 ))
 done
 
