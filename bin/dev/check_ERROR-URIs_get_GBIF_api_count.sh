@@ -11,6 +11,24 @@ this_temporary_work_directory=${PWD}/check_uri_errorcodes
 this_default_error_log_file=$( cd ${PWD} && ls Thread-*error.log -lt 2>/dev/null | head -n 1 | grep --only-matching 'Thread-X*[^ ]*_error.log' ) && this_exit_code=$?
 [[ -z "${this_default_error_log_file-}" ]] && this_default_error_log_file="no default found, you have to provide one"
 
+check_dependencies() {
+  local exit_flag=0
+  
+  if ! [[ -x "$(command -v grep)" ]]; then
+    printf "${ORANGE}Command${NOFORMAT} grep ${ORANGE}not found: Please install it.${NOFORMAT}\n"; exit_flag=1;
+  fi
+
+  if ! [[ -x "$(command -v jq)" ]]; then
+    printf "${ORANGE}Command${NOFORMAT} jq ${ORANGE}not found: Please install it.${NOFORMAT}\n"; exit_flag=1;
+  fi
+  
+  if ! [[ -x "$(command -v sed)" ]]; then
+    printf "${ORANGE}Command${NOFORMAT} sed ${ORANGE}not found: Please install it.${NOFORMAT}\n"; exit_flag=1;
+  fi
+
+  case $exit_flag in [1-9]) printf "${ORANGE}(stop)${NOFORMAT}\n"; exit 1;; esac
+}
+
 usage() {
   cat << EOF # remove the space between << and EOF, this is due to web plugin issue
 Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [--error_log_file logfile]
@@ -33,6 +51,8 @@ Available options:
     --debug          Print script debug infos (print commands executed)
     --no-color       Print without colors
 EOF
+
+  check_dependencies
   exit
 }
 
@@ -135,6 +155,8 @@ parse_params() {
   # [[ ${#args[@]} -eq 0 ]] && msg "${RED}Missing both files not yet specified to compare from: the done-list and compare-list (stopped).${NOFORMAT}" && usage
   # [[ ${#args[@]} -lt 2 ]] && msg "${RED}Got done list, but the compare list is missing and was not specified (stopped).${NOFORMAT}" && usage
 
+  check_dependencies
+  
   return 0
 }
 
