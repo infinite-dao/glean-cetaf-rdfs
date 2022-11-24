@@ -110,8 +110,6 @@ parse_params() {
   this_error_log_timestamp=""
   this_temporary_urilist_file=urilist_uri_errors_from_${today_date}_error.log
   this_temporary_urilist_json_count_file=urilist_uri_errors_from_${today_date}_gbif_count_json.log
-  this_gbif_occurrenceID_http=""
-  this_gbif_occurrenceID_https=""
   
   # To be able to pass two flags as -ab, instead of -a -b, some additional code would be needed.
   while :; do
@@ -155,6 +153,8 @@ parse_params() {
 
   check_dependencies
   
+  n_uris=$( cat "${this_work_directory}/${this_error_log_file}" | grep --only-matching --extended-regexp 'https?://[^ ]*' | wc -l )
+
   return 0
 }
 
@@ -173,11 +173,10 @@ parse_params "$@"
 # -rw-r--r-- 1 aplank importdata 180610 Oct 13 17:01 Thread-XX_herbarium.bgbm.org_20221013-1628_error.log  - checked → urilist_error_404_20221013-1628_gbif_count_json.log
 # -rw-r--r-- 1 aplank importdata   7018 Aug  1 13:50 Thread-XX_herbarium.bgbm.org_20220801-1152_error.log
 
-n=$( cat "${this_work_directory}/${this_error_log_file}" | grep --only-matching --extended-regexp 'https?://[^ ]*' | wc -l )
-if [[ $n -eq 0 ]];then 
-  cleanup_execute_flag=0; die "${ORANGE}$n URIs found using grep pattern «https?://[^ ]*» in ${this_error_log_file} ${NOFORMAT}(${RED}stop${NOFORMAT})";
+if [[ $n_uris -eq 0 ]];then 
+  cleanup_execute_flag=0; die "${ORANGE}$n_uris URIs found using grep pattern «https?://[^ ]*» in ${this_error_log_file} ${NOFORMAT}(${RED}stop${NOFORMAT})";
 else 
-  msg "${GREEN}$n URIs found in ${NOFORMAT}${this_error_log_file}${GREEN} …${NOFORMAT}"
+  msg "${GREEN}$n_uris URIs found in ${NOFORMAT}${this_error_log_file}${GREEN} …${NOFORMAT}"
   read -n 1 -p "  Go on? (continue: yes or enter; n, no → stop)? " answer
   [[ -z "$answer" ]] && answer="Yes" # set 'Yes' on hitting enter (without input)
   
@@ -205,11 +204,11 @@ cat "${this_work_directory}/${this_error_log_file}" | grep --only-matching --ext
 
 
 
-msg "${GREEN}Process $n URIs from ${NOFORMAT}./${this_temporary_work_directory##*/}/${this_temporary_urilist_file}${GREEN} and get GBIF’s api responses (saved to JSON files) …${NOFORMAT}"
-msg "${GREEN}Process $n count variables out of GBIF’s api JSON (see ${NOFORMAT}$this_error_log_file${GREEN})${NOFORMAT}"
+msg "${GREEN}Process $n_uris URIs from ${NOFORMAT}./${this_temporary_work_directory##*/}/${this_temporary_urilist_file}${GREEN} and get GBIF’s api responses (saved to JSON files) …${NOFORMAT}"
+msg "${GREEN}Process $n_uris count variables out of GBIF’s api JSON (see ${NOFORMAT}$this_error_log_file${GREEN})${NOFORMAT}"
 
 cd "${this_temporary_work_directory}"
-i=1;
+i_uri=1;
 for this_uri in $( cat ${this_temporary_urilist_file} );do 
   this_domain=$( echo "$this_uri" | sed --regexp-extended 's@https?://([^/]+)/.+@\1@' )
   case $this_domain in
@@ -226,7 +225,7 @@ for this_uri in $( cat ${this_temporary_urilist_file} );do
   esac
   # check http and https
   
-  case $i in 1) printf "" > "${this_temporary_urilist_json_count_file}" ;; esac
+  case $i_uri in 1) printf "" > "${this_temporary_urilist_json_count_file}" ;; esac
   for this_protocol in http https; do
     # msg "Process $this_protocol …"
     this_uri_protocol=$( echo $this_uri  | sed --regexp-extended "s@https?(://)@${this_protocol}\1@" ) && this_exit_code=$?
@@ -234,8 +233,8 @@ for this_uri in $( cat ${this_temporary_urilist_file} );do
     this_gbif_occurrence_api_protocol="https://api.gbif.org/v1/occurrence/search?occurrenceId=$this_uri_protocol"
     this_count_protocol=0
     case $verbose_flag in
-    1)  printf "${GREEN}%d of %d (save to %s) …${NOFORMAT}\n" $i  $n "$this_id_jsonfile_protocol" ;;
-    *)  if [[ $(( $i % 100 )) -eq 0 ]] && [[ "${this_protocol-}" == "http" ]] ;then printf ". %04d\n" $i ; else printf "."; fi ;;
+    1)  printf "${GREEN}%d of %d (save to %s) …${NOFORMAT}\n" $i_uri  $n_uris "$this_id_jsonfile_protocol" ;;
+    *)  if [[ $(( $i_uri % 100 )) -eq 0 ]] && [[ "${this_protocol-}" == "http" ]] ;then printf ". %04d\n" $i_uri ; else printf "."; fi ;;
     esac
     case $verbose_flag in
     1)  wget --no-check-certificate --quiet --show-progress --output-document="$this_id_jsonfile_protocol"  "${this_gbif_occurrence_api_protocol}" ;;
@@ -249,11 +248,11 @@ for this_uri in $( cat ${this_temporary_urilist_file} );do
     case $this_count_protocol in # get occurrenceID from http or https to log file
       [1-9])  this_gbif_occurrenceIDs_protocol=$( cat "$this_id_jsonfile_protocol" | jq --raw-output ' . | .results | (map(.occurrenceID) | join("; ") )' ) 
       printf "%d of %d (saved %s, %s) … count: %s … occurrenceID: %s\n" \
-        $i  $n "$this_id_jsonfile_protocol"  "$this_gbif_occurrence_api_protocol"  "$this_count_protocol" "$this_gbif_occurrenceIDs_protocol" \
+        $i_uri  $n_uris "$this_id_jsonfile_protocol"  "$this_gbif_occurrence_api_protocol"  "$this_count_protocol" "$this_gbif_occurrenceIDs_protocol" \
         >> "${this_temporary_urilist_json_count_file}"
       ;; 
       *)  printf "%d of %d (saved %s, %s) … count: %s\n" \
-        $i  $n "$this_id_jsonfile_protocol"  "$this_gbif_occurrence_api_protocol"  "$this_count_protocol" \
+        $i_uri  $n_uris "$this_id_jsonfile_protocol"  "$this_gbif_occurrence_api_protocol"  "$this_count_protocol" \
         >> "${this_temporary_urilist_json_count_file}"
       ;; 
     esac
@@ -262,8 +261,8 @@ for this_uri in $( cat ${this_temporary_urilist_file} );do
     fi
   done # this_protocol
   
-  if [[ $i -eq $n ]];then printf " %04d\n" $i; fi
-  i=$(( i + 1 ))
+  if [[ $i_uri -eq $n_uris ]];then printf " %04d\n" $i_uri; fi
+  i_uri=$(( i_uri + 1 ))
 done
 
 msg "${GREEN}# Done. Show the first 20 entries of GBIF’s count responses in ${NOFORMAT}${this_temporary_work_directory}${GREEN} use:${NOFORMAT}"
