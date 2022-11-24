@@ -286,6 +286,7 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
   fi
   import_ttl="${rdfFilePath}.ttl"
   import_ttl_normalized="${rdfFilePath}.normalized.ttl"
+  import_ttl_normalized_trig="${rdfFilePath}.normalized.ttl.trig"
   log_rdfparse_warnEtError="${rdfFilePath}.ttl-warn-or-error.log"
   log_turtle2trig_warnEtError="${rdfFilePath}.turtle-validate-warn-or-error.log"
   echo "#-----------------------------" ;
@@ -370,9 +371,9 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
   fi
   
 # plus trig format
-  echo -en  "# \e[32m(3)   create formatted TriG                  ${import_ttl_normalized}.trig ...\e[0m" ;
+  echo -en  "# \e[32m(3)   create formatted TriG                  ${import_ttl_normalized_trig} ...\e[0m" ;
   exit_code=0;
-  $apache_jena_bin/turtle --quiet --output=trig --formatted=trig "${import_ttl_normalized}" > "${import_ttl_normalized}.trig" 2>"${log_turtle2trig_warnEtError}" || exit_code=$?
+  $apache_jena_bin/turtle --quiet --output=trig --formatted=trig "${import_ttl_normalized}" > "${import_ttl_normalized_trig}" 2>"${log_turtle2trig_warnEtError}" || exit_code=$?
 
   if [[ ${exit_code} -ne 0 ]]; then 
   echo -en " \e[32msome warnings/errors (see log file; turtle exit code: ${exit_code})\e[0m\n" ;
@@ -417,7 +418,18 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
   s@(<https?)(://www.wikidata.org/entity/)(.+)(\s+[.])@\1\2\3 ;\n        <http://purl.org/dc/terms/isPartOf>  <http\2>\4@;
 }
 
-  '  "${import_ttl_normalized}.trig"
+  '  "${import_ttl_normalized_trig}"
+
+# check https://github.com/infinite-dao/glean-cetaf-rdfs/issues/12
+  exit_code=0;
+  this_file_issue_12=$( grep --max-count=1 --only-matching --files-with-matches --extended-regexp ':associatedMedia> +"[^<>"]*https?://[^<>"]+"' "${import_ttl_normalized_trig}") \
+    || exit_code=$?
+    
+  if ! [[ -z "${this_file_issue_12-}" ]];
+  then
+    echo -en "# \e[32mfix https://github.com/infinite-dao/glean-cetaf-rdfs/issues/12 (associatedMedia as URI) ...\e[0m\n"
+    sed --regexp-extended --in-place 's@(:associatedMedia>) +"[[:space:]]*(https?://[^<>"[:space:]]+)[[:space:]]*"@\1 <\2>@g' "${import_ttl_normalized_trig}"
+  fi
 
   if [[ $debug_mode -gt 0  ]];then
   echo -e    "# \e[32m(5)   keep and compress parsed file          ${import_ttl}.gz for backup ...\e[0m" ;
@@ -431,8 +443,8 @@ for rdfFilePath in `find . -maxdepth 1 -type f -iname "${file_search_pattern}" |
     rm -- "${import_ttl_normalized}"
   fi
   
-  echo  -e   "# \e[32m(7)   keep and compress normalised trig file for import \e[0m${import_ttl_normalized}.trig.gz\e[32m ...\e[0m" ;
-  gzip --force -- "${import_ttl_normalized}.trig"
+  echo  -e   "# \e[32m(7)   keep and compress normalised trig file for import \e[0m${import_ttl_normalized_trig}.gz\e[32m ...\e[0m" ;
+  gzip --force -- "${import_ttl_normalized_trig}"
   echo  -e   "# \e[32m      compress RDF source file ...\e[0m" ;
   gzip --force -- "${rdfFilePath}"
 
