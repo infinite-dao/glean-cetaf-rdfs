@@ -3,14 +3,14 @@
 # glean-cetaf-rdfs (BASH)
 
 Collect and glean RDF data in parallel of stable identifiers of the Consortium of European Taxonomic Facilities (CETAF, ☞&nbsp;[cetaf.org](https://cetaf.org)) and prepare them for import into a SPARQL endpoint. For the documentation of <abbr title="Consortium of European Taxonomic Facilities">CETAF</abbr> identifiers read in&#8239;…
-- the wiki ☞&nbsp;[cetafidentifiers.biowikifarm.net](https://cetafidentifiers.biowikifarm.net)
-- the **C**ETAF **S**pecimen **P**review **P**rofile (CSPP) on ☞&nbsp;[cetafidentifiers.biowikifarm.net/wiki/CSPP](https://cetafidentifiers.biowikifarm.net/wiki/CSPP)
+- the CETAF Stable Identifier Guide ☞&nbsp;[cetafidentifiers.biowikifarm.net](https://cetafidentifiers.biowikifarm.net)
+- the **C**ETAF **S**pecimen **P**review **P**rofile (CSPP) on ☞&nbsp;[cetafidentifiers.biowikifarm.net/wiki/CSPP](https://cetafidentifiers.biowikifarm.net/wiki/CSPP) and perhaps related issues in ☞&nbsp;[cetafidentifiers.biowikifarm.net/wiki/Category:Discussion](https://cetafidentifiers.biowikifarm.net/wiki/Category:Discussion)
 
-So in essence these are *C*ETAF *S*pecimen *P*review *P*rofile (CSPP)-identifiers for the preview a real specimen.
+So in essence: these are identifiers for the preview of a real and individual specimen object, called a *C*ETAF *S*pecimen *P*review *P*rofile (CSPP).
 
 ## Overview
 
-Steps we do:
+Steps we do technically:
 1. get RDF files from the internet and amass those simply in parallel each into a large file
 2. fix large files to be formally correct XML/RDF
 3. validate technically XML/RDF files
