@@ -6,7 +6,7 @@ Collect and glean RDF data in parallel of stable identifiers of the Consortium o
 - the CETAF Stable Identifier Guide ☞&nbsp;[cetafidentifiers.biowikifarm.net](https://cetafidentifiers.biowikifarm.net)
 - the **C**ETAF **S**pecimen **P**review **P**rofile (CSPP) on ☞&nbsp;[cetafidentifiers.biowikifarm.net/wiki/CSPP](https://cetafidentifiers.biowikifarm.net/wiki/CSPP) and perhaps related issues in ☞&nbsp;[cetafidentifiers.biowikifarm.net/wiki/Category:Discussion](https://cetafidentifiers.biowikifarm.net/wiki/Category:Discussion)
 
-So in essence: these are identifiers for the preview of a real and individual specimen object, called a *C*ETAF *S*pecimen *P*review *P*rofile (CSPP).
+So in essence: these are identifiers for the preview of real and individual specimen objects, called a *C*ETAF *S*pecimen *P*review *P*rofile identifiers (or, more casually, “CETAF IDs”).
 
 ## Overview
 
