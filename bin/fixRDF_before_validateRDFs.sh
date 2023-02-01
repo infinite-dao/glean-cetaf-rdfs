@@ -23,6 +23,32 @@ INSTRUCT_TO_PRINT_ONLY_RDF_COMPARISON=0
 exclamation_mark='!';
 n=0;
 
+setup_colors() {
+  # 0 - Normal Style; 1 - Bold; 2 - Dim; 3 - Italic; 4 - Underlined; 5 - Blinking; 7 - Reverse; 8 - Invisible;
+
+  if [[ -t 2 ]] && [[ -z "${NO_COLOR-}" ]] && [[ "${TERM-}" != "dumb" ]]; then
+    NOFORMAT='\033[0m' 
+    BOLD='\033[1m' ITALIC='\033[3m'
+    BLUE='\033[0;34m' BLUE_BOLD='\033[1;34m' BLUE_ITALIC='\033[3;34m' 
+    CYAN='\033[0;36m' CYAN_BOLD='\033[1;36m' CYAN_ITALIC='\033[3;36m' 
+    GREEN='\033[0;32m' GREEN_BOLD='\033[1;32m' GREEN_ITALIC='\033[3;32m' 
+    ORANGE='\033[0;33m' ORANGE_BOLD='\033[1;33m' ORANGE_ITALIC='\033[3;33m' 
+    PURPLE='\033[0;35m' PURPLE_BOLD='\033[1;35m' PURPLE_ITALIC='\033[3;35m' 
+    RED='\033[0;31m' RED_BOLD='\033[1;31m' RED_ITALIC='\033[3;31m' 
+    YELLOW='\033[1;33m' YELLOW_BOLD='\033[1;33m' YELLOW_ITALIC='\033[3;33m'
+  else
+    NOFORMAT='' 
+    BOLD='' ITALIC=''
+    BLUE='' BLUE_BOLD='' BLUE_ITALIC='' 
+    CYAN='' CYAN_BOLD='' CYAN_ITALIC='' 
+    GREEN='' GREEN_BOLD='' GREEN_ITALIC='' 
+    ORANGE='' ORANGE_BOLD='' ORANGE_ITALIC='' 
+    PURPLE='' PURPLE_BOLD='' PURPLE_ITALIC='' 
+    RED='' RED_BOLD='' RED_ITALIC='' 
+    YELLOW='' YELLOW_BOLD='' YELLOW_ITALIC=''
+  fi
+}
+setup_colors
 
 function file_search_pattern_default () {
   printf "Thread-[0-9][0-9]_*_%s-[0-9][0-9][0-9][0-9].rdf" $(date '+%Y%m%d')
@@ -51,17 +77,17 @@ get_timediff_for_njobs_new () {
         doexit=0
         if ! command -v datediff &> /dev/null &&  ! command -v dateutils.ddiff &> /dev/null
         then
-          echo -e "# \e[31mError: Neither command datediff or dateutils.ddiff could not be found. Please install package dateutils.\e[0m"
+          echo -e "# ${RED}Error: Neither command datediff or dateutils.ddiff could not be found. Please install package dateutils.${NOFORMAT}"
           doexit=1
         fi
         if ! command -v sed &> /dev/null 
         then
-          echo -e "# \e[31mError: command sed (stream editor) could not be found. Please install package sed.\e[0m"
+          echo -e "# ${RED}Error: command sed (stream editor) could not be found. Please install package sed.${NOFORMAT}"
           doexit=1
         fi
         if ! command -v bc &> /dev/null 
         then
-          echo -e "# \e[31mError: command bc (arbitrary precision calculator) could not be found. Please install package bc.\e[0m"
+          echo -e "# ${RED}Error: command bc (arbitrary precision calculator) could not be found. Please install package bc.${NOFORMAT}"
           doexit=1
         fi
         if [[ $doexit -gt 1 ]];then
@@ -151,15 +177,15 @@ function usage() {
   echo -e "# fixing aso. is considered in development stage, so checking its" 1>&2; 
   echo -e "# right functioning is still of essence." 1>&2; 
   echo    "# -----------------------------------------------------------------"
-  echo -e "# Usage: \e[32m${0##*/}\e[0m [-s 'Thread*file-search-pattern*.rdf']" 1>&2; 
+  echo -e "# Usage: ${GREEN}${0##*/}${NOFORMAT} [-s 'Thread*file-search-pattern*.rdf']" 1>&2; 
   echo    "#   -h  ...................................... show this help usage" 1>&2; 
   echo    "#   -p  ..... print only RDF header comparison (no file processing)" 1>&2; 
-  echo -e "#   -s  \e[32m'Thread*file-search-pattern*.rdf'\e[0m .... optional specific search pattern" 1>&2; 
+  echo -e "#   -s  ${GREEN}'Thread*file-search-pattern*.rdf'${NOFORMAT} .... optional specific search pattern" 1>&2; 
   echo -e "#       Note: better use quotes for pattern with asterisk '*pattern*'" 1>&2; 
-  echo -e "#       and use a narrow search pattern that really matches the RDF \e[1msource files only\e[0m" 1>&2; 
-  echo -e "#       (default: '\e[32m$(file_search_pattern_default)\e[0m')" 1>&2; 
+  echo -e "#       and use a narrow search pattern that really matches the RDF ${BOLD}source files only${NOFORMAT}" 1>&2; 
+  echo -e "#       (default: '${GREEN}$(file_search_pattern_default)${NOFORMAT}')" 1>&2; 
   echo    "# -----------------------------------------------------------------"
-  echo -e "# Eventually the processed files \e[32m…\e[34m_modified\e[32m.rdf\e[0m are get zip-ed to save space." 1>&2; 
+  echo -e "# Eventually the processed files ${GREEN}…${BLUE}_modified${GREEN}.rdf${NOFORMAT} are get zip-ed to save space." 1>&2; 
   exit 1; 
 }
 
@@ -167,24 +193,25 @@ function processinfo () {
 if [[ $INSTRUCT_TO_PRINT_ONLY_RDF_COMPARISON -gt 0 ]];then
   echo     "################ Fix RDF before validateRDF.sh (print rdf header comparison) #####################"
   echo -e  "# Print only rdf header comparison"
-  echo -e  "# Read directory:  \e[32m${this_wd}\e[0m ..."
-  echo -e  "# Process for search pattern:  \e[32m$file_search_pattern\e[0m ..."
+  echo -e  "# Read directory:  ${GREEN}${this_wd}${NOFORMAT} ..."
+  echo -e  "# Process for search pattern:  ${GREEN}$file_search_pattern${NOFORMAT} ..."
   if [[ ${n} -gt 0 ]];then
-  echo -ne "# Do you want to print out rdf header comparison for \e[32m${n}\e[0m files with search pattern: «\e[32m${file_search_pattern}\e[0m» ?\n# [\e[32myes\e[0m or \e[31mno\e[0m (default: no)]: \e[0m"
+  echo -ne "# Do you want to print out rdf header comparison for ${GREEN}${n}${NOFORMAT} files with search pattern: «${GREEN}${file_search_pattern}${NOFORMAT}» ?\n# [${GREEN}yes${NOFORMAT} or ${RED}no${NOFORMAT} (default: no)]: ${NOFORMAT}"
   else 
-  echo -ne "# \e[0mBy using search pattern: «\e[32m${file_search_pattern}\e[0m» the number of processed files is \e[31m${n}\e[0m.\n# \e[31m(Stop) We stop here; please check or add the correct search pattern, directory and/or data.\e[0m\n";
+  echo -ne "# ${NOFORMAT}By using search pattern: «${GREEN}${file_search_pattern}${NOFORMAT}» the number of processed files is ${RED}${n}${NOFORMAT}.\n"
+  echo -ne "# ${RED}(Stop) We stop here; please check or add the correct search pattern, directory and/or data.${NOFORMAT}\n";
   exit 1;
   fi
 else
   echo     "################ Fix RDF before validateRDF.sh #####################"
-  echo -e  "# Working directory:             \e[32m${this_wd}\e[0m ..."
-  echo -e  "# Files get processed as:        \e[32m…\e[34m_modified\e[32m.rdf\e[0m finally compressed to \e[32m*.rdf.gz\e[0m ..."
-  echo -e  "# Original files are kept untouched and eventually compressed to: \e[32m*.rdf.gz\e[0m ..." # final line break
-  echo -e  "# Do processing for search pattern: \e[32m$file_search_pattern\e[0m ..."
+  echo -e  "# Working directory:             ${GREEN}${this_wd}${NOFORMAT} ..."
+  echo -e  "# Files get processed as:        ${GREEN}…${BLUE}_modified${GREEN}.rdf${NOFORMAT} finally compressed to ${GREEN}*.rdf.gz${NOFORMAT} ..."
+  echo -e  "# Original files are kept untouched and eventually compressed to: ${GREEN}*.rdf.gz${NOFORMAT} ..." # final line break
+  echo -e  "# Do processing for search pattern: ${GREEN}$file_search_pattern${NOFORMAT} ..."
   if [[ ${n} -gt 0 ]];then
-  echo -ne "# Do you want to process \e[32m${n}\e[0m files with above search pattern?\n# [\e[32myes\e[0m or \e[31mno\e[0m (default: no)]: \e[0m"
+  echo -ne "# Do you want to process ${GREEN}${n}${NOFORMAT} files with above search pattern?\n# [${GREEN}yes${NOFORMAT} or ${RED}no${NOFORMAT} (default: no)]: ${NOFORMAT}"
   else 
-  echo -ne "# \e[0mBy using above search pattern the number of processed files is \e[31m${n}\e[0m.\n# \e[31m(Stop) We stop here; please check or add the correct search pattern, directory and/or data.\e[0m\n";
+  echo -ne "# ${NOFORMAT}By using above search pattern the number of processed files is ${RED}${n}${NOFORMAT}.\n# ${RED}(Stop) We stop here; please check or add the correct search pattern, directory and/or data.${NOFORMAT}\n";
   exit 1;
   fi
 fi
@@ -207,7 +234,7 @@ while getopts "s:hp" o; do
             # TODO problems when file_search_pattern is not wrapped by quotes
             this_file_search_pattern=${OPTARG} 
             if [[ $this_file_search_pattern =~ ^- ]];then # the next option was given without this option having an argument
-              echo -e "\e[33mOption Error:\e[0m option -s requires an argument, please specify e.g. \e[3m-s 'Thread*file-search-pattern*.rdf.gz'\e[0m or let it run without -s option (default: '\e[32m$(file_search_pattern_default)\e[0m')."; exit 1;
+              echo -e "${ORANGE}Option Error:${NOFORMAT} option -s requires an argument, please specify e.g. ${ITALIC}-s 'Thread*file-search-pattern*.rdf.gz'${NOFORMAT} or let it run without -s option (default: '${GREEN}$(file_search_pattern_default)${NOFORMAT}')."; exit 1;
             fi
             file_search_pattern=$( [[ -z ${this_file_search_pattern// /} ]] && echo "$(file_search_pattern_default)" || echo "$this_file_search_pattern" );
             ;;
@@ -251,7 +278,7 @@ datetime_start_quoted=`date --rfc-3339 'ns' | ( read -rsd '' x; echo ${x@Q} )`; 
 # check all RDFs
 if [[ $INSTRUCT_TO_PRINT_ONLY_RDF_COMPARISON -eq 0 ]];then
 for this_file in `ls $file_search_pattern | sort --version-sort`; do
-  printf "# \e[32mProcess %03d of %03d in \e[3m%s\e[32m …\e[0m\n" $i $n "${this_file##*/}";
+  printf "# ${GREEN}Process %03d of %03d in ${ITALIC}%s${GREEN} …${NOFORMAT}\n" $i $n "${this_file##*/}";
   
   if [[ $i -gt 1 ]];then
     printf "#    ";  get_timediff_for_njobs_new "$datetime_start" "$(date --rfc-3339 'ns')" "$n" "$((i - 1))"
@@ -266,24 +293,24 @@ for this_file in `ls $file_search_pattern | sort --version-sort`; do
     this_file_modified="${this_file%.*.gz}_modified.rdf";
     this_file_headers_extracted="${this_file%.*.gz}_rdfRDF_headers_extracted.rdf"
     
-    stat --printf="#    \e[32mRead out comperessd\e[0m \e[3m%n\e[0m (%s bytes) using \e[34mzcat\e[0m …" "${this_file}"; printf " > \e[3m%s\e[0m …\n" "${this_file_modified}";
+    stat --printf="#    ${GREEN}Read out comperessd${NOFORMAT} ${ITALIC}%n${NOFORMAT} (%s bytes) using ${BLUE}zcat${NOFORMAT} …" "${this_file}"; printf " > ${ITALIC}%s${NOFORMAT} …\n" "${this_file_modified}";
     zcat "$this_file" > "$this_file_modified"
     
   else
     # assume text/xml
     if ! [[ "${this_file_mimetype}" == "text/xml" ]];then
-      echo -e "#    \e[31mError:\e[0m Please fix wrong file type: $this_file_mimetype, we expects file type “text/xml” (skip to next step)";
+      echo -e "#    ${RED}Error:${NOFORMAT} Please fix wrong file type: $this_file_mimetype, we expects file type “text/xml” (skip to next step)";
       continue;
     else
-    printf "#    \e[32mCopy anew\e[0m \e[3m%s\e[0m for processing …\n" "${this_file_modified}";
+    printf "#    ${GREEN}Copy anew${NOFORMAT} ${ITALIC}%s${NOFORMAT} for processing …\n" "${this_file_modified}";
       cp --force "$this_file" "$this_file_modified"
-      printf "#    \e[32mCompress source file\e[0m \e[3m%s\e[0m (to keep storage minimal)…\n#    " "${this_file}";
+      printf "#    ${GREEN}Compress source file${NOFORMAT} ${ITALIC}%s${NOFORMAT} (to keep storage minimal)…\n#    " "${this_file}";
       gzip --verbose "$this_file"
     fi
   fi
   
   if ! [[ -e "${this_file_modified}" ]]; then
-    echo -e "#    \e[31mError:\e[0m File not found to process: $this_file_modified (skip to next step)";
+    echo -e "#    ${RED}Error:${NOFORMAT} File not found to process: $this_file_modified (skip to next step)";
     continue;
   else
     sed --in-place 's@\r@@g' "${this_file_modified}" # to get sed properly working remove \r
@@ -291,22 +318,22 @@ for this_file in `ls $file_search_pattern | sort --version-sort`; do
   
   this_file_modified_mimetype=$(file --mime-type "${this_file_modified}" | sed -r 's@.*: ([^:]+)@\1@')
   # if ! [[ "${this_file_modified_mimetype}" == "text/xml" ]];then
-  #   echo -e "#    \e[31mError:\e[0m Please fix wrong file type: ${this_file_modified_mimetype}, we expects file type “text/xml” (skip to next step)";
+  #   echo -e "#    ${RED}Error:${NOFORMAT} Please fix wrong file type: ${this_file_modified_mimetype}, we expects file type “text/xml” (skip to next step)";
   #   continue;
   # fi
   case "${this_file_modified_mimetype}" in
     "text/xml") # expected
     ;;
     "text/html")
-    echo -e "#    \e[32mFile seems interupted or seems to have HTML in it (file type: ${this_file_modified_mimetype})\e[0m" 
+    echo -e "#    ${GREEN}File seems interupted or seems to have HTML in it (file type: ${this_file_modified_mimetype})${NOFORMAT}" 
     ;;
     *)
-    echo -e "#    \e[31mError:\e[0m Please fix wrong file type: ${this_file_modified_mimetype}, we expects file type “text/xml” (skip to next step)";
+    echo -e "#    ${RED}Error:${NOFORMAT} Please fix wrong file type: ${this_file_modified_mimetype}, we expects file type “text/xml” (skip to next step)";
     continue;
     ;;
   esac
     
-  echo -e "#    \e[32mExtract all\e[0m <rdf:RDF …> to \e[3m${this_file_headers_extracted}\e[0m ... " 
+  echo -e "#    ${GREEN}Extract all${NOFORMAT} <rdf:RDF …> to ${ITALIC}${this_file_headers_extracted}${NOFORMAT} ... " 
 
   # TODO check correct functioning
   sed --regexp-extended --quiet \
@@ -329,18 +356,18 @@ for this_file in `ls $file_search_pattern | sort --version-sort`; do
   # # # # # # # # 
   # Start modifications
   if [[ $(grep --max-count=1 '<!DOCTYPE html' "${this_file_modified}") ]]; then
-    echo -e "#    \e[32mfix RDF \e[0m(separate DOCTYPE html) ... " 
+    echo -e "#    ${GREEN}fix RDF ${NOFORMAT}(separate DOCTYPE html) ... " 
     sed --regexp-extended --in-place '/<!DOCTYPE html/,/<\/html>/ {
       /<!DOCTYPE html/ {s@<!DOCTYPE html@\n&@; }
       /<\/html>/ {s@<\/html>@\n&\n<!-- DOCTYPE html replaced -->\n@; }
     }; ' "${this_file_modified}"
-    echo -e "#    \e[32mfix RDF \e[0m(delete DOCTYPE html things) ... " 
+    echo -e "#    ${GREEN}fix RDF ${NOFORMAT}(delete DOCTYPE html things) ... " 
     sed --regexp-extended --in-place ' /<!DOCTYPE html/,/<\/html>/{ /<\/html>/!d; s@</html>@<!-- DOCTYPE html replaced -->@; }  ' "${this_file_modified}" #
   fi
 
   n_of_illegal_iri_character_in_urls=`sed -nr '/"https?:\/\/[^"]+[][\x20\xef\x80\xa1\xef\x80\xa2\^\x60\x5c]+[^"]*"/{p}' "${this_file_modified}" | wc -l`
   if [[ $n_of_illegal_iri_character_in_urls -gt 0 ]];then
-    printf   "\e[32m#    fix \e[31millegal or bad IRI characters\e[32m in %s URLs within \"http...double quotes\"...\e[0m\n" $n_of_illegal_iri_character_in_urls;
+    printf   "${GREEN}#    fix ${RED}illegal or bad IRI characters${GREEN} in %s URLs within \"http...double quotes\"...${NOFORMAT}\n" $n_of_illegal_iri_character_in_urls;
     sed --regexp-extended --in-place '
     # fix some characters that should be encoded (see https://www.ietf.org/rfc/rfc3986.txt)
     /"https?:\/\/[^"]+[][\x20\xef\x80\xa1\xef\x80\xa2\^\x60\x5c]+[^"]*"/ { # replace characters that are not allowed in URL
@@ -358,7 +385,7 @@ for this_file in `ls $file_search_pattern | sort --version-sort`; do
   
   n_of_comments_with_double_minus=`grep --ignore-case '<!--.*[^<][^!]--[^>].*-->' "${this_file_modified}" | wc -l`
   if [[ $n_of_comments_with_double_minus -gt 0 ]];then
-    printf   "\e[32m#    fix \e[31mcomments with double minus not permitted\e[32m in %s URLs ...\e[0m\n" $n_of_comments_with_double_minus;
+    printf   "${GREEN}#    fix ${RED}comments with double minus not permitted${GREEN} in %s URLs ...${NOFORMAT}\n" $n_of_comments_with_double_minus;
     sed --regexp-extended --in-place '
     /<!--.*[^<][^!]--[^>].*-->/ {# rdfparse Fatal Error:  (line 75 column 113): The string "--" is not permitted within comments.
       :label.uri_doubleminus_in_comment; s@[[:space:]](https?://.+)--([^>]* -->)@ \1%2D%2D\2@; tlabel.uri_doubleminus_in_comment; # if (s)ubstitution successful (t)ested, go back to label cycle
@@ -367,12 +394,12 @@ for this_file in `ls $file_search_pattern | sort --version-sort`; do
   fi
 
   if [[ $(grep --max-count=1 'rdf:resource="[^"]\+$' "${this_file_modified}" ) ]];then
-    printf   "\e[32m#    fix \e[31mline break in IRI\e[32m within «\e[3mrdf:resource=\"http...line break\"\e[32m ...\n\e[0m";
+    printf   "${GREEN}#    fix ${RED}line break in IRI${GREEN} within «${ITALIC}rdf:resource=\"http...line break\"${GREEN} ...\n${NOFORMAT}";
     sed --regexp-extended --in-place '/rdf:resource="[^"]+$/,/"/{N; s@[[:space:]]*\n[[:space:]]*@@; }' "${this_file_modified}"
   fi
   
 
-  echo -e "#    \e[32mfix common errors \e[0m(also check or fix decimalLatitude decimalLongitude data type) ... " 
+  echo -e "#    ${GREEN}fix common errors ${NOFORMAT}(also check or fix decimalLatitude decimalLongitude data type) ... " 
   sed --regexp-extended --in-place '
     s@(<)([[:alpha:]]+:)(decimalLongitude|decimalLatitude)(>)([^<>,]*),([^<>,]*)(</\2\3>)@\1\2\3 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"\4\5.\6\7@g;
     s@(<)([[:alpha:]]+:)(decimalLongitude|decimalLatitude)(>)([^<>,]*)(</\2\3>)@\1\2\3 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"\4\5\6@g;
@@ -390,7 +417,7 @@ for this_file in `ls $file_search_pattern | sort --version-sort`; do
     # fix https :443 => default HTTPS port should be ommited (tells apache/bin/turtle --validate)  
   ' "${this_file_modified}"
   
-  echo -e "#    \e[32mfix RDF \e[0m(tag ranges: XML-head; XML-stylesheet; DOCTYPE rdf:RDF aso.) ... " 
+  echo -e "#    ${GREEN}fix RDF ${NOFORMAT}(tag ranges: XML-head; XML-stylesheet; DOCTYPE rdf:RDF aso.) ... " 
   
   # better separate multiline replacements into processing steps (instead of merging all sed replacements together)
   sed --regexp-extended --in-place '
@@ -448,7 +475,7 @@ for this_file in `ls $file_search_pattern | sort --version-sort`; do
   # TODO check why regex patterns after this point fail sometimes, e.g. default port replacement
   ' "${this_file_modified}"
   
-  echo -e "#    \e[32msubstitude first <rdf:RDF > \e[0m(use extracted headers from ${this_file_headers_extracted})... " 
+  echo -e "#    ${GREEN}substitude first <rdf:RDF > ${NOFORMAT}(use extracted headers from ${this_file_headers_extracted})... " 
   this_rdf_header_all_extracted=$( sed --regexp-extended --quiet  '/<rdf:RDF/,/>/{ :rdf_anchor;N; /<rdf:RDF[^>]*>/!b rdf_anchor; s@\n@\\n@g;  p; }' "${this_file_headers_extracted}" )
   sed --regexp-extended --in-place "
   0,/<rdf:RDF/{
@@ -464,14 +491,14 @@ done
 
 echo "# -----------------------"
 if [[ $(echo "$file_search_pattern" | grep ".\bgz$") ]]; then
-echo -e  "# \e[32mDone. Original data are kept in \e[0m${file_search_pattern}\e[32m ...\e[0m" # final line break
+echo -e  "# ${GREEN}Done. Original data are kept in ${NOFORMAT}${file_search_pattern}${GREEN} ...${NOFORMAT}" # final line break
 else
-echo -e  "# \e[32mDone. Original data are kept in \e[0m${file_search_pattern}.gz\e[32m ...\e[0m" # final line break
+echo -e  "# ${GREEN}Done. Original data are kept in ${NOFORMAT}${file_search_pattern}.gz${GREEN} ...${NOFORMAT}" # final line break
 fi
 
-echo -e  "# \e[32mEach RDF file should be prepared for validation and could then be imported from this point on.\e[0m" # final line break
-echo -e  "# \e[32mCheck also if the RDF-head is equal to the extracted ones, e.g. in \e[0m${this_file_headers_extracted}\e[32m ...\e[0m" # final line break
-echo -e  "# \e[32mYou can use command pr to print the RDF headers side by side:\e[0m" # final line break
+echo -e  "# ${GREEN}Each RDF file should be prepared for validation and could then be imported from this point on.${NOFORMAT}" # final line break
+echo -e  "# ${GREEN}Check also if the RDF-head is equal to the extracted ones, e.g. in ${NOFORMAT}${this_file_headers_extracted}${GREEN} ...${NOFORMAT}" # final line break
+echo -e  "# ${GREEN}You can use command pr to print the RDF headers side by side:${NOFORMAT}" # final line break
 fi # $INSTRUCT_TO_PRINT_ONLY_RDF_COMPARISON
 
 # file_search_pattern='Thread-*x500000-coldb.mnhn.fr_202203[0-9][0-9]-[0-9][0-9][0-9][0-9].rdf'
@@ -505,7 +532,7 @@ for this_file in `ls ${file_search_pattern} | sort --version-sort `; do
   if [[ -e "${this_file_modified}.gz" ]]; then this_file_modified_is_gz=1; fi
   
   echo    "# -----------------------";
-  printf  "# \e[32mCompare RDF headers %03d of %03d based on \e[3m%s\e[0m …\e[0m\n" $i $n "${this_file##*/}";
+  printf  "# ${GREEN}Compare RDF headers %03d of %03d based on ${ITALIC}%s${NOFORMAT} …${NOFORMAT}\n" $i $n "${this_file##*/}";
   echo -e "# ----------------------- ";
 
   echo    "# -----------------------" >> $logfile_rdf_headers;
@@ -514,26 +541,26 @@ for this_file in `ls ${file_search_pattern} | sort --version-sort `; do
   i=$((i + 1))
   
   if ! [[ -e "$this_file_headers_extracted" ]]; then
-    echo -e "#    \e[31mError:\e[0m \e[3m${this_file_headers_extracted}\e[0m not found (skipping) …"
+    echo -e "#    ${RED}Error:${NOFORMAT} ${ITALIC}${this_file_headers_extracted}${NOFORMAT} not found (skipping) …"
     continue;
   fi
   
   if ! [[ -e "$this_file_modified" ]]; then
     if ! [[ -e "${this_file_modified}.gz" ]]; then 
-    echo -e "#    \e[31mError:\e[0m \e[3m${this_file_modified}\e[0m or \e[3m${this_file_modified}.gz\e[0m not found (skipping) …"
+    echo -e "#    ${RED}Error:${NOFORMAT} ${ITALIC}${this_file_modified}${NOFORMAT} or ${ITALIC}${this_file_modified}.gz${NOFORMAT} not found (skipping) …"
     echo -e "#    Error: ${this_file_modified} or ${this_file_modified}.gz not found (skipping) …"  >> $logfile_rdf_headers
     continue;
     fi
   fi
   
-  echo -e "# \e[32mFor checking unzippd modified files\e[0m …"
+  echo -e "# ${GREEN}For checking unzippd modified files${NOFORMAT} …"
   echo -e "# For checking unzippd modified files …" >> $logfile_rdf_headers
-  echo -e "  \e[34msed\e[0m --quiet --regexp-extended \e[33m'/<rdf:RDF/{ 
+  echo -e "  ${BLUE}sed${NOFORMAT} --quiet --regexp-extended ${ORANGE}'/<rdf:RDF/{ 
     :rdf_anchor;N;
     /<rdf:RDF[^>]*>/${exclamation_mark}b rdf_anchor; 
     s@[[:space:]]+(xmlns:)@\\\n  \1@g; s@\\\n\\\n@\\\n@g; p;
-  }'\e[0m '${this_file_modified}' \\
-  | \e[34mpr\e[0m --page-width 140 --merge --omit-header \\
+  }'${NOFORMAT} '${this_file_modified}' \\
+  | ${BLUE}pr${NOFORMAT} --page-width 140 --merge --omit-header \\
   '${this_file_headers_extracted}' -"; # final line break
   
   echo -e "  sed --quiet --regexp-extended '/<rdf:RDF/{ 
@@ -544,14 +571,14 @@ for this_file in `ls ${file_search_pattern} | sort --version-sort `; do
   | pr --page-width 140 --merge --omit-header \\
   '${this_file_headers_extracted}' -" >> $logfile_rdf_headers  ; # final line break
 
-  echo -e "# \e[32mFor checking zipped modified files\e[0m …"
+  echo -e "# ${GREEN}For checking zipped modified files${NOFORMAT} …"
   echo -e "# For checking zipped modified files …"  >> $logfile_rdf_headers
-  echo -e "  \e[34mzcat\e[0m ${this_file_modified}.gz | \e[34msed\e[0m --quiet --regexp-extended \e[33m'/<rdf:RDF/{ 
+  echo -e "  ${BLUE}zcat${NOFORMAT} ${this_file_modified}.gz | ${BLUE}sed${NOFORMAT} --quiet --regexp-extended ${ORANGE}'/<rdf:RDF/{ 
     :rdf_anchor;N;
     /<rdf:RDF[^>]*>/${exclamation_mark}b rdf_anchor; 
     s@[[:space:]]+(xmlns:)@\\\n  \1@g; s@\\\n\\\n@\\\n@g; p;
-  }'\e[0m \\
-  | \e[34mpr\e[0m --page-width 140 --merge --omit-header \\
+  }'${NOFORMAT} \\
+  | ${BLUE}pr${NOFORMAT} --page-width 140 --merge --omit-header \\
   '${this_file_headers_extracted}' -"; # final line break
   
   echo -e " zcat ${this_file_modified}.gz | sed --quiet --regexp-extended '/<rdf:RDF/{ 
@@ -561,7 +588,7 @@ for this_file in `ls ${file_search_pattern} | sort --version-sort `; do
   }' \\
   | pr --page-width 140 --merge --omit-header \\
   '${this_file_headers_extracted}' -" >> $logfile_rdf_headers  ; # final line break
-  echo -e "# ----------------------- \e[32mLogged also into \e[3m$logfile_rdf_headers\e[0m …\e[0m";
+  echo -e "# ----------------------- ${GREEN}Logged also into ${ITALIC}$logfile_rdf_headers${NOFORMAT} …${NOFORMAT}";
 done
 
 # gzip all *_modified.rdf
@@ -575,12 +602,12 @@ for this_file in `ls ${file_search_pattern} | sort --version-sort `;do
   
   if [[ -e "$this_file_modified" ]];then 
     if [[ -e "${this_file_modified_gz}" ]];then 
-      echo -e "# \e[32mInfo:\e[0m remove old $this_file_modified_gz and replace it …"
+      echo -e "# ${GREEN}Info:${NOFORMAT} remove old $this_file_modified_gz and replace it …"
       rm "$this_file_modified_gz"
     fi
     printf "# File "; gzip --verbose "$this_file_modified"
   else
-    echo -e "# \e[34mWarning:\e[0m expected $this_file_modified but it was not found (skipping)"
+    echo -e "# ${BLUE}Warning:${NOFORMAT} expected $this_file_modified but it was not found (skipping)"
     continue
   fi
 done
