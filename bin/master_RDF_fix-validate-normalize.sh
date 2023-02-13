@@ -9,7 +9,7 @@ script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
 usage() {
   cat <<USAGEMSG # remove the space between << and EOF, this is due to web plugin issue
-Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] -i institute -t timestamp
+Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] -i institute -t timestamp(s)
 
 After harvesting, do the
 - the fixing of stacked RDF sources and proceed with modified files
@@ -20,7 +20,7 @@ Available options:
 -h, --help           Print this help and exit program.
 
 -i, --institute      Which institute to run through the RDF data, e.g. 
-                     - BGBM, Finland, Meise, Naturalis, RBGE, RBGK, Meise
+                     - BGBM, Finland, Meise, Naturalis, Paris, RBGE, RBGK, SMNS, SNSB
 -t, --timestamps     The timestamp to run for
 
 -v, --verbose        Print process messages
@@ -95,7 +95,7 @@ parse_params() {
       case "${timestamps}" in # 20221102-1706
       [0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]) timestamps="$timestamps";;
       [0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]*[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]) timestamps="$timestamps";;
-      *) die "${ORANGE}Not the expected time stamp, e.g. 20221102-1706 but $timestamps(stop)"
+      *) die "${ORANGE}Not the expected time stamp(s), e.g. 20221102-1706, but it was given: $timestamps(stop)"
       esac
      shift
      ;;
@@ -116,7 +116,7 @@ parse_params() {
   # [[ -z "${param-}" ]] && die "Missing required parameter: param"
 #   [[ ${#args[@]} -lt 2 ]] && msg "${RED}Got done list, but the compare list is missing and was not specified (stopped).${NOFORMAT}" && usage
   [[ -z "${institute-}" ]] && [[ -z "${timestamps-}" ]] && die "${ORANGE}Missing institute, e.g. BGBM, Naturalis, Meise, RBGE aso. AND time stamp, e.g. 20221102-1706${NOFORMAT} (stop)"
-  [[ -z "${institute-}" ]] &&  die "${ORANGE}Missing required parameter institute, e.g. BGBM, Naturalis, Meise, RBGE aso.${NOFORMAT} (stop)"
+  [[ -z "${institute-}" ]] &&  die "${ORANGE}Missing required parameter institute—one of: BGBM, Finland, Meise, Naturalis, Paris, RBGE, RBGK, SMNS, SNSB${NOFORMAT} (stop)"
   [[ -z "${timestamps-}" ]] && die "${ORANGE}Missing required parameter timestamps, e.g. 20221102-1706${NOFORMAT} (stop)"
   ! [[ -d ${work_directory-} ]] && die "${ORANGE}Working directory can not be entered, was not found: ${work_directory}${NOFORMAT} (stop)"
 
@@ -145,23 +145,29 @@ this_exit_code=0
   esac
 
   if [[ "${timestamps%% *}" == "${timestamps}" ]]; then
-    msg "# ${institute}: ${GREEN}Files to process (samples):${NOFORMAT}"
+    msg "# ${institute}: ${GREEN}Files to process (first 5 samples):${NOFORMAT}"
     printf "  %s\n" $( ls Thread-*${timestamps%% *}.rdf.gz | head -n 5 )
   else
-    msg "# ${institute}: ${GREEN}Files to process (samples, multiple time stamps):${NOFORMAT}"
+    msg "# ${institute}: ${GREEN}Files to process (first + last 5 samples, with multiple time stamps):${NOFORMAT}"
     printf "  %s\n" $( ls Thread-*${timestamps%% *}.rdf.gz | head -n 5 ) # first
     printf "  …\n"
     printf "  %s\n" $( ls Thread-*${timestamps##* }.rdf.gz | head -n 5 ) # last
   fi
 
-  read -n 1 -p "Go on? (Enter → yes; n no → stop)? " answer
-  [ -z "$answer" ] && answer="Yes" || die " (stop)" # if 'yes' have to be default choice
-
+  read -n 1 -p "  Go on? (continue: yes or enter; n, no → stop)? " answer
+  [[ -z "$answer" ]] && answer="Yes" # set 'Yes' on hitting enter (without input)
+  
+  case $answer in
+  [Yy][Ee][Ss]|[Yy]|[Jj][Aa]|[Jj]) printf "  (${GREEN}continue${NOFORMAT})\n" ;;
+  *) die "  ${NOFORMAT}(${RED}stop${NOFORMAT})";;
+  esac
 
   for this_timestamp in ${timestamps};do 
     file_prefix_pattern=Thread-*${this_timestamp}
     rdf_source_pattern="${file_prefix_pattern}.rdf.gz";
     rdf_modified_pattern="${file_prefix_pattern}_modified.rdf.gz";
+    rdf_modified_normalized_pattern="${file_prefix_pattern}_modified.rdf.normalized.ttl.trig.gz";
+    this_timestamp_reportfile=$(date '+%Y%m%d-%Hh%Mm%Ss') ;
     
     msg "# ${institute}: ---------------------------------------------";
     msg "# ${institute}: ${GREEN}start fix RDF  ${NOFORMAT}${rdf_source_pattern} …";
@@ -169,35 +175,40 @@ this_exit_code=0
     if ! [[ $( find . -maxdepth 1 -mindepth 1 -iname "${rdf_source_pattern-}" ) ]]; then msg "# ${ORANGE}${rdf_source_pattern-} not found${NOFORMAT} (skipped)"; continue; fi
     
     echo 'yes' > answer-yes.txt;
-    /opt/jena-fuseki/import-sandbox/bin/fixRDF_before_validateRDFs.sh -s "${rdf_source_pattern}"  < answer-yes.txt > fixRDF_before_validateRDFs_${institute}_$(date '+%Y%m%d-%Hh%Mm%Ss').log 2>&1 
+    /opt/jena-fuseki/import-sandbox/bin/fixRDF_before_validateRDFs.sh -s "${rdf_source_pattern}"  < answer-yes.txt > fixRDF_before_validateRDFs_${institute}_${this_timestamp_reportfile}.log 2>&1 
     
     msg "# ${institute}: ${GREEN}validate RDF   ${NOFORMAT}${rdf_modified_pattern} …";
     # for this_timestamp in 20221024-1401 20221024-1425;do 
-    this_timestamp_reportfile=$(date '+%Y%m%d-%Hh%Mm%Ss-%N');
     
     echo 'yes' > answer-yes.txt;
     /opt/jena-fuseki/import-sandbox/bin/validateRDFs.sh -s "$rdf_modified_pattern" -l "validate_RDF_${institute}-${this_timestamp_reportfile}.log" < answer-yes.txt  > validate_RDF_${institute}-processing-${this_timestamp_reportfile}.log 2>&1 
-    printf "#   count of warn:  %d\n" $( grep --count --ignore-case 'warn'  validate_RDF_${institute}-${this_timestamp_reportfile}.log ) || this_exit_code=$?
+    printf "#   count of warn:  %d " $( grep --count --ignore-case 'warn'  validate_RDF_${institute}-${this_timestamp_reportfile}.log ) || this_exit_code=$?
+    printf "  # %s\n" validate_RDF_${institute}-${this_timestamp_reportfile}.log
     
     case $this_exit_code in [1-9]|[1-9][0-9]|[1-9][0-9][0-9])
       msg "#   ${ORANGE}exit code ${this_exit_code} $(kill -l $this_exit_code)${NOFORMAT} (?grep …)" ;;
     esac
 
-    printf "#   count of error: %d\n" $( grep --count --ignore-case 'error' validate_RDF_${institute}-${this_timestamp_reportfile}.log ) || this_exit_code=$?
+    printf "#   count of error: %d " $( grep --count --ignore-case 'error' validate_RDF_${institute}-${this_timestamp_reportfile}.log ) || this_exit_code=$?
     case $this_exit_code in [1-9]|[1-9][0-9]|[1-9][0-9][0-9])
       msg "#   ${ORANGE}exit code ${this_exit_code} $(kill -l $this_exit_code)${NOFORMAT} (?grep …)" ;;
     esac
+    printf "  # %s\n" validate_RDF_${institute}-${this_timestamp_reportfile}.log
 
-    msg "# ${institute}: ${GREEN}normalise      ${NOFORMAT}$rdf_modified_pattern …" # all *warn-or-error.log(.gz) should be included in validate logs, so they can be removed
+    msg "# ${institute}: ${GREEN}normalize      ${NOFORMAT}${rdf_modified_normalized_pattern} …" # all *warn-or-error.log(.gz) should be included in validate logs, so they can be removed
     [ $(ls *_modified.rdf*warn-or-error.log* 2> /dev/null | wc -l) -gt 0 ] && rm *_modified.rdf*warn-or-error.log*
     ! [ -e answer-yes.txt ] && echo 'yes' > answer-yes.txt;
-    /opt/jena-fuseki/import-sandbox/bin/convertRDF4import_normal-files_${institute}.sh -s "$rdf_modified_pattern" < answer-yes.txt  > convertRDF4import_normal-files-processing-$(date '+%Y%m%d-%Hh%Mm%Ss').log 2>&1 
+    /opt/jena-fuseki/import-sandbox/bin/convertRDF4import_normal-files_${institute}.sh -s "$rdf_modified_pattern" < answer-yes.txt  > convertRDF4import_normal-files-processing-${this_timestamp_reportfile}.log 2>&1 
     msg "# ${institute}: ${GREEN}Done.${NOFORMAT}"
     msg "# ${institute}: ${GREEN}Use the listing command to see created files:${NOFORMAT}"
-    msg "#  ls -l ${file_prefix_pattern}*"
-    msg "#  ls -l ${file_prefix_pattern}* | sort -k9.45  ${GRAY}# sort by file addendum${NOFORMAT}"
+    msg "#  ${BLUE}ls -l ${file_prefix_pattern}*${NOFORMAT}"
+    msg "#  ${BLUE}ls -l ${file_prefix_pattern}* | sort --key=9.42  ${GRAY}# sort by file addendum${NOFORMAT}"
+    msg "#  ${BLUE}ls -l ${file_prefix_pattern}* | sort --debug --key=9.42  ${GRAY}# sort debugging to see where sort is focused on${NOFORMAT}"
+    msg "#  ${BLUE}head --lines 20 fixRDF_before_validateRDFs_${institute}_${this_timestamp_reportfile}.log   ${GRAY}# log of fixing RDF, all files: ${BLUE}ls fixRDF_before_validateRDFs*.log${NOFORMAT}"
+    msg "#  ${BLUE}head --lines 20 validate_RDF_${institute}-processing-${this_timestamp_reportfile}*.log     ${GRAY}# log of validation, all files: ${BLUE}ls validate_RDF*.log${NOFORMAT}"
+    msg "#  ${BLUE}head --lines 20 validate_RDF_${institute}-${this_timestamp_reportfile}*.log                ${GRAY}# log of validation itself${NOFORMAT}"
+    msg "#  ${BLUE}head --lines 20 convertRDF4import_normal-files-processing-${this_timestamp_reportfile}.log ${GRAY}# log of normalization, all files: ${BLUE}ls convertRDF4import_normal*.log${NOFORMAT}"
     
-
   done
 ) # ( cd … )
 
